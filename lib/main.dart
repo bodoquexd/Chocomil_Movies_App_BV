@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:movies_app_bv/config/router/app_router.dart';
-import 'package:movies_app_bv/theme/app_theme.dart';
+import 'package:chocomil/config/router/app_router.dart';
+import 'package:chocomil/theme/app_theme.dart';
 
 void main() => runApp(const MyApp());
 

@@ -1,1 +1,1 @@
-import 'package:movies_app_bv/presentation/screens/movies/home_screen.dart';
+import 'package:chocomil/presentation/screens/movies/home_screen.dart';
