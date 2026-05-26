@@ -1,6 +1,6 @@
 //importamos GoRouter para manejar las rutas de navegación en la aplicación
 import 'package:go_router/go_router.dart';
-import 'package:chocomil/presentation/screens/screens.dart';
+import 'package:chocomil_movies_app_bv/presentation/screens/screens.dart';
 
 //Usar GoRouter nos ayuda a que nosotros no tengamos que hacer configuraciones especiales si lo queremos en la web
 final appRouter = GoRouter
