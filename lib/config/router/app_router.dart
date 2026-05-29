@@ -1,5 +1,5 @@
 //importamos GoRouter para manejar las rutas de navegación en la aplicación
-import 'package:chocomil_movies_app_bv/presentation/screens/register.dart';
+import 'package:chocomil_movies_app_bv/presentation/screens/register_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/screens.dart';// Ajusta el nombre exacto de tu archivo
 
