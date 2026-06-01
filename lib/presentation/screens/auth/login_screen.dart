@@ -26,10 +26,6 @@ class LoginScreen extends StatelessWidget {
 
               children: [
                 const SizedBox(height: 60),
-
-                //========================
-                // LOGO
-                //========================
                 SizedBox(
                   width: double.infinity,
 
@@ -43,10 +39,6 @@ class LoginScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 30),
-
-                //========================
-                // TITULO
-                //========================
                 const Text(
                   'Iniciar sesión',
 
@@ -60,24 +52,11 @@ class LoginScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 40),
-
-                //========================
-                // INPUT EMAIL
-                //========================
                 const InputWidget(label: 'Correo Electrónico'),
-
                 const SizedBox(height: 20),
-
-                //========================
-                // INPUT PASSWORD
-                //========================
                 const InputWidget(label: 'Contraseña', obscureText: true),
-
                 const SizedBox(height: 40),
 
-                //========================
-                // BOTON
-                //========================
                 SizedBox(
                   width: 150,
 
@@ -85,10 +64,6 @@ class LoginScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 40),
-
-                //========================
-                // REGISTER
-                //========================
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
 

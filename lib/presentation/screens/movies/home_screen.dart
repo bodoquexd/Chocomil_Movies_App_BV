@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class HomeScreen extends StatelessWidget {
 
   //Sirve para rutas de navegacion (Go_Router)
-  static const name = 'home-screen'; 
+  static const name = 'home-screen';
 
   const HomeScreen({super.key});
 
