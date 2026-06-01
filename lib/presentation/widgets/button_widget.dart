@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 // Creamos un widget personalizado llamado ButtonWidget
 // Hereda de StatelessWidget porque el botón no cambia su estado internamente
 class ButtonWidget extends StatelessWidget {
-
   // Variable para guardar el texto que mostrará el boton
   final String texto;
 
@@ -13,16 +12,11 @@ class ButtonWidget extends StatelessWidget {
 
   // Constructor del widget
   // required significa que estos parámetros son obligatorios
-  const ButtonWidget({
-    super.key,
-    required this.texto,
-    required this.onPressed,
-  });
+  const ButtonWidget({super.key, required this.texto, required this.onPressed});
 
   // Metodo build: construye la interfaz visual del widget
   @override
   Widget build(BuildContext context) {
-
     // Retorna un botón elevado
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -30,9 +24,7 @@ class ButtonWidget extends StatelessWidget {
 
         foregroundColor: AppColors.primary,
 
-        padding: const EdgeInsets.symmetric(
-          vertical: 15,
-        )
+        padding: const EdgeInsets.symmetric(vertical: 15),
       ),
 
       // Acción que se ejecuta al presionar el botón
