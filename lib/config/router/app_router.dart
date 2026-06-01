@@ -8,7 +8,7 @@ import 'package:chocomil_movies_app_bv/presentation/screens/auth/login_screen.da
 final appRouter = GoRouter
 (
   // Cambiamos temporalmente la ruta inicial para ver la pantalla de registro al compilar
-  initialLocation: '/register',
+  initialLocation: '/login',
 
   //lista de rutas disponibles en la App
   routes: 
@@ -22,14 +22,15 @@ final appRouter = GoRouter
     ),
 
     GoRoute(
+      path: '/login',
+      name: LoginScreen.name,
+      builder:(context, state) => const LoginScreen(),
+    ),
+
+    GoRoute(
       path: '/register',
       name: RegisterScreen.name,
       builder: (context, state) => const RegisterScreen(),
     ),
-
-    GoRoute(path: '/login',
-    name: LoginScreen.name,
-    builder:(context, state) => const LoginScreen(),
-    )
   ],
 );

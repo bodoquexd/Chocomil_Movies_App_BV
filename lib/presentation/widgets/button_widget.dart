@@ -1,4 +1,4 @@
-import 'package:chocomil_movies_app_bv/resources/colors/color.dart';
+import 'package:chocomil_movies_app_bv/resources/colors.dart';
 import 'package:flutter/material.dart';
 
 // Creamos un widget personalizado llamado ButtonWidget
@@ -26,9 +26,9 @@ class ButtonWidget extends StatelessWidget {
     // Retorna un botón elevado
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: ColorsApp.background,
+        backgroundColor: AppColors.background,
 
-        foregroundColor: ColorsApp.primary,
+        foregroundColor: AppColors.primary,
 
         padding: const EdgeInsets.symmetric(
           vertical: 15,

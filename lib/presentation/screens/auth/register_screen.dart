@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/custom_text_field_widget.dart';
-import 'package:chocomil_movies_app_bv/resources/colors.dart'; 
+import 'package:chocomil_movies_app_bv/resources/colors.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/input_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/button_widget.dart';
 
 class RegisterScreen extends StatelessWidget {
   static const String name = 'register_screen';
@@ -11,8 +12,7 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Llamamos al color desde tu clase AppColors
-      backgroundColor: AppColors.background, 
+      backgroundColor: AppColors.cardBackground, 
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -24,39 +24,36 @@ class RegisterScreen extends StatelessWidget {
                   'Hola! Regístrate para\nempezar',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: AppColors.textWhite,
+                    color: AppColors.textPrimary, 
                     fontSize: 32, 
                     fontWeight: FontWeight.bold
                   ),
                 ),
                 const SizedBox(height: 40),
                 
-                const CustomTextField(hintText: 'Nombre'),
+                // Usando tu nuevo InputWidget
+                const InputWidget(label: 'Nombre'),
                 const SizedBox(height: 16),
-                const CustomTextField(hintText: 'Apellido'),
+                const InputWidget(label: 'Apellido'),
                 const SizedBox(height: 16),
-                const CustomTextField(hintText: 'Correo Electronico'),
+                const InputWidget(label: 'Correo Electrónico'),
                 const SizedBox(height: 16),
-                const CustomTextField(hintText: 'Numero de telefono'),
+                const InputWidget(label: 'Número de teléfono'),
                 const SizedBox(height: 16),
-                const CustomTextField(hintText: 'Contraseña', isPassword: true),
+                // Para las contraseñas, activamos tu propiedad obscureText
+                const InputWidget(label: 'Contraseña', obscureText: true),
                 const SizedBox(height: 16),
-                const CustomTextField(hintText: 'Confirmar contraseña', isPassword: true),
+                const InputWidget(label: 'Confirmar contraseña', obscureText: true),
                 
                 const SizedBox(height: 40),
                 
+                // Usando tu nuevo ButtonWidget
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
+                  // El botón ahora es súper limpio de implementar
+                  child: ButtonWidget(
+                    texto: 'Crear cuenta',
                     onPressed: () => context.go('/'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonBlack // Usando el color centralizado
-                    ),
-                    child: const Text(
-                      'Crear cuenta', 
-                      style: TextStyle(color: AppColors.textAccent) // Usando el color centralizado
-                    ),
                   ),
                 ),
                 
@@ -66,18 +63,24 @@ class RegisterScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      '¿Ya tienes cuenta?', 
-                      style: TextStyle(color: AppColors.textAccent) // Usando el color centralizado
+                      '¿Ya tienes cuenta? ', 
+                      style: TextStyle(color: AppColors.textSecondary)
                     ),
                     TextButton(
                       onPressed: () => context.push('/login'),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
                       child: const Text(
-                        'iniciar sesión', 
-                        style: TextStyle(color: AppColors.textWhite) // Usando el color centralizado
+                        'Iniciar sesión', 
+                        style: TextStyle(color: AppColors.textPrimary) 
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 40),
               ],
             ),
           ),
