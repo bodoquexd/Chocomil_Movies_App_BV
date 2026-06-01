@@ -9,9 +9,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //.router hace que cabie su forma de navegacion a una mas mmoderna es un manejo automatico de rutas
     return MaterialApp.router(
-      routerConfig: appRouter,//Sistema de rutas de la App
+      routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
       title: 'My Movies App',
       theme: AppTheme().getTheme(),
