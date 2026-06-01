@@ -17,7 +17,7 @@ class AppColors {
   static const Color whiteSoft = Color(0xFFF8F8F8);
   static const Color grayLight = Color(0xFFBDBDBD);
 
-    // =========================
+  // =========================
   // TEXTO
   // =========================
 
