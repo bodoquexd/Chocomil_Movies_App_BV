@@ -18,10 +18,14 @@ class LoginScreen extends StatelessWidget {
 
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Center(
+  child: Container(
 
-            child: Column(
+    width: 400,
+
+    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+
+    child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
 
               children: [
@@ -34,7 +38,7 @@ class LoginScreen extends StatelessWidget {
                   child: Image.asset(
                     'assets/images/logo.png',
 
-                    height: 440,
+                    height: 180,
 
                     fit: BoxFit.contain,
                   ),
@@ -112,6 +116,7 @@ class LoginScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }
