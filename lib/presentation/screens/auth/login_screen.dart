@@ -1,97 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/resources/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/input_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/button_widget.dart';
 
 class LoginScreen extends StatelessWidget {
-  static const String name = 'login_screen';
-
+  static const String name = 'login_screen'; 
+  
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // Usamos el fondo oscuro de chocolate
-      backgroundColor: AppColors.cardBackground,
+    final screenSize = MediaQuery.of(context).size;
 
+    return Scaffold(
+      backgroundColor: AppColors.cardBackground, 
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-
+            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.06),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-
               children: [
-                const SizedBox(height: 60),
-                SizedBox(
-                  width: double.infinity,
-
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    height: 440,
-                    fit: BoxFit.contain,
-                  ),
+                SizedBox(height: screenSize.height * 0.05),
+                Image.asset(
+                  'assets/images/logo.png', 
+                  height: screenSize.height * 0.22,
+                  fit: BoxFit.contain,
                 ),
-
-                const SizedBox(height: 30),
-                const Text(
+                
+                SizedBox(height: screenSize.height * 0.03),
+                
+                Text(
                   'Iniciar sesión',
-
-                  style: TextStyle(
+                  style: TextosEstilos.titulo.copyWith(
                     color: AppColors.textSecondary,
-
-                    fontSize: 32,
-
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
+                SizedBox(height: screenSize.height * 0.04),
 
-                const SizedBox(height: 40),
                 const InputWidget(label: 'Correo Electrónico'),
-                const SizedBox(height: 20),
+                SizedBox(height: screenSize.height * 0.02), 
                 const InputWidget(label: 'Contraseña', obscureText: true),
-                const SizedBox(height: 40),
+                SizedBox(height: screenSize.height * 0.05),
 
                 SizedBox(
-                  width: 150,
-
-                  child: ButtonWidget(texto: 'Aceptar', onPressed: () {}),
+                  width: 150, 
+                  child: ButtonWidget(
+                    texto: 'Aceptar',
+                    onPressed: () {},
+                  ),
                 ),
+                SizedBox(height: screenSize.height * 0.05),
 
-                const SizedBox(height: 40),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-
                   children: [
-                    const Text(
+                    Text(
                       '¿No tienes una cuenta? ',
-
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: TextosEstilos.cuerpo.copyWith(color: AppColors.textSecondary),
                     ),
-
                     TextButton(
-                      onPressed: () => context.push('/register'),
-
+                      onPressed: () => context.push('/register'), 
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
-
                         minimumSize: Size.zero,
-
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-
-                      child: const Text(
+                      child: Text(
                         'Regístrate',
-
-                        style: TextStyle(color: AppColors.textPrimary),
+                        style: TextosEstilos.cuerpo.copyWith(fontWeight: FontWeight.bold), 
                       ),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 40),
+                SizedBox(height: screenSize.height * 0.03),
               ],
             ),
           ),

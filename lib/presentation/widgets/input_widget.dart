@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/resources/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles.dart';
 
 class InputWidget extends StatefulWidget {
   final String label;
@@ -28,15 +29,11 @@ class _InputWidgetState extends State<InputWidget> {
   Widget build(BuildContext context) {
     return TextField(
       obscureText: _isObscured,
-
-      style: const TextStyle(
-        color: AppColors.textPrimary,
-      ),
-
+      style: TextosEstilos.cuerpo, 
+      
       decoration: InputDecoration(
         labelText: widget.label,
-
-        labelStyle: const TextStyle(
+        labelStyle: TextosEstilos.cuerpo.copyWith(
           color: AppColors.textPrimary,
         ),
 
@@ -56,17 +53,11 @@ class _InputWidgetState extends State<InputWidget> {
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: AppColors.background,
-          ),
+          borderSide: const BorderSide(color: AppColors.background),
         ),
-
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: AppColors.primary,
-            width: 2,
-          ),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
       ),
     );

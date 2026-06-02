@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/resources/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/input_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/button_widget.dart';
 
@@ -20,18 +21,13 @@ class RegisterScreen extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 60),
-                const Text(
+                Text(
                   'Hola! Regístrate para\nempezar',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.textPrimary, 
-                    fontSize: 32, 
-                    fontWeight: FontWeight.bold
-                  ),
+                  style: TextosEstilos.titulo,
                 ),
                 const SizedBox(height: 40),
                 
-                // Usando tu nuevo InputWidget
                 const InputWidget(label: 'Nombre'),
                 const SizedBox(height: 16),
                 const InputWidget(label: 'Apellido'),
@@ -40,17 +36,14 @@ class RegisterScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 const InputWidget(label: 'Número de teléfono'),
                 const SizedBox(height: 16),
-                // Para las contraseñas, activamos tu propiedad obscureText
                 const InputWidget(label: 'Contraseña', obscureText: true),
                 const SizedBox(height: 16),
                 const InputWidget(label: 'Confirmar contraseña', obscureText: true),
                 
                 const SizedBox(height: 40),
                 
-                // Usando tu nuevo ButtonWidget
                 SizedBox(
                   width: double.infinity,
-                  // El botón ahora es súper limpio de implementar
                   child: ButtonWidget(
                     texto: 'Crear cuenta',
                     onPressed: () => context.go('/'),
@@ -62,9 +55,9 @@ class RegisterScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       '¿Ya tienes cuenta? ', 
-                      style: TextStyle(color: AppColors.textSecondary)
+                      style: TextosEstilos.cuerpo.copyWith(color: AppColors.textSecondary),
                     ),
                     TextButton(
                       onPressed: () => context.push('/login'),
@@ -73,9 +66,9 @@ class RegisterScreen extends StatelessWidget {
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      child: const Text(
+                      child: Text(
                         'Iniciar sesión', 
-                        style: TextStyle(color: AppColors.textPrimary) 
+                        style: TextosEstilos.cuerpo.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
