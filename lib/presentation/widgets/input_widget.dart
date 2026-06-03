@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:chocomil_movies_app_bv/resources/colors.dart';
-import 'package:chocomil_movies_app_bv/resources/styles.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
 class InputWidget extends StatefulWidget {
   final String label;

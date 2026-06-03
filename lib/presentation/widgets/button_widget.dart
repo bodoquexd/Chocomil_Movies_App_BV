@@ -1,4 +1,4 @@
-import 'package:chocomil_movies_app_bv/resources/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:flutter/material.dart';
 
 // Creamos un widget personalizado llamado ButtonWidget
