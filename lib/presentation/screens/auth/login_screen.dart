@@ -13,7 +13,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Usamos el fondo oscuro de chocolate
       backgroundColor: AppColors.cardBackground,
 
       body: SafeArea(

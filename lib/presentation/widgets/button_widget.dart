@@ -14,7 +14,6 @@ class ButtonWidget extends StatelessWidget {
   // required significa que estos parámetros son obligatorios
   const ButtonWidget({super.key, required this.texto, required this.onPressed});
 
-  // Metodo build: construye la interfaz visual del widget
   @override
   Widget build(BuildContext context) {
     // Retorna un botón elevado
