@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:chocomil_movies_app_bv/resources/colors.dart';
-import 'package:chocomil_movies_app_bv/resources/styles.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
 class InputWidget extends StatefulWidget {
   final String label;
   final bool obscureText;
+  final TextInputType? keyboardType;
 
   const InputWidget({
     super.key,
     required this.label,
     this.obscureText = false,
+    this.keyboardType,
   });
 
   @override
@@ -29,14 +31,13 @@ class _InputWidgetState extends State<InputWidget> {
   Widget build(BuildContext context) {
     return TextField(
       obscureText: _isObscured,
-      style: TextosEstilos.cuerpo, 
-      
+      keyboardType: widget.keyboardType,
+      style: TextosEstilos.cuerpo,
       decoration: InputDecoration(
         labelText: widget.label,
         labelStyle: TextosEstilos.cuerpo.copyWith(
           color: AppColors.textPrimary,
         ),
-
         suffixIcon: widget.obscureText
             ? IconButton(
                 icon: Icon(
@@ -50,7 +51,6 @@ class _InputWidgetState extends State<InputWidget> {
                 },
               )
             : null,
-
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: AppColors.background),
