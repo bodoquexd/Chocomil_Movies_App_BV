@@ -22,7 +22,7 @@ class TextosEstilos {
 
   static final boton = GoogleFonts.inter(
     fontSize: 16,
-    fontWeight: FontWeight.bold, 
+    fontWeight: FontWeight.bold,
     color: AppColors.textSecondary,
   );
 }

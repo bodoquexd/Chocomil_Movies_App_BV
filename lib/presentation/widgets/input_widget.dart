@@ -11,7 +11,7 @@ class InputWidget extends StatefulWidget {
     super.key,
     required this.label,
     this.obscureText = false,
-    this.keyboardType,
+       this.keyboardType,
   });
 
   @override
@@ -32,12 +32,14 @@ class _InputWidgetState extends State<InputWidget> {
     return TextField(
       obscureText: _isObscured,
       keyboardType: widget.keyboardType,
-      style: TextosEstilos.cuerpo,
+      style: TextosEstilos.cuerpo, 
+      
       decoration: InputDecoration(
         labelText: widget.label,
         labelStyle: TextosEstilos.cuerpo.copyWith(
           color: AppColors.textPrimary,
         ),
+
         suffixIcon: widget.obscureText
             ? IconButton(
                 icon: Icon(
@@ -51,6 +53,7 @@ class _InputWidgetState extends State<InputWidget> {
                 },
               )
             : null,
+
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: AppColors.background),
