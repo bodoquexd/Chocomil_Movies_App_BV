@@ -87,8 +87,8 @@ class LoginScreen extends StatelessWidget {
 
                     TextButton(
                       onPressed: () => context.push('/register'),
-
                       style: TextButton.styleFrom(
+
                         padding: EdgeInsets.zero,
 
                         minimumSize: Size.zero,
