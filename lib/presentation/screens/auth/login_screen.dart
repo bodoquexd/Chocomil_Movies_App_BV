@@ -56,23 +56,19 @@ class LoginScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 40),
 
                 // input gmail
                 const InputWidget(label: 'Correo Electrónico'),
-
                 const SizedBox(height: 20),
 
                 // input contraseña
                 const InputWidget(label: 'Contraseña', obscureText: true),
-
                 const SizedBox(height: 40),
 
                 // boton
                 SizedBox(
                   width: 150,
-
                   child: ButtonWidget(texto: 'Aceptar', onPressed: () {}),
                 ),
 
