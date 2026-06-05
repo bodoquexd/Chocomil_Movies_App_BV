@@ -5,11 +5,13 @@ import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 class InputWidget extends StatefulWidget {
   final String label;
   final bool obscureText;
+  final TextInputType? keyboardType;
 
   const InputWidget({
     super.key,
     required this.label,
     this.obscureText = false,
+       this.keyboardType,
   });
 
   @override
@@ -29,6 +31,7 @@ class _InputWidgetState extends State<InputWidget> {
   Widget build(BuildContext context) {
     return TextField(
       obscureText: _isObscured,
+      keyboardType: widget.keyboardType,
       style: TextosEstilos.cuerpo, 
       
       decoration: InputDecoration(

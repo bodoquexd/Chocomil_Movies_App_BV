@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 class ButtonWidget extends StatelessWidget {
   // Variable para guardar el texto que mostrará el boton
   final String texto;
-
   // Variable para guardar la función que se ejecutará al presionar el boton
   final VoidCallback onPressed;
 
@@ -20,15 +19,11 @@ class ButtonWidget extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.background,
-
         foregroundColor: AppColors.primary,
-
         padding: const EdgeInsets.symmetric(vertical: 15),
       ),
-
       // Acción que se ejecuta al presionar el botón
       onPressed: onPressed,
-
       // Contenido interno del botón
       // Muestra el texto recibido en la variable texto
       child: Text(texto),

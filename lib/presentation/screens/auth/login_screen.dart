@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/input_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/button_widget.dart';
@@ -57,23 +56,19 @@ class LoginScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 40),
 
                 // input gmail
                 const InputWidget(label: 'Correo Electrónico'),
-
                 const SizedBox(height: 20),
 
                 // input contraseña
                 const InputWidget(label: 'Contraseña', obscureText: true),
-
                 const SizedBox(height: 40),
 
                 // boton
                 SizedBox(
                   width: 150,
-
                   child: ButtonWidget(texto: 'Aceptar', onPressed: () {}),
                 ),
 
