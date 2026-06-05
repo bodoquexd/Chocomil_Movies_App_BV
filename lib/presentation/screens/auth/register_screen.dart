@@ -53,7 +53,8 @@ class RegisterScreen extends StatelessWidget {
 
                 SizedBox(
                   width: double.infinity,
-                  child: ButtonWidget(texto: 'Crear Cuenta', onPressed: () {}),),
+                  child: ButtonWidget(texto: 'Crear Cuenta', onPressed: () {}),
+                ),
 
                 const SizedBox(height: 24),
 

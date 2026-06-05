@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+//que sea mas corto la direccion
 import 'package:chocomil_movies_app_bv/presentation/screens/auth/register_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/screens.dart';
+//que sea mas corto la direccion
 import 'package:chocomil_movies_app_bv/presentation/screens/auth/login_screen.dart';
 
 final appRouter = GoRouter( 
