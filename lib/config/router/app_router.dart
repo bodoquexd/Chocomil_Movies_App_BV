@@ -1,36 +1,80 @@
-//importamos GoRouter para manejar las rutas de navegación en la aplicación
-import 'package:chocomil_movies_app_bv/presentation/screens/auth/register_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/screens.dart';
-import 'package:chocomil_movies_app_bv/presentation/screens/auth/login_screen.dart';// Ajusta el nombre exacto de tu archivo
+import 'package:chocomil_movies_app_bv/presentation/screens/auth/login_screen.dart';
+import 'package:chocomil_movies_app_bv/presentation/screens/auth/register_screen.dart';
+import 'package:chocomil_movies_app_bv/presentation/screens/splash/splash_screen.dart';
 
-//Usar GoRouter nos ayuda a que nosotros no tengamos que hacer configuraciones especiales si lo queremos en la web
-final appRouter = GoRouter
-(
-  // Cambiamos temporalmente la ruta inicial para ver la pantalla de registro al compilar
-  initialLocation: '/login',
+final appRouter = GoRouter(
+  initialLocation: '/splash',
+  routes: [
 
-  //lista de rutas disponibles en la App
-  routes: 
-  [
+    // Splash
     GoRoute(
-      //URL de la ruta
-      path: '/',
-      //Nombre de la ruta (Util para la navegación)
-      name: HomeScreen.name,
-      builder: (context, state) => const HomeScreen(),
+      path: '/splash',
+      name: 'splash',
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const SplashScreen(),
+        transitionsBuilder:
+            (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
     ),
 
+    // Home
+    GoRoute(
+      path: '/',
+      name: HomeScreen.name,
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const HomeScreen(),
+        transitionsBuilder:
+            (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
+    ),
+
+    // Login
     GoRoute(
       path: '/login',
       name: LoginScreen.name,
-      builder:(context, state) => const LoginScreen(),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const LoginScreen(),
+        transitionsBuilder:
+            (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
     ),
 
+    // Register
     GoRoute(
       path: '/register',
       name: RegisterScreen.name,
-      builder: (context, state) => const RegisterScreen(),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const RegisterScreen(),
+        transitionsBuilder:
+            (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
     ),
   ],
 );

@@ -1,121 +1,125 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import 'package:chocomil_movies_app_bv/resources/colors.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/input_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/button_widget.dart';
 
 class LoginScreen extends StatelessWidget {
-  static const String name = 'login_screen';
-
+  static const String name = 'login_screen'; 
+  
   const LoginScreen({super.key});
+
+  Future<void> _authenticate(BuildContext context) async {
+    final LocalAuthentication auth = LocalAuthentication();
+    bool authenticated = false;
+
+    try {
+      authenticated = await auth.authenticate(
+        localizedReason: 'Autentícate para ingresar a la cuenta',
+        persistAcrossBackgrounding: true,
+        biometricOnly: false,
+      );
+    } catch (e) {
+      return;
+    }
+
+    if (authenticated && context.mounted) {
+      context.go('/');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.cardBackground,
+    final screenSize = MediaQuery.of(context).size;
 
+    return Scaffold(
+      backgroundColor: AppColors.cardBackground, 
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Center(
-  child: Container(
-
-    width: 400,
-
-    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-
-    child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.06),
+            child: Column(
               children: [
-                const SizedBox(height: 60),
+                SizedBox(height: screenSize.height * 0.05),
 
-                // logo
-                SizedBox(
-                  width: double.infinity,
-
-                  child: Image.asset(
-                    'assets/images/logo.png',
-
-                    height: 180,
-
-                    fit: BoxFit.contain,
-                  ),
+                Image.asset(
+                  'assets/images/logo.png', 
+                  height: screenSize.height * 0.22,
+                  fit: BoxFit.contain, 
                 ),
-
-                const SizedBox(height: 30),
-
-                // titulo
-                const Text(
+                
+                SizedBox(height: screenSize.height * 0.03),
+                
+                Text(
                   'Iniciar sesión',
-
-                  style: TextStyle(
+                  style: TextosEstilos.titulo.copyWith(
                     color: AppColors.textSecondary,
+                  ),
+                ),
+                
+                SizedBox(height: screenSize.height * 0.04),
 
-                    fontSize: 32,
+                const InputWidget(
+                  label: 'Correo Electrónico',
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                SizedBox(height: screenSize.height * 0.02), 
+                const InputWidget(
+                  label: 'Contraseña', 
+                  obscureText: true,
+                ),
+                
+                SizedBox(height: screenSize.height * 0.05),
 
-                    fontWeight: FontWeight.bold,
+                SizedBox(
+                  width: 150, 
+                  child: ButtonWidget(
+                    texto: 'Aceptar',
+                    onPressed: () {},
+                  ),
+                ),
+                
+                SizedBox(height: screenSize.height * 0.03),
+
+                IconButton(
+                  onPressed: () => _authenticate(context),
+                  icon: const Icon(
+                    Icons.fingerprint,
+                    size: 50,
+                    color: AppColors.primary,
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                SizedBox(height: screenSize.height * 0.03),
 
-                // input gmail
-                const InputWidget(label: 'Correo Electrónico'),
-
-                const SizedBox(height: 20),
-
-                // input contraseña
-                const InputWidget(label: 'Contraseña', obscureText: true),
-
-                const SizedBox(height: 40),
-
-                // boton
-                SizedBox(
-                  width: 150,
-
-                  child: ButtonWidget(texto: 'Aceptar', onPressed: () {}),
-                ),
-
-                const SizedBox(height: 40),
-
-                // register
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-
                   children: [
-                    const Text(
+                    Text(
                       '¿No tienes una cuenta? ',
-
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: TextosEstilos.cuerpo.copyWith(color: AppColors.textSecondary),
                     ),
-
                     TextButton(
-                      onPressed: () => context.push('/register'),
-
+                      onPressed: () => context.push('/register'), 
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
-
                         minimumSize: Size.zero,
-
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-
-                      child: const Text(
+                      child: Text(
                         'Regístrate',
-
-                        style: TextStyle(color: AppColors.textPrimary),
+                        style: TextosEstilos.cuerpo.copyWith(fontWeight: FontWeight.bold), 
                       ),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 40),
+                SizedBox(height: screenSize.height * 0.03),
               ],
             ),
           ),
         ),
-      ),
       ),
     );
   }

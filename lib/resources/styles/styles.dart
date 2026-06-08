@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:chocomil_movies_app_bv/resources/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 
 class TextosEstilos {
 
