@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,14 +17,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Timer(const Duration(seconds: 2), () {
       if (!mounted) return;
-      context.go('/login'); // o '/home' según tu flujo
+      context.go('/login');
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 47, 39, 37),
+      backgroundColor: AppColors.buttonPrimary,
       body: Center(
         child: Image.asset(
           'assets/images/splash.png',
