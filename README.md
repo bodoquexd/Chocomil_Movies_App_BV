@@ -1,6 +1,7 @@
 # chocomil_movies_app_bv
 
-A new Flutter project.
+1.copia .env.template y renombrelo a .env
+2.Combiar las variables 
 
 ## Getting Started
 
