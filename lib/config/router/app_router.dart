@@ -4,6 +4,8 @@ import 'package:chocomil_movies_app_bv/presentation/screens/screens.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/auth/login_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/auth/register_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/splash/splash_screen.dart';
+import 'package:chocomil_movies_app_bv/presentation/screens/movies/home_screen.dart';
+
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
@@ -28,7 +30,7 @@ final appRouter = GoRouter(
 
     // Home
     GoRoute(
-      path: '/',
+      path: '/home',
       name: HomeScreen.name,
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,

@@ -12,6 +12,7 @@ import 'package:chocomil_movies_app_bv/config/constants/environment.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String name = 'login_screen';
+//import 'package:chocomil_movies_app_bv/presentation/screens/movies/home_screen.dart';
 
   const LoginScreen({super.key});
 
@@ -154,6 +155,8 @@ class _LoginScreenState extends State<LoginScreen> {
           });
         }
       }
+    if (authenticated && context.mounted) {
+      context.go('/home');
     }
   }
 
@@ -216,6 +219,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           texto: 'Aceptar',
                           onPressed: _loginConServidor,
                         ),
+                  width: 150, 
+                  child: ButtonWidget(
+                    texto: 'Aceptar',
+                    onPressed: () {
+                      context.go('/home');
+                    },
+                  ),
                 ),
 
                 SizedBox(height: screenSize.height * 0.03),
