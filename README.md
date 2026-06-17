@@ -1,7 +1,7 @@
 # chocomil_movies_app_bv
 
 1.copia .env.template y renombrelo a .env
-2.Combiar las variables 
+2.Combiar las variables
 
 ## Getting Started
 

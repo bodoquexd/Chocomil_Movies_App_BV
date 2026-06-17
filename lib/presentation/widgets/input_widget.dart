@@ -6,12 +6,14 @@ class InputWidget extends StatefulWidget {
   final String label;
   final bool obscureText;
   final TextInputType? keyboardType;
+  final TextEditingController? controller; 
 
   const InputWidget({
     super.key,
     required this.label,
     this.obscureText = false,
-       this.keyboardType,
+    this.keyboardType,
+    this.controller, 
   });
 
   @override
@@ -30,6 +32,7 @@ class _InputWidgetState extends State<InputWidget> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: widget.controller, 
       obscureText: _isObscured,
       keyboardType: widget.keyboardType,
       style: TextosEstilos.cuerpo, 
