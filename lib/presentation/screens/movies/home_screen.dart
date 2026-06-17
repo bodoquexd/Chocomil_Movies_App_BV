@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,6 +6,8 @@ import 'package:chocomil_movies_app_bv/presentation/widgets/search_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/featured_movie_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/footer_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/botton_nav_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String name = 'home_screen';
@@ -336,7 +336,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           const SizedBox(height: 30),
+
+          const FooterWidget(),
+
+          const SizedBox(height: 20),
         ],
+      ),
+      bottomNavigationBar: const BottomNavWidget(
+        currentIndex: 0,
       ),
     );
   }
