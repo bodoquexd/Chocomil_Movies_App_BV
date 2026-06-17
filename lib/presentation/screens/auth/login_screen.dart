@@ -5,7 +5,7 @@ import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/input_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/button_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/screens/movies/home_screen.dart';
+//import 'package:chocomil_movies_app_bv/presentation/screens/movies/home_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String name = 'login_screen'; 
