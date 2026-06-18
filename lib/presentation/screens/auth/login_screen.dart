@@ -12,7 +12,6 @@ import 'package:chocomil_movies_app_bv/config/constants/environment.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String name = 'login_screen';
-//import 'package:chocomil_movies_app_bv/presentation/screens/movies/home_screen.dart';
 
   const LoginScreen({super.key});
 
@@ -62,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await _storage.write(key: 'has_credentials', value: 'true');
 
         if (mounted) {
-          context.go('/');
+          context.go('/home');
         }
       } else {
         if (mounted) {
@@ -88,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
   }
+
   Future<void> _authenticate(BuildContext context) async {
     String? hasCredentials = await _storage.read(key: 'has_credentials');
     
@@ -126,14 +126,14 @@ class _LoginScreenState extends State<LoginScreen> {
           url,
           headers: {
             'Content-Type': 'application/json',
-            'bypass-tunnel-reminder': 'true',
+            'bypass-tunnel-reminder': 'true', 
           },
           body: jsonEncode({'email': email, 'password': password}),
         ).timeout(const Duration(seconds: 10));
 
         if (response.statusCode == 200) {
           if (context.mounted) { 
-            context.go('/');
+            context.go('/home');
           }
         } else {
           if (context.mounted) { 
@@ -155,10 +155,8 @@ class _LoginScreenState extends State<LoginScreen> {
           });
         }
       }
-    if (authenticated && context.mounted) {
-      context.go('/home');
     }
-  }
+  } 
 
   @override
   void dispose() {
@@ -219,13 +217,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           texto: 'Aceptar',
                           onPressed: _loginConServidor,
                         ),
-                  width: 150, 
-                  child: ButtonWidget(
-                    texto: 'Aceptar',
-                    onPressed: () {
-                      context.go('/home');
-                    },
-                  ),
                 ),
 
                 SizedBox(height: screenSize.height * 0.03),
