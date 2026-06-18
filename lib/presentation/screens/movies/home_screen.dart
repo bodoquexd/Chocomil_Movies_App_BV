@@ -5,7 +5,6 @@ import 'package:chocomil_movies_app_bv/presentation/widgets/search_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/featured_movie_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/footer_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/botton_nav_widget.dart';
 import 'package:chocomil_movies_app_bv/infrastructure/services/movie_service.dart';
 
