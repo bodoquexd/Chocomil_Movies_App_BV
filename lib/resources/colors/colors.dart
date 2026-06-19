@@ -34,4 +34,5 @@ class AppColors {
 
   static const Color background = Color(0xFFF3F3F3);
   static const Color cardBackground = primaryDark;
+  static const Color backgroundBlack = Colors.black;
 }

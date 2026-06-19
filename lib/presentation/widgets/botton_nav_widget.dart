@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 
 class BottomNavWidget extends StatefulWidget {
   final int currentIndex;
@@ -55,7 +56,9 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isActive ? Colors.white.withOpacity(0.08) : Colors.transparent,
+            color: isActive 
+                ? Colors.white.withOpacity(0.12) 
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(18),
           ),
           child: AnimatedScale(
@@ -63,7 +66,7 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
             scale: isActive ? 1.2 : 1.0,
             child: Icon(
               icon,
-              color: isActive ? Colors.white : Colors.white54,
+              color: isActive ? Colors.white : AppColors.grayLight,
               size: 26,
             ),
           ),
@@ -76,10 +79,11 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
   Widget build(BuildContext context) {
     return Container(
       height: 75,
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F0F0F),
+      decoration: BoxDecoration(
+        color: Colors.black, 
         border: Border(
-          top: BorderSide(color: Colors.white12),
+          // Una línea muy sutil arriba para que no se pierda contra fondos oscuros
+          top: BorderSide(color: Colors.white.withOpacity(0.1)), 
         ),
       ),
       child: Row(

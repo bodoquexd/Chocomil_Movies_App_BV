@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
 class MovieCardWidget extends StatelessWidget {
   final String title;
@@ -15,42 +17,29 @@ class MovieCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 180,
-
+      width: 180, 
       child: Card(
         elevation: 8,
-        color: const Color(0xFF1E1E1E),
-
+        color: AppColors.backgroundBlack,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-
         clipBehavior: Clip.antiAlias,
-
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
-
-            // Imagen de la película
             Expanded(
               child: Image.network(
                 imageUrl,
                 width: double.infinity,
-                fit: BoxFit.cover,
-
-                errorBuilder: (
-                  context,
-                  error,
-                  stackTrace,
-                ) {
+                fit: BoxFit.cover, 
+                errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: Colors.grey.shade800,
-
+                    color: AppColors.primary,
                     child: const Center(
                       child: Icon(
                         Icons.movie,
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         size: 50,
                       ),
                     ),
@@ -59,57 +48,44 @@ class MovieCardWidget extends StatelessWidget {
               ),
             ),
 
-            // Información de la película
-            Padding(
-              padding: const EdgeInsets.all(10),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-
-                children: [
-
-                  Text(
-                    title,
-
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+            SizedBox(
+              height: 75, 
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribuye el título y las estrellas
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextosEstilos.cuerpo.copyWith(
+                        fontWeight: FontWeight.bold,
+                        height: 1.1,
+                      ),
                     ),
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  Row(
-                    children: [
-
-                      const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: 16,
-                      ),
-
-                      const SizedBox(width: 4),
-
-                      Text(
-                        rating.toStringAsFixed(1),
-
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 13,
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star,
+                          color: AppColors.primaryLight,
+                          size: 16,
                         ),
-                      ),
-
-                    ],
-                  ),
-
-                ],
+                        const SizedBox(width: 4),
+                        Text(
+                          rating.toStringAsFixed(1),
+                          style: TextosEstilos.cuerpo.copyWith(
+                            color: AppColors.grayLight,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-
           ],
         ),
       ),
