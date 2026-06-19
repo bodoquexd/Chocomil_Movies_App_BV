@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
@@ -36,6 +37,12 @@ class _InputWidgetState extends State<InputWidget> {
       obscureText: _isObscured,
       keyboardType: widget.keyboardType,
       style: TextosEstilos.cuerpo, 
+      inputFormatters: widget.keyboardType == TextInputType.phone 
+          ? [
+              FilteringTextInputFormatter.digitsOnly, 
+              LengthLimitingTextInputFormatter(10),   
+            ] 
+          : null,
       
       decoration: InputDecoration(
         labelText: widget.label,

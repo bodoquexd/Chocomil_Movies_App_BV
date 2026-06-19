@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/screens.dart';
-import 'package:chocomil_movies_app_bv/presentation/screens/auth/login_screen.dart';
-import 'package:chocomil_movies_app_bv/presentation/screens/auth/register_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/splash/splash_screen.dart';
-import 'package:chocomil_movies_app_bv/presentation/screens/movies/home_screen.dart';
-
+import 'package:chocomil_movies_app_bv/presentation/screens/movies/watchlist_screen.dart';
+import 'package:chocomil_movies_app_bv/presentation/screens/movies/favorites_screen.dart';
+import 'package:chocomil_movies_app_bv/presentation/screens/movies/profile_screen.dart';
+import 'package:chocomil_movies_app_bv/presentation/layouts/main_layout.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
@@ -18,29 +18,8 @@ final appRouter = GoRouter(
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
         child: const SplashScreen(),
-        transitionsBuilder:
-            (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
-      ),
-    ),
-
-    // Home
-    GoRoute(
-      path: '/home',
-      name: HomeScreen.name,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const HomeScreen(),
-        transitionsBuilder:
-            (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
         },
       ),
     ),
@@ -52,12 +31,8 @@ final appRouter = GoRouter(
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
         child: const LoginScreen(),
-        transitionsBuilder:
-            (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
         },
       ),
     ),
@@ -69,14 +44,73 @@ final appRouter = GoRouter(
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
         child: const RegisterScreen(),
-        transitionsBuilder:
-            (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
         },
       ),
+    ),
+
+    ShellRoute(
+      builder: (context, state, child) {
+        return MainLayout(child: child);
+      },
+      routes: [
+        // Home
+        GoRoute(
+          path: '/home',
+          name: HomeScreen.name,
+          pageBuilder: (context, state) => CustomTransitionPage(
+            key: state.pageKey,
+            child: const HomeScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          ),
+        ),
+
+        // Watchlist
+        GoRoute(
+          path: '/watchlist',
+          name: 'watchlist',
+          pageBuilder: (context, state) => CustomTransitionPage(
+            key: state.pageKey,
+            child: const WatchlistScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          ),
+        ),
+
+        // Favorites
+        GoRoute(
+          path: '/favorites',
+          name: 'favorites',
+          pageBuilder: (context, state) => CustomTransitionPage(
+            key: state.pageKey,
+            child: const FavoritesScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          ),
+        ),
+
+        // Profile
+        GoRoute(
+          path: '/profile',
+          name: 'profile',
+          pageBuilder: (context, state) => CustomTransitionPage(
+            key: state.pageKey,
+            child: const ProfileScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          ),
+        ),
+      ],
     ),
   ],
 );
