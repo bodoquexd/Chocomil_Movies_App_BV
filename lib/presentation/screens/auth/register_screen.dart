@@ -47,6 +47,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       return;
     }
+    
+    if (telefono.length != 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('El número de teléfono debe tener exactamente 10 dígitos')),
+      );
+      return;
+    }
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
