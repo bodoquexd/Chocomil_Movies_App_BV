@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
@@ -11,7 +12,6 @@ import 'package:chocomil_movies_app_bv/infrastructure/services/movie_service.dar
 
 class HomeScreen extends StatefulWidget {
   static const String name = 'home_screen';
-
   const HomeScreen({super.key});
 
   @override
@@ -20,7 +20,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final PageController _featuredController;
-  
+Timer? _carouselTimer;
+int _currentPage = 0;
   // Instanciamos el servicio (Asegúrate de haber importado el archivo)
   final MovieService _movieService = MovieService();
 
@@ -35,11 +36,32 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _errorMessage;
 
   @override
-  void initState() {
-    super.initState();
-    _featuredController = PageController(viewportFraction: 0.78);
-    _loadAllMovies(); // Disparamos la petición HTTP al iniciar la pantalla
-  }
+void initState() {
+  super.initState();
+
+  _featuredController = PageController(
+    viewportFraction: 0.78,
+  );
+
+  _loadAllMovies();
+
+  _carouselTimer = Timer.periodic(
+  const Duration(seconds: 5),
+  (_) {
+    if (!mounted || featuredMovies.isEmpty) return;
+
+    _currentPage = (_currentPage + 1) % featuredMovies.length;
+
+    if (_featuredController.hasClients) {
+      _featuredController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeInOut,
+      );
+    }
+  },
+);
+}
 
   Future<void> _loadAllMovies() async {
     try {
@@ -56,10 +78,13 @@ class _HomeScreenState extends State<HomeScreen> {
         )).toList();
 
         // Usamos el top 5 de tendencias para las películas destacadas
-        featuredMovies = trendingMovies.take(5).map((m) => _FeaturedMovie(
+       featuredMovies = trendingMovies
+    .take(5) // 👈 SOLO DESTACADAS
+    .map((m) => _FeaturedMovie(
           title: m.title,
           imageUrl: m.imageUrl,
-        )).toList();
+        ))
+    .toList();
 
         actionMovies = rawAction.map((m) => _Movie(
           title: m['title'] ?? 'Sin título',
@@ -83,11 +108,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
+
   @override
-  void dispose() {
-    _featuredController.dispose();
-    super.dispose();
-  }
+void dispose() {
+  _carouselTimer?.cancel();
+  _featuredController.dispose();
+  super.dispose();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -97,24 +125,11 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: AppColors.primary,
         centerTitle: true,
         elevation: 0,
-        title: const Text(
-          'Chocomil Movies',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+     title: Image.asset(
+  'assets/images/logo.png',
+  height: 45,
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              context.go('/login');
-            },
-            icon: const Icon(
-              Icons.person,
-              color: Colors.white,
-            ),
-          ),
-        ],
+        
       ),
       // Validamos el estado antes de pintar la lista
       body: _isLoading
@@ -142,25 +157,62 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 14),
 
                     SizedBox(
-                      height: 390,
-                      child: PageView.builder(
-                        controller: _featuredController,
-                        itemCount: featuredMovies.length,
-                        itemBuilder: (context, index) {
-                          final movie = featuredMovies[index];
+  height: 390,
+  child: PageView.builder(
+    controller: _featuredController,
+    itemCount: featuredMovies.length,
+    onPageChanged: (index) {
+      setState(() => _currentPage = index);
+    },
+    itemBuilder: (context, index) {
+      final movie = featuredMovies[index];
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Center(
-                              child: FeaturedMovieWidget(
-                                title: movie.title,
-                                imageUrl: movie.imageUrl,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+      return AnimatedBuilder(
+  animation: _featuredController,
+  builder: (context, child) {
+    double value = 1.0;
+
+    if (_featuredController.position.haveDimensions) {
+      value = _featuredController.page! - index;
+      value = (1 - (value.abs() * 0.35)).clamp(0.85, 1.0);
+    }
+
+    return Opacity(
+      opacity: value, // 👈 DESVANECIDO
+      child: Transform.scale(
+        scale: value,
+        child: child,
+      ),
+    );
+  },
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 8),
+    child: FeaturedMovieWidget(
+      title: movie.title,
+      imageUrl: movie.imageUrl,
+    ),
+  ),
+);
+    },
+  ),
+),
+Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: List.generate(featuredMovies.length, (index) {
+    final isActive = index == _currentPage;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+      width: isActive ? 18 : 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: isActive ? Colors.white : Colors.white38,
+        borderRadius: BorderRadius.circular(20),
+      ),
+    );
+  }),
+),
 
                     const SizedBox(height: 24),
                     _MovieRowSection(
