@@ -122,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: AppColors.primary,
         centerTitle: true,
         elevation: 0,
-        title: Image.asset('assets/images/logo.png', height: 45),
+        title: Image.asset('assets/images/icon_app.png', height: 45),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.textPrimary))
@@ -287,9 +287,6 @@ class _MovieRowSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 14),
-        // Aquí está la clave para el componente hijo. 
-        // 280 de altura total permite que tu MovieCardWidget de 180 de ancho 
-        // respire bien con sus 75px internos de información.
         SizedBox(
           height: 280, 
           child: ListView.separated(

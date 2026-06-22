@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// TODO: Verifica que las rutas a tus archivos de estilos y colores sean correctas
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
