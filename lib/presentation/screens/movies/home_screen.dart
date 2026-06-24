@@ -25,6 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<_Movie> trendingMovies = [];
   List<_Movie> actionMovies = [];
   List<_Movie> sciFiMovies = [];
+  List<_Movie> comedyMovies = [];
+  List<_Movie> animationMovies = [];
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -32,16 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
     _featuredController = PageController(viewportFraction: 0.78);
-
     _loadAllMovies();
 
     _carouselTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!mounted || featuredMovies.isEmpty) return;
-
       _currentPage = (_currentPage + 1) % featuredMovies.length;
-
       if (_featuredController.hasClients) {
         _featuredController.animateToPage(
           _currentPage,
@@ -55,53 +53,40 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadAllMovies() async {
     try {
       final rawTrending = await _movieService.getTrending();
-      final rawAction = await _movieService.getMoviesByGenre(28); 
-      final rawSciFi = await _movieService.getMoviesByGenre(
-        878,
-      );
+      final rawAction = await _movieService.getMoviesByGenre(28);
+      final rawSciFi = await _movieService.getMoviesByGenre(878);
+      final rawComedy = await _movieService.getMoviesByGenre(35);
+      final rawAnimation = await _movieService.getMoviesByGenre(16);
 
       setState(() {
-        trendingMovies = rawTrending
-            .map(
-              (m) => _Movie(
-                title: m['title'] ?? m['name'] ?? 'Sin título',
-                imageUrl: _movieService.getImageUrl(m['poster_path']),
-                rating: (m['vote_average'] as num).toDouble(),
-              ),
-            )
-            .toList();
+        List<_Movie> mapToMovie(List<dynamic> list) {
+          return list
+              .map(
+                (m) => _Movie(
+                  title: m['title'] ?? m['name'] ?? 'Sin título',
+                  imageUrl: _movieService.getImageUrl(m['poster_path']),
+                  rating: (m['vote_average'] as num).toDouble(),
+                ),
+              )
+              .toList();
+        }
+
+        trendingMovies = mapToMovie(rawTrending);
+        actionMovies = mapToMovie(rawAction);
+        sciFiMovies = mapToMovie(rawSciFi);
+        comedyMovies = mapToMovie(rawComedy);
+        animationMovies = mapToMovie(rawAnimation);
 
         featuredMovies = trendingMovies
-            .take(5) 
+            .take(5)
             .map((m) => _FeaturedMovie(title: m.title, imageUrl: m.imageUrl))
-            .toList();
-
-        actionMovies = rawAction
-            .map(
-              (m) => _Movie(
-                title: m['title'] ?? 'Sin título',
-                imageUrl: _movieService.getImageUrl(m['poster_path']),
-                rating: (m['vote_average'] as num).toDouble(),
-              ),
-            )
-            .toList();
-
-        sciFiMovies = rawSciFi
-            .map(
-              (m) => _Movie(
-                title: m['title'] ?? 'Sin título',
-                imageUrl: _movieService.getImageUrl(m['poster_path']),
-                rating: (m['vote_average'] as num).toDouble(),
-              ),
-            )
             .toList();
 
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _errorMessage =
-            'Hubo un problema al conectar con TMDB. Verifica tu API Key y conexión.';
+        _errorMessage = 'Error al conectar con TMDB. Revisa tu conexión.';
         _isLoading = false;
       });
     }
@@ -125,16 +110,14 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Image.asset('assets/images/icon_app.png', height: 45),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.textPrimary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.textPrimary),
+            )
           : _errorMessage != null
           ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  _errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 16),
-                ),
+              child: Text(
+                _errorMessage!,
+                style: const TextStyle(color: Colors.white),
               ),
             )
           : ListView(
@@ -151,24 +134,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: PageView.builder(
                     controller: _featuredController,
                     itemCount: featuredMovies.length,
-                    onPageChanged: (index) {
-                      setState(() => _currentPage = index);
-                    },
+                    onPageChanged: (index) =>
+                        setState(() => _currentPage = index),
                     itemBuilder: (context, index) {
                       final movie = featuredMovies[index];
-
                       return AnimatedBuilder(
                         animation: _featuredController,
                         builder: (context, child) {
                           double value = 1.0;
-
                           if (_featuredController.position.haveDimensions) {
                             value = _featuredController.page! - index;
                             value = (1 - (value.abs() * 0.35)).clamp(0.85, 1.0);
                           }
-
                           return Opacity(
-                            opacity: value, 
+                            opacity: value,
                             child: Transform.scale(scale: value, child: child),
                           );
                         },
@@ -183,26 +162,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(featuredMovies.length, (index) {
-                    final isActive = index == _currentPage;
-
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 10,
-                      ),
-                      width: isActive ? 18 : 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: isActive ? AppColors.textPrimary : Colors.white38,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    );
-                  }),
-                ),
 
                 const SizedBox(height: 24),
                 _MovieRowSection(title: 'Tendencias', movies: trendingMovies),
@@ -213,43 +172,40 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 24),
                 _MovieRowSection(title: 'Ciencia ficción', movies: sciFiMovies),
 
+                const SizedBox(height: 24),
+                _MovieRowSection(title: 'Comedia', movies: comedyMovies),
+
+                const SizedBox(height: 24),
+                _MovieRowSection(title: 'Animación', movies: animationMovies),
+
                 const SizedBox(height: 30),
-
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    'Comentarios',
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
+                const _SectionTitle(title: 'Comentarios'),
                 const SizedBox(height: 15),
 
                 const CommentWidget(
                   userName: 'Carlos',
                   rating: 4.8,
                   comment:
-                      'Excelente aplicación, encontré rápidamente las películas que buscaba.',
+                      'Excelente aplicación, encontré rápidamente las películas.',
                 ),
-
+                const CommentWidget(
+                  userName: 'Elena',
+                  rating: 4.7,
+                  comment:
+                      'La selección de películas de animación es increíble, ¡me encanta!',
+                ),
                 const CommentWidget(
                   userName: 'Ana',
                   rating: 5.0,
                   comment:
-                      'Me encanta el diseño. Parece una plataforma profesional de streaming.',
+                      'Me encanta el diseño. Parece una plataforma profesional.',
                 ),
-
                 const CommentWidget(
                   userName: 'Miguel',
                   rating: 4.5,
                   comment:
                       'Las recomendaciones son muy buenas y la navegación es sencilla.',
                 ),
-
                 const CommentWidget(
                   userName: 'Sofía',
                   rating: 4.9,
@@ -257,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       'La interfaz es moderna y muy agradable visualmente.',
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
               ],
             ),
     );
@@ -275,32 +231,48 @@ class _MovieRowSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        _SectionTitle(title: title),
         const SizedBox(height: 14),
-        SizedBox(
-          height: 280, 
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: movies.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final movie = movies[index];
-              return MovieCardWidget(
-                title: movie.title,
-                imageUrl: movie.imageUrl,
-                rating: movie.rating,
-              );
-            },
+        
+        // EL TRUCO: Envolver todo el carrusel en un ShaderMask
+        ShaderMask(
+          // 1. Configuramos el gradiente horizontal para el desvanecido
+          shaderCallback: (Rect bounds) {
+            return LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              // Paradas de color: [transparente, opaco, opaco, transparente]
+              // Ajusta los números 0.05 y 0.95 para cambiar la anchura del desvanecido.
+              // A menor diferencia, bordes de desvanecido más estrechos.
+              stops: const [0.0, 0.05, 0.95, 1.0], 
+              colors: [
+                Colors.transparent,
+                Colors.white, // Usamos blanco como base opaca para la máscara
+                Colors.white,
+                Colors.transparent,
+              ],
+            ).createShader(bounds);
+          },
+          // 2. Este modo de mezcla 'dstIn' es clave para que la máscara afecte la opacidad
+          blendMode: BlendMode.dstIn,
+          
+          child: SizedBox(
+            height: 300, // Altura aumentada para evitar overflow (como configuramos antes)
+            child: ListView.separated(
+              // 3. Pequeño padding horizontal para mejor estética
+              padding: const EdgeInsets.symmetric(horizontal: 4), 
+              scrollDirection: Axis.horizontal,
+              itemCount: movies.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final movie = movies[index];
+                return MovieCardWidget(
+                  title: movie.title,
+                  imageUrl: movie.imageUrl,
+                  rating: movie.rating,
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -310,7 +282,6 @@ class _MovieRowSection extends StatelessWidget {
 
 class _SectionTitle extends StatelessWidget {
   final String title;
-
   const _SectionTitle({required this.title});
 
   @override
@@ -320,7 +291,7 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         title,
         style: const TextStyle(
-          color: AppColors.textPrimary,
+          color: Colors.white,
           fontSize: 22,
           fontWeight: FontWeight.bold,
         ),
@@ -329,12 +300,10 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-// Clases internas para manejar los datos
 class _Movie {
   final String title;
   final String imageUrl;
   final double rating;
-
   const _Movie({
     required this.title,
     required this.imageUrl,
@@ -345,6 +314,5 @@ class _Movie {
 class _FeaturedMovie {
   final String title;
   final String imageUrl;
-
   const _FeaturedMovie({required this.title, required this.imageUrl});
 }

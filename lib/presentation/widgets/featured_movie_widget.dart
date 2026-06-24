@@ -66,9 +66,8 @@ class FeaturedMovieWidget extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {},
-                    icon: const Icon(Icons.add),
                     label: Text(
-                      'Agregar a mi lista',
+                      'Ver Ahora',
                       style: TextosEstilos.boton.copyWith(
                         color: AppColors.buttonText,
                       ),
