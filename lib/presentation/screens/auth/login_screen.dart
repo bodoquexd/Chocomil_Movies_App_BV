@@ -1,33 +1,195 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/input_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/button_widget.dart';
+import 'package:chocomil_movies_app_bv/config/constants/environment.dart';
 
-class LoginScreen extends StatelessWidget {
-  static const String name = 'login_screen'; 
-  
+class LoginScreen extends StatefulWidget {
+  static const String name = 'login_screen';
+
   const LoginScreen({super.key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final _storage = const FlutterSecureStorage(); 
+
+  bool _isLoading = false;
+
+  Future<void> _loginConServidor() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor llena todos los campos')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final url = Uri.parse('${Environment.apiUrl}/auth/login');
+
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+//              'bypass-tunnel-reminder': 'true',
+            },
+            body: jsonEncode({'email': email, 'password': password}),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        // 1. Extraemos los datos de la respuesta del servidor
+        final responseData = jsonDecode(response.body);
+        
+        // 2. Armamos el nombre uniendo firstName y lastName (que es como los manda tu Node.js)
+        final String firstName = responseData['user']?['firstName'] ?? '';
+        final String lastName = responseData['user']?['lastName'] ?? '';
+        final String nombreCompleto = "$firstName $lastName".trim();
+
+        // 3. Validamos que no esté vacío, de lo contrario ponemos uno por defecto
+        final nombreFinal = nombreCompleto.isNotEmpty ? nombreCompleto : 'Usuario de Chocomil';
+        final telefono = responseData['user']?['phone'] ?? 'Teléfono no registrado';
+
+        // 4. Guardamos todo en la memoria segura
+        await _storage.write(key: 'email', value: email);
+        await _storage.write(key: 'password', value: password);
+        await _storage.write(key: 'has_credentials', value: 'true');
+        await _storage.write(key: 'name', value: nombreFinal); 
+        await _storage.write(key: 'phone', value: telefono); 
+
+        if (mounted) {
+          context.go('/home');
+        }
+      } else {
+        if (mounted) {
+          final errorData = jsonDecode(response.body);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorData['message'] ?? 'Error al iniciar sesión'),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se pudo conectar con el servidor')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   Future<void> _authenticate(BuildContext context) async {
+    String? hasCredentials = await _storage.read(key: 'has_credentials');
+    
+    if (hasCredentials != 'true') {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Primero inicia sesión manualmente con correo y contraseña')),
+        );
+      }
+      return;
+    }
+
     final LocalAuthentication auth = LocalAuthentication();
     bool authenticated = false;
 
     try {
       authenticated = await auth.authenticate(
-        localizedReason: 'Autentícate para ingresar a la cuenta',
-        persistAcrossBackgrounding: true,
-        biometricOnly: false,
+        localizedReason: 'Autentícate para ingresar a Chocomil Movies',
+        biometricOnly: true,
       );
     } catch (e) {
       return;
     }
 
-    if (authenticated && context.mounted) {
-      context.go('/');
+    if (authenticated) {
+      setState(() {
+        _isLoading = true; 
+      });
+
+      try {
+        String? email = await _storage.read(key: 'email');
+        String? password = await _storage.read(key: 'password');
+
+        final url = Uri.parse('${Environment.apiUrl}/auth/login');
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'bypass-tunnel-reminder': 'true', 
+          },
+          body: jsonEncode({'email': email, 'password': password}),
+        ).timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200) {
+          final responseData = jsonDecode(response.body);
+          
+          final String firstName = responseData['user']?['firstName'] ?? '';
+          final String lastName = responseData['user']?['lastName'] ?? '';
+          final String nombreCompleto = "$firstName $lastName".trim();
+
+          final nombreFinal = nombreCompleto.isNotEmpty ? nombreCompleto : 'Usuario de Chocomil';
+          final telefono = responseData['user']?['phone'] ?? 'Teléfono no registrado';
+
+          await _storage.write(key: 'name', value: nombreFinal);
+          await _storage.write(key: 'phone', value: telefono);
+
+          if (context.mounted) { 
+            context.go('/home');
+          }
+        } else {
+          if (context.mounted) { 
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Credenciales expiradas. Inicia sesión manualmente.')),
+            );
+          }
+        }
+      } catch (e) {
+        if (context.mounted) { 
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error de red al iniciar con huella')),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
     }
+  } 
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -35,7 +197,7 @@ class LoginScreen extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.cardBackground, 
+      backgroundColor: AppColors.cardBackground,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -45,44 +207,46 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(height: screenSize.height * 0.05),
 
                 Image.asset(
-                  'assets/images/logo.png', 
+                  'assets/images/logo.png',
                   height: screenSize.height * 0.22,
-                  fit: BoxFit.contain, 
+                  fit: BoxFit.contain,
                 ),
-                
+
                 SizedBox(height: screenSize.height * 0.03),
-                
+
                 Text(
                   'Iniciar sesión',
                   style: TextosEstilos.titulo.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
-                
-                SizedBox(height: screenSize.height * 0.04),
 
-                const InputWidget(
+                SizedBox(height: screenSize.height * 0.04),
+                InputWidget(
                   label: 'Correo Electrónico',
                   keyboardType: TextInputType.emailAddress,
+                  controller: _emailController,
                 ),
-                SizedBox(height: screenSize.height * 0.02), 
-                const InputWidget(
-                  label: 'Contraseña', 
+                SizedBox(height: screenSize.height * 0.02),
+                InputWidget(
+                  label: 'Contraseña',
                   obscureText: true,
+                  controller: _passwordController,
                 ),
-                
+
                 SizedBox(height: screenSize.height * 0.05),
 
                 SizedBox(
-                  width: 150, 
-                  child: ButtonWidget(
-                    texto: 'Aceptar',
-                    onPressed: () {},
-                  ),
+                  width: 150,
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ButtonWidget(
+                          texto: 'Aceptar',
+                          onPressed: _loginConServidor,
+                        ),
                 ),
-                
-                SizedBox(height: screenSize.height * 0.03),
 
+                SizedBox(height: screenSize.height * 0.03),
                 IconButton(
                   onPressed: () => _authenticate(context),
                   icon: const Icon(
@@ -99,10 +263,12 @@ class LoginScreen extends StatelessWidget {
                   children: [
                     Text(
                       '¿No tienes una cuenta? ',
-                      style: TextosEstilos.cuerpo.copyWith(color: AppColors.textSecondary),
+                      style: TextosEstilos.cuerpo.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     TextButton(
-                      onPressed: () => context.push('/register'), 
+                      onPressed: () => context.push('/register'),
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
                         minimumSize: Size.zero,
@@ -110,7 +276,9 @@ class LoginScreen extends StatelessWidget {
                       ),
                       child: Text(
                         'Regístrate',
-                        style: TextosEstilos.cuerpo.copyWith(fontWeight: FontWeight.bold), 
+                        style: TextosEstilos.cuerpo.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
