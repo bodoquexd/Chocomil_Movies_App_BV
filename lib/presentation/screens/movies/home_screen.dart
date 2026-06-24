@@ -213,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       'La interfaz es moderna y muy agradable visualmente.',
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
               ],
             ),
     );
