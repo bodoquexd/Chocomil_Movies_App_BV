@@ -7,7 +7,7 @@ import 'package:chocomil_movies_app_bv/config/router/app_router.dart';
 import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.dart';
 import 'package:chocomil_movies_app_bv/infrastructure/datasources/movie_repository_impl.dart';
 import 'package:chocomil_movies_app_bv/infrastructure/datasources/tmdb_datasource.dart';
-import 'package:chocomil_movies_app_bv/providers/movie_provider.dart'; 
+import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

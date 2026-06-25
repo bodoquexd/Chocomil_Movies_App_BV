@@ -56,19 +56,13 @@ class _LoginScreenState extends State<LoginScreen> {
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
-        // 1. Extraemos los datos de la respuesta del servidor
         final responseData = jsonDecode(response.body);
-        
-        // 2. Armamos el nombre uniendo firstName y lastName (que es como los manda tu Node.js)
         final String firstName = responseData['user']?['firstName'] ?? '';
         final String lastName = responseData['user']?['lastName'] ?? '';
         final String nombreCompleto = "$firstName $lastName".trim();
-
-        // 3. Validamos que no esté vacío, de lo contrario ponemos uno por defecto
         final nombreFinal = nombreCompleto.isNotEmpty ? nombreCompleto : 'Usuario de Chocomil';
         final telefono = responseData['user']?['phone'] ?? 'Teléfono no registrado';
 
-        // 4. Guardamos todo en la memoria segura
         await _storage.write(key: 'email', value: email);
         await _storage.write(key: 'password', value: password);
         await _storage.write(key: 'has_credentials', value: 'true');
@@ -204,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.06),
             child: Column(
               children: [
-                SizedBox(height: screenSize.height * 0.05),
+                SizedBox(height: screenSize.height * 0.010),
 
                 Image.asset(
                   'assets/images/logo.png',
@@ -212,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   fit: BoxFit.contain,
                 ),
 
-                SizedBox(height: screenSize.height * 0.03),
+                SizedBox(height: screenSize.height * 0.01),
 
                 Text(
                   'Iniciar sesión',
