@@ -8,6 +8,8 @@ class InputWidget extends StatefulWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final TextEditingController? controller; 
+  final String? errorText; 
+  final ValueChanged<String>? onChanged;
 
   const InputWidget({
     super.key,
@@ -15,6 +17,8 @@ class InputWidget extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType,
     this.controller, 
+    this.errorText, 
+    this.onChanged, // <-- NUEVO
   });
 
   @override
@@ -37,6 +41,7 @@ class _InputWidgetState extends State<InputWidget> {
       obscureText: _isObscured,
       keyboardType: widget.keyboardType,
       style: TextosEstilos.cuerpo, 
+      onChanged: widget.onChanged,
       inputFormatters: widget.keyboardType == TextInputType.phone 
           ? [
               FilteringTextInputFormatter.digitsOnly, 
@@ -49,6 +54,8 @@ class _InputWidgetState extends State<InputWidget> {
         labelStyle: TextosEstilos.cuerpo.copyWith(
           color: AppColors.textPrimary,
         ),
+        errorText: widget.errorText, 
+        errorStyle: const TextStyle(color: Colors.red),
 
         suffixIcon: widget.obscureText
             ? IconButton(
@@ -71,6 +78,14 @@ class _InputWidgetState extends State<InputWidget> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.red, width: 2),
         ),
       ),
     );
