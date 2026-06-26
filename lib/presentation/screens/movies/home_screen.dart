@@ -145,37 +145,41 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SectionTitleWidget(title: 'Comentarios'),
                 const SizedBox(height: 15),
 
-                // 5. Los comentarios que ya tenías diseñados
                 const CommentWidget(
                   userName: 'Carlos',
                   rating: 4.8,
                   comment:
                       'Excelente aplicación, encontré rápidamente las películas.',
                 ),
+
                 const CommentWidget(
                   userName: 'Elena',
                   rating: 4.7,
                   comment:
                       'La selección de películas de animación es increíble, ¡me encanta!',
                 ),
+
                 const CommentWidget(
                   userName: 'Ana',
                   rating: 5.0,
                   comment:
                       'Me encanta el diseño. Parece una plataforma profesional.',
                 ),
+
                 const CommentWidget(
                   userName: 'Miguel',
                   rating: 4.5,
                   comment:
                       'Las recomendaciones son muy buenas y la navegación es sencilla.',
                 ),
+
                 const CommentWidget(
                   userName: 'Sofía',
                   rating: 4.9,
                   comment:
                       'La interfaz es moderna y muy agradable visualmente.',
                 ),
+                
               ],
             ),
     );

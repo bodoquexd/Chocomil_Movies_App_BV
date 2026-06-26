@@ -3,14 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/screens.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/splash/splash_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/watchlist_screen.dart';
-import 'package:chocomil_movies_app_bv/presentation/screens/movies/favorites_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/profile_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/layouts/main_layout.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
   routes: [
-
     // Splash
     GoRoute(
       path: '/splash',
@@ -38,16 +36,22 @@ final appRouter = GoRouter(
     ),
 
     // Register
+    // Register
     GoRoute(
       path: '/register',
       name: RegisterScreen.name,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const RegisterScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-      ),
+      pageBuilder: (context, state) {
+        final Map<String, dynamic>? initialData =
+            state.extra as Map<String, dynamic>?;
+
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: RegisterScreen(initialData: initialData),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        );
+      },
     ),
 
     ShellRoute(

@@ -51,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.cardBackground, // Usamos el fondo oscuro de tu app
+      backgroundColor: AppColors.cardBackground, 
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -119,17 +119,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
 
-              const Spacer(), // Empuja el botón hacia abajo
+              const Spacer(),
 
               // --- BOTÓN DE CERRAR SESIÓN ---
-              SizedBox(
+              /*SizedBox(
                 width: double.infinity,
                 child: ButtonWidget(
                   texto: 'Cerrar Sesión',
                   onPressed: _cerrarSesion,
                 ),
               ),
-              
+              */
               SizedBox(height: screenSize.height * 0.04),
             ],
           ),

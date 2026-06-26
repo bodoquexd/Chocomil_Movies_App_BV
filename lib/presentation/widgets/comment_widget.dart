@@ -19,7 +19,7 @@ class CommentWidget extends StatelessWidget {
     return Card(
       color: AppColors.backgroundBlack, 
       margin: const EdgeInsets.symmetric(
-        vertical: 8,
+        vertical: 4,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
@@ -39,7 +39,6 @@ class CommentWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     userName,
-                    // Usamos tu subtitulo y le agregamos negrita
                     style: TextosEstilos.subtitulo.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -47,21 +46,19 @@ class CommentWidget extends StatelessWidget {
                 ),
                 const Icon(
                   Icons.star,
-                  // Reemplazamos el ámbar genérico por tu naranja/café claro
                   color: AppColors.primaryLight,
                   size: 18,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   rating.toStringAsFixed(1),
-                  style: TextosEstilos.cuerpo, // Tu estilo de cuerpo estándar
+                  style: TextosEstilos.cuerpo,
                 ),
               ],
             ),
             const SizedBox(height: 10),
             Text(
               comment,
-              // Usamos tu estilo de cuerpo, pero con tu gris claro para atenuarlo
               style: TextosEstilos.cuerpo.copyWith(
                 color: AppColors.grayLight,
               ),
