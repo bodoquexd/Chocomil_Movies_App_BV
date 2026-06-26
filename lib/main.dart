@@ -1,3 +1,4 @@
+import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; 
 import 'package:provider/provider.dart';
@@ -22,14 +23,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        // 1. Registro del repositorio
         Provider<MovieRepositories>(
           create: (_) => MovieRepositoryImpl(TmdbDatasource()),
         ),
         
+        // 2. Proveedor de películas (catálogo, géneros, etc.)
         ChangeNotifierProvider<MovieProvider>(
           create: (context) => MovieProvider(
             movieRepository: context.read<MovieRepositories>(),
           )..loadAllMovies(), 
+        ),
+
+        // 💡 SOLUCCIÓN AQUÍ: Leemos el repositorio del contexto y se lo inyectamos al SearchProvider
+        ChangeNotifierProvider<SearchProvider>(
+          create: (context) => SearchProvider(
+            movieRepository: context.read<MovieRepositories>(),
+          ),
         ),
       ],
       child: MaterialApp.router(
