@@ -36,16 +36,22 @@ final appRouter = GoRouter(
     ),
 
     // Register
+    // Register
     GoRoute(
       path: '/register',
       name: RegisterScreen.name,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const RegisterScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-      ),
+      pageBuilder: (context, state) {
+        final Map<String, dynamic>? initialData =
+            state.extra as Map<String, dynamic>?;
+
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: RegisterScreen(initialData: initialData),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        );
+      },
     ),
 
     ShellRoute(

@@ -14,7 +14,9 @@ import 'package:chocomil_movies_app_bv/presentation/widgets/chocolate_painter_wi
 class RegisterScreen extends StatefulWidget {
   static const String name = 'register_screen';
 
-  const RegisterScreen({super.key});
+  final Map<String, dynamic>? initialData;
+
+  const RegisterScreen({super.key, this.initialData});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -187,6 +189,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.initialData != null) {
+      _nombreController.text = widget.initialData!['name'] ?? '';
+      _apellidoController.text = widget.initialData!['last_name'] ?? '';
+      _emailController.text = widget.initialData!['email'] ?? '';
+      _validarNombre(_nombreController.text);
+      _validarApellido(_apellidoController.text);
+      _validarEmail(_emailController.text);
+    }
+  }
+
+  @override
   void dispose() {
     _nombreController.dispose();
     _apellidoController.dispose();
@@ -255,13 +271,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 16),
 
                   IntlPhoneField(
-                    keyboardType: TextInputType
-                        .number, 
-                    inputFormatters: [
-                      FilteringTextInputFormatter
-                          .digitsOnly, 
-                    ],
-                    dropdownTextStyle: TextosEstilos.cuerpo.copyWith(color: AppColors.textPrimary),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    dropdownTextStyle: TextosEstilos.cuerpo.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
                     decoration: InputDecoration(
                       labelText: 'Número de teléfono',
                       labelStyle: TextosEstilos.cuerpo.copyWith(
