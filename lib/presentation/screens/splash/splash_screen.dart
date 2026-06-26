@@ -11,14 +11,26 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  double _logoOpacity = 1.0;
+
   @override
   void initState() {
     super.initState();
 
-    Timer(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      context.go('/login');
+    _startSplashSequence();
+  }
+
+  void _startSplashSequence() async {
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    if (!mounted) return;
+    setState(() {
+      _logoOpacity = 0.0;
     });
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!mounted) return;
+    context.go('/login');
   }
 
   @override
@@ -26,9 +38,14 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: AppColors.buttonPrimary,
       body: Center(
-        child: Image.asset(
-          'assets/images/splash.png',
-          width: 250,
+        child: AnimatedOpacity(
+          opacity: _logoOpacity,
+          duration: const Duration(milliseconds: 500), 
+          curve: Curves.easeInOut,
+          child: Image.asset(
+            'assets/images/splash.png',
+            width: 250,
+          ),
         ),
       ),
     );

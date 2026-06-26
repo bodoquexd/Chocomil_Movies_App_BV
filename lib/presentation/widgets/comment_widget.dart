@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
 class CommentWidget extends StatelessWidget {
   final String userName;
@@ -15,66 +17,53 @@ class CommentWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF1E1E1E),
-
+      color: AppColors.backgroundBlack, 
       margin: const EdgeInsets.symmetric(
         vertical: 8,
       ),
-
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-
       child: Padding(
         padding: const EdgeInsets.all(15),
-
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
-
             Row(
               children: [
-
-                const CircleAvatar(
-                  child: Icon(Icons.person),
+                CircleAvatar(
+                  backgroundColor: AppColors.primaryLight,
+                  child: const Icon(Icons.person, color: AppColors.textPrimary),
                 ),
-
                 const SizedBox(width: 10),
-
                 Expanded(
                   child: Text(
                     userName,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    // Usamos tu subtitulo y le agregamos negrita
+                    style: TextosEstilos.subtitulo.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-
                 const Icon(
                   Icons.star,
-                  color: Colors.amber,
+                  // Reemplazamos el ámbar genérico por tu naranja/café claro
+                  color: AppColors.primaryLight,
                   size: 18,
                 ),
-
                 const SizedBox(width: 4),
-
                 Text(
                   rating.toStringAsFixed(1),
-                  style: const TextStyle(
-                    color: Colors.white,
-                  ),
+                  style: TextosEstilos.cuerpo, // Tu estilo de cuerpo estándar
                 ),
               ],
             ),
-
             const SizedBox(height: 10),
-
             Text(
               comment,
-              style: const TextStyle(
-                color: Colors.white70,
+              // Usamos tu estilo de cuerpo, pero con tu gris claro para atenuarlo
+              style: TextosEstilos.cuerpo.copyWith(
+                color: AppColors.grayLight,
               ),
             ),
           ],

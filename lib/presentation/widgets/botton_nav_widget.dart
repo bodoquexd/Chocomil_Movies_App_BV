@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 
 class BottomNavWidget extends StatefulWidget {
   final int currentIndex;
@@ -48,23 +49,18 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
     final isActive = selected == index;
 
     return Expanded(
-      child: GestureDetector(
+      child: InkWell(
         onTap: () => onTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isActive ? Colors.white.withOpacity(0.08) : Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
-          ),
+        child: Center(
           child: AnimatedScale(
             duration: const Duration(milliseconds: 200),
-            scale: isActive ? 1.2 : 1.0,
+            scale: isActive ? 1.15 : 1.0,
             child: Icon(
               icon,
-              color: isActive ? Colors.white : Colors.white54,
-              size: 26,
+              size: 28,
+              color: isActive
+                  ? Colors.white
+                  : AppColors.grayLight,
             ),
           ),
         ),
@@ -75,13 +71,8 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 75,
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F0F0F),
-        border: Border(
-          top: BorderSide(color: Colors.white12),
-        ),
-      ),
+      height: 70,
+      color: Colors.black,
       child: Row(
         children: [
           buildItem(icon: Icons.home, index: 0),

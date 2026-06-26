@@ -56,9 +56,24 @@ class _LoginScreenState extends State<LoginScreen> {
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
+        // 1. Extraemos los datos de la respuesta del servidor
+        final responseData = jsonDecode(response.body);
+        
+        // 2. Armamos el nombre uniendo firstName y lastName (que es como los manda tu Node.js)
+        final String firstName = responseData['user']?['firstName'] ?? '';
+        final String lastName = responseData['user']?['lastName'] ?? '';
+        final String nombreCompleto = "$firstName $lastName".trim();
+
+        // 3. Validamos que no esté vacío, de lo contrario ponemos uno por defecto
+        final nombreFinal = nombreCompleto.isNotEmpty ? nombreCompleto : 'Usuario de Chocomil';
+        final telefono = responseData['user']?['phone'] ?? 'Teléfono no registrado';
+
+        // 4. Guardamos todo en la memoria segura
         await _storage.write(key: 'email', value: email);
         await _storage.write(key: 'password', value: password);
         await _storage.write(key: 'has_credentials', value: 'true');
+        await _storage.write(key: 'name', value: nombreFinal); 
+        await _storage.write(key: 'phone', value: telefono); 
 
         if (mounted) {
           context.go('/home');
@@ -132,6 +147,18 @@ class _LoginScreenState extends State<LoginScreen> {
         ).timeout(const Duration(seconds: 10));
 
         if (response.statusCode == 200) {
+          final responseData = jsonDecode(response.body);
+          
+          final String firstName = responseData['user']?['firstName'] ?? '';
+          final String lastName = responseData['user']?['lastName'] ?? '';
+          final String nombreCompleto = "$firstName $lastName".trim();
+
+          final nombreFinal = nombreCompleto.isNotEmpty ? nombreCompleto : 'Usuario de Chocomil';
+          final telefono = responseData['user']?['phone'] ?? 'Teléfono no registrado';
+
+          await _storage.write(key: 'name', value: nombreFinal);
+          await _storage.write(key: 'phone', value: telefono);
+
           if (context.mounted) { 
             context.go('/home');
           }
