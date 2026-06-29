@@ -28,14 +28,12 @@ class MyApp extends StatelessWidget {
           create: (_) => MovieRepositoryImpl(TmdbDatasource()),
         ),
         
-        // 2. Proveedor de películas (catálogo, géneros, etc.)
         ChangeNotifierProvider<MovieProvider>(
           create: (context) => MovieProvider(
             movieRepository: context.read<MovieRepositories>(),
           )..loadAllMovies(), 
         ),
 
-        // 💡 SOLUCCIÓN AQUÍ: Leemos el repositorio del contexto y se lo inyectamos al SearchProvider
         ChangeNotifierProvider<SearchProvider>(
           create: (context) => SearchProvider(
             movieRepository: context.read<MovieRepositories>(),
