@@ -122,14 +122,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Spacer(),
 
               // --- BOTÓN DE CERRAR SESIÓN ---
-              /*SizedBox(
+              SizedBox(
                 width: double.infinity,
                 child: ButtonWidget(
                   texto: 'Cerrar Sesión',
                   onPressed: _cerrarSesion,
                 ),
               ),
-              */
               SizedBox(height: screenSize.height * 0.04),
             ],
           ),

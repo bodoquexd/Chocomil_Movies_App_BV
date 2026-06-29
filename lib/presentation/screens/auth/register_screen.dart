@@ -40,7 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoading = false;
 
   void _validarNombre(String value) {
-    final regex = RegExp(r'^[A-ZÁÉÍÓÚÑ][a-záéíóúñÁÉÍÓÚÑ\s]+$');
+    final regex = RegExp(r'^[A-ZÁÉÍÓÚÑ][A-záéíóúñÁÉÍÓÚÑ\s]+$');
     setState(() {
       if (value.isEmpty) {
         _nombreError = 'El nombre es obligatorio';
@@ -53,7 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _validarApellido(String value) {
-    final regex = RegExp(r'^[A-ZÁÉÍÓÚÑ][a-záéíóúñÁÉÍÓÚÑ\s]+$');
+    final regex = RegExp(r'^[A-ZÁÉÍÓÚÑ][A-záéíóúñÁÉÍÓÚÑ\s]+$');
     setState(() {
       if (value.isEmpty) {
         _apellidoError = 'El apellido es obligatorio';
@@ -252,6 +252,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _nombreController,
                     errorText: _nombreError,
                     onChanged: _validarNombre,
+                    textCapitalization: TextCapitalization.words,
                   ),
                   const SizedBox(height: 16),
 
@@ -260,6 +261,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _apellidoController,
                     errorText: _apellidoError,
                     onChanged: _validarApellido,
+                    textCapitalization: TextCapitalization.words,
                   ),
                   const SizedBox(height: 16),
 
