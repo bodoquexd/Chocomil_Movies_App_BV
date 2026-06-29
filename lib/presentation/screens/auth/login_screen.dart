@@ -44,24 +44,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final url = Uri.parse('${Environment.apiUrl}/auth/login');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'email': email, 'password': password}),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         await _storage.write(key: 'email', value: email);
         await _storage.write(key: 'password', value: password);
         await _storage.write(key: 'has_credentials', value: 'true');
-        
+
         if (!mounted) return;
         context.go('/home');
       } else {
         if (!mounted) return;
         final errorData = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorData['message'] ?? 'Error al iniciar sesión')),
+          SnackBar(
+            content: Text(errorData['message'] ?? 'Error al iniciar sesión'),
+          ),
         );
       }
     } catch (e) {
@@ -83,26 +87,32 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) setState(() => _isLoading = false);
         return;
       }
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
       final url = Uri.parse('${Environment.apiUrl}/auth/google-login');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'idToken': idToken}),
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'idToken': idToken}),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         if (!mounted) return;
         context.go('/home');
       } else if (response.statusCode == 404) {
         if (!mounted) return;
-        context.push('/register', extra: {
-          'email': googleUser.email,
-          'name': googleUser.displayName?.split(' ').first ?? '',
-          'last_name': googleUser.displayName?.split(' ').last ?? '',
-        });
+        context.push(
+          '/register',
+          extra: {
+            'email': googleUser.email,
+            'name': googleUser.displayName?.split(' ').first ?? '',
+            'last_name': googleUser.displayName?.split(' ').last ?? '',
+          },
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -118,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // Lógica de Autenticación Biométrica corregida y universal
   Future<void> _authenticate(BuildContext context) async {
     final String? hasCredentials = await _storage.read(key: 'has_credentials');
-    
+
     if (!mounted) return;
 
     if (hasCredentials != 'true') {
@@ -135,9 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final bool authenticated = await auth.authenticate(
         localizedReason: 'Autentícate para ingresar a Chocomil Movies',
       );
-      
+
       if (!mounted) return;
-      
+
       if (authenticated) {
         // ignore: use_build_context_synchronously
         context.go('/home');
@@ -167,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               children: [
                 SizedBox(height: screenSize.height * 0.02),
-                
+
                 // LOGO
                 Image.asset(
                   'assets/images/logo.png',
@@ -177,7 +187,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 Text(
                   'Iniciar sesión',
-                  style: TextosEstilos.titulo.copyWith(color: AppColors.textSecondary),
+                  style: TextosEstilos.titulo.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
 
                 SizedBox(height: screenSize.height * 0.04),
@@ -197,7 +209,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   width: 200,
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        )
                       : ButtonWidget(
                           texto: 'Aceptar',
                           onPressed: _loginConServidor,
@@ -212,14 +228,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Text(
                       '¿No tienes cuenta? ',
-                      style: TextosEstilos.cuerpo.copyWith(color: AppColors.textSecondary),
+                      style: TextosEstilos.cuerpo.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     TextButton(
                       onPressed: () => context.push('/register'),
                       style: TextButton.styleFrom(padding: EdgeInsets.zero),
                       child: Text(
                         'Regístrate',
-                        style: TextosEstilos.cuerpo.copyWith(fontWeight: FontWeight.bold),
+                        style: TextosEstilos.cuerpo.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -230,26 +250,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 // SECCIÓN: O INICIA SESIÓN CON...
                 Text(
                   'O inicia sesión con',
-                  style: TextosEstilos.cuerpo.copyWith(color: AppColors.textHint, fontSize: 14),
+                  style: TextosEstilos.cuerpo.copyWith(
+                    color: AppColors.textHint,
+                    fontSize: 14,
+                  ),
                 ),
-                
+
                 const SizedBox(height: 10),
 
                 // ICONOS: GOOGLE Y HUELLA
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Botón Google
                     IconButton(
                       onPressed: _loginConGoogle,
-                      icon: const Icon(
-                        Icons.g_mobiledata,
-                        size: 60,
-                        color: Colors.red,
-                      ),
+                      icon: Image.asset('assets/images/google.png', width: 35),
                     ),
-                    const SizedBox(width: 30),
-                    // Botón Huella
+                    
                     IconButton(
                       onPressed: () => _authenticate(context),
                       icon: const Icon(
@@ -260,7 +277,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 40),
               ],
             ),

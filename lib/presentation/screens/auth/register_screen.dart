@@ -66,7 +66,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _validarEmail(String value) {
-    final regex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final regex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@(gmail\.com|hotmail\.com|outlook\.com|live\.com|icloud\.com|yahoo\.com)$',
+    );
     setState(() {
       if (value.isEmpty) {
         _emailError = 'El correo es obligatorio';
