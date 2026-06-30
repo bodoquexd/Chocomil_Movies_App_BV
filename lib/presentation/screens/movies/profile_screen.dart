@@ -83,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   border: Border.all(color: AppColors.primary, width: 3),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
+                      color: AppColors.primary.withValues(alpha: 0.3),
                       blurRadius: 10,
                       spreadRadius: 2,
                     )
