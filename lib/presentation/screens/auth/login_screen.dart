@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
@@ -23,12 +25,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: kIsWeb ? '1077647994525-rri1suomsvfq6nehnav34lkdvqerkshi.apps.googleusercontent.com' : null,
+    scopes: ['email'],
+  );
   final _storage = const FlutterSecureStorage();
 
   bool _isLoading = false;
-
-  // Lógica de inicio de sesión con el servidor
   Future<void> _loginConServidor() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
@@ -53,9 +56,19 @@ class _LoginScreenState extends State<LoginScreen> {
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final user = responseData['user'];
+
         await _storage.write(key: 'email', value: email);
         await _storage.write(key: 'password', value: password);
         await _storage.write(key: 'has_credentials', value: 'true');
+        await _storage.write(key: 'token', value: responseData['token'] ?? '');
+        await _storage.write(key: 'first_name', value: user['firstName'] ?? '');
+        await _storage.write(key: 'last_name', value: user['lastName'] ?? '');
+        await _storage.write(key: 'phone', value: user['phone'] ?? 'Teléfono no registrado');
+        await _storage.write(key: 'avatar_url', value: user['avatarUrl'] ?? '');
+        final fullName = '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}'.trim();
+        await _storage.write(key: 'name', value: fullName);
 
         if (!mounted) return;
         context.go('/home');
@@ -78,7 +91,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Lógica de inicio de sesión con Google
   Future<void> _loginConGoogle() async {
     setState(() => _isLoading = true);
     try {
@@ -89,18 +101,39 @@ class _LoginScreenState extends State<LoginScreen> {
       }
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
-      final String? idToken = googleAuth.idToken;
 
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      final String? firebaseIdToken = await userCredential.user?.getIdToken();
+     
       final url = Uri.parse('${Environment.apiUrl}/auth/google-login');
       final response = await http
           .post(
             url,
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'idToken': idToken}),
+            body: jsonEncode({'idToken': firebaseIdToken}),
           )
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final user = responseData['user'];
+
+        await _storage.write(key: 'email', value: user['email'] ?? googleUser.email);
+        await _storage.write(key: 'token', value: responseData['token'] ?? '');
+        await _storage.write(key: 'first_name', value: user['firstName'] ?? '');
+        await _storage.write(key: 'last_name', value: user['lastName'] ?? '');
+        await _storage.write(key: 'avatar_url', value: user['avatarUrl'] ?? '');
+        await _storage.write(key: 'phone', value: 'Google SSO');
+        await _storage.write(key: 'has_credentials', value: 'false');
+        final fullName = '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}'.trim();
+        await _storage.write(key: 'name', value: fullName);
+
         if (!mounted) return;
         context.go('/home');
       } else if (response.statusCode == 404) {
@@ -115,6 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
+      debugPrint("Error completo en Flutter: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al iniciar sesión con Google')),
@@ -125,14 +159,13 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Lógica de Autenticación Biométrica corregida y universal
+  // Lógica de Autenticación Biométrica
   Future<void> _authenticate(BuildContext context) async {
     final String? hasCredentials = await _storage.read(key: 'has_credentials');
 
     if (!mounted) return;
 
     if (hasCredentials != 'true') {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Primero inicia sesión con contraseña')),
       );
@@ -141,7 +174,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final LocalAuthentication auth = LocalAuthentication();
     try {
-      // Usamos la firma más compatible con todas las versiones de local_auth
       final bool authenticated = await auth.authenticate(
         localizedReason: 'Autentícate para ingresar a Chocomil Movies',
       );
@@ -149,7 +181,6 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (authenticated) {
-        // ignore: use_build_context_synchronously
         context.go('/home');
       }
     } catch (e) {
@@ -266,7 +297,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: _loginConGoogle,
                       icon: Image.asset('assets/images/google.png', width: 35),
                     ),
-                    
+
                     IconButton(
                       onPressed: () => _authenticate(context),
                       icon: const Icon(
