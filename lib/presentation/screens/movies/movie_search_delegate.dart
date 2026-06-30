@@ -1,13 +1,11 @@
-import 'dart:async'; // 💡 Requerido para el Timer (Debounce)
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
 
 class MovieSearchDelegate extends SearchDelegate<Movie?> {
-  // 💡 Variable para controlar el tiempo entre cada pulsación de tecla
   Timer? _debounce;
   
   @override
@@ -32,7 +30,6 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
     return IconButton(
       icon: const Icon(Icons.arrow_back_ios_new),
       onPressed: () {
-        // Limpiamos el temporizador al salir por seguridad
         _debounce?.cancel();
         context.read<SearchProvider>().clearSearch();
         close(context, null);
@@ -48,18 +45,12 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
     return _buildSearchResults();
   }
 
-  // 💡 AQUÍ SUCEDE LA MAGIA DE LA BÚSQUEDA MIENTRAS ESCRIBES
   @override
   Widget buildSuggestions(BuildContext context) {
     final searchProvider = context.read<SearchProvider>();
 
-    // Solo activamos la actualización si el texto es diferente al que ya se buscó
     if (query != searchProvider.query) {
-      
-      // Si el usuario sigue escribiendo rápido, cancelamos la búsqueda anterior
       if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-      // Esperamos 500 milisegundos de inactividad para disparar la búsqueda real
       _debounce = Timer(const Duration(milliseconds: 500), () {
         searchProvider.updateQuery(query);
       });
@@ -90,22 +81,21 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
           );
         }
 
-        // 💡 CAMBIO A 2 COLUMNAS
         return GridView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
           itemCount: searchProvider.searchResults.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,         // Reducido a 2 tarjetas por fila
-            crossAxisSpacing: 12,      // Espacio lateral ligeramente mayor
-            mainAxisSpacing: 15,       // Espacio inferior
-            childAspectRatio: 0.65,    // Proporción ideal para 2 columnas con tu tarjeta original
+            crossAxisCount: 2,        
+            crossAxisSpacing: 12,      
+            mainAxisSpacing: 15,       
+            childAspectRatio: 0.65,    
           ),
           itemBuilder: (context, index) {
             final movie = searchProvider.searchResults[index];
             
             return GestureDetector(
               onTap: () {
-                _debounce?.cancel(); // Cancelar timer si selecciona una película rápido
+                _debounce?.cancel(); 
                 close(context, movie);
               },
               child: MovieCardWidget(

@@ -36,7 +36,6 @@ final appRouter = GoRouter(
     ),
 
     // Register
-    // Register
     GoRoute(
       path: '/register',
       name: RegisterScreen.name,
