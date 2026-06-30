@@ -1,10 +1,14 @@
-import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
+import 'dart:async'; // 💡 Requerido para el Timer (Debounce)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
 
 class MovieSearchDelegate extends SearchDelegate<Movie?> {
+  // 💡 Variable para controlar el tiempo entre cada pulsación de tecla
+  Timer? _debounce;
   
   @override
   String get searchFieldLabel => 'Buscar películas...';
@@ -28,68 +32,80 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
     return IconButton(
       icon: const Icon(Icons.arrow_back_ios_new),
       onPressed: () {
+        // Limpiamos el temporizador al salir por seguridad
+        _debounce?.cancel();
         context.read<SearchProvider>().clearSearch();
         close(context, null);
       },
     );
   }
 
-  // Al presionar Enter en el teclado, disparamos la petición HTTP de manera limpia
   @override
   Widget buildResults(BuildContext context) {
     if (query.trim().isNotEmpty) {
-      // Usamos read en lugar de watch para evitar ciclos infinitos de reconstrucción
       context.read<SearchProvider>().updateQuery(query);
     }
     return _buildSearchResults();
   }
 
-  // Mientras escribe, dejamos la pantalla en blanco o estática para congelar el parpadeo
+  // 💡 AQUÍ SUCEDE LA MAGIA DE LA BÚSQUEDA MIENTRAS ESCRIBES
   @override
   Widget buildSuggestions(BuildContext context) {
+    final searchProvider = context.read<SearchProvider>();
+
+    // Solo activamos la actualización si el texto es diferente al que ya se buscó
+    if (query != searchProvider.query) {
+      
+      // Si el usuario sigue escribiendo rápido, cancelamos la búsqueda anterior
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+      // Esperamos 500 milisegundos de inactividad para disparar la búsqueda real
+      _debounce = Timer(const Duration(milliseconds: 500), () {
+        searchProvider.updateQuery(query);
+      });
+    }
+
     return _buildSearchResults();
   }
 
-  // Widget optimizado con Consumer aislado para controlar los tamaños y el parpadeo
   Widget _buildSearchResults() {
     return Consumer<SearchProvider>(
       builder: (context, searchProvider, child) {
         
-        // 1. Si está cargando, mostramos la barra sin destruir el fondo
         if (searchProvider.isLoading) {
           return const Center(
             child: CircularProgressIndicator(strokeWidth: 2),
           );
         }
 
-        // 2. Si no hay resultados
         if (searchProvider.searchResults.isEmpty && query.isNotEmpty) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'Presiona la lupa del teclado para buscar: "$query"',
+                'No se encontraron resultados para: "$query"',
                 textAlign: TextAlign.center,
               ),
             ),
           );
         }
 
-        // 3. Cuadrícula ultra compacta con imágenes pequeñas (4 columnas)
+        // 💡 CAMBIO A 2 COLUMNAS
         return GridView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
           itemCount: searchProvider.searchResults.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,         // 4 columnas = Tarjetas pequeñas y estilizadas
-            crossAxisSpacing: 6,       // Espacio lateral mini
-            mainAxisSpacing: 8,        // Espacio inferior mini
-            childAspectRatio: 0.46,    // Proporción vertical perfecta para que no se deformen por ser chicas
+            crossAxisCount: 2,         // Reducido a 2 tarjetas por fila
+            crossAxisSpacing: 12,      // Espacio lateral ligeramente mayor
+            mainAxisSpacing: 15,       // Espacio inferior
+            childAspectRatio: 0.65,    // Proporción ideal para 2 columnas con tu tarjeta original
           ),
           itemBuilder: (context, index) {
             final movie = searchProvider.searchResults[index];
             
             return GestureDetector(
               onTap: () {
+                _debounce?.cancel(); // Cancelar timer si selecciona una película rápido
                 close(context, movie);
               },
               child: MovieCardWidget(
