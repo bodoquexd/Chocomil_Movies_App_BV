@@ -5,12 +5,24 @@ import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.da
 class SearchProvider extends ChangeNotifier {
   // Necesitamos el repositorio para hacer la búsqueda real
   final MovieRepositories movieRepository;
+  List<Movie> popularMovies = [];
+
+ Future<void> loadPopularMovies() async {
+  try {
+    popularMovies = await movieRepository.getTrending();
+    notifyListeners();
+  } catch (e) {
+    popularMovies = [];
+  }
+}
 
   String _query = '';
   List<Movie> _searchResults = [];
   bool _isLoading = false;
 
-  SearchProvider({required this.movieRepository});
+ SearchProvider({required this.movieRepository}) {
+  loadPopularMovies();
+}
 
   // Getters
   String get query => _query;
@@ -22,12 +34,13 @@ class SearchProvider extends ChangeNotifier {
     _query = value;
     
     // Si el usuario borra todo, limpiamos los resultados inmediatamente
-    if (value.trim().isEmpty) {
-      _searchResults = [];
-      _isLoading = false;
-      notifyListeners();
-      return;
-    }
+   if (value.trim().isEmpty) {
+  _query = '';
+  _searchResults = [];
+  _isLoading = false;
+  notifyListeners();
+  return;
+}
 
     _isLoading = true;
     notifyListeners();

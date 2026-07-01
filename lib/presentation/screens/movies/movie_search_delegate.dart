@@ -18,9 +18,11 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
         IconButton(
           icon: const Icon(Icons.clear),
           onPressed: () {
-            query = '';
-            context.read<SearchProvider>().clearSearch();
-          },
+  _debounce?.cancel();
+  query = '';
+  context.read<SearchProvider>().clearSearch();
+  close(context, null); // 👈 ESTO REGRESA AL HOME
+}
         )
     ];
   }
@@ -49,64 +51,72 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
   Widget buildSuggestions(BuildContext context) {
     final searchProvider = context.read<SearchProvider>();
 
-    if (query != searchProvider.query) {
-      if (_debounce?.isActive ?? false) _debounce!.cancel();
-      _debounce = Timer(const Duration(milliseconds: 500), () {
-        searchProvider.updateQuery(query);
-      });
-    }
+    if (query.isNotEmpty && query != searchProvider.query) {
+  if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+  _debounce = Timer(const Duration(milliseconds: 500), () {
+    searchProvider.updateQuery(query);
+  });
+}
 
     return _buildSearchResults();
   }
 
   Widget _buildSearchResults() {
-    return Consumer<SearchProvider>(
-      builder: (context, searchProvider, child) {
-        
-        if (searchProvider.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
-          );
-        }
+  return Consumer<SearchProvider>(
+    builder: (context, searchProvider, child) {
 
-        if (searchProvider.searchResults.isEmpty && query.isNotEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'No se encontraron resultados para: "$query"',
-                textAlign: TextAlign.center,
-              ),
+      // Lista que se mostrará
+      final movies = query.trim().isEmpty
+          ? searchProvider.popularMovies
+          : searchProvider.searchResults;
+
+      if (searchProvider.isLoading) {
+        return const Center(
+          child: CircularProgressIndicator(strokeWidth: 2),
+        );
+      }
+
+      if (movies.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              query.isEmpty
+                  ? 'No hay películas disponibles'
+                  : 'No se encontraron resultados para: "$query"',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+      }
+
+      return GridView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+        itemCount: movies.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 15,
+          childAspectRatio: 0.65,
+        ),
+        itemBuilder: (context, index) {
+          final movie = movies[index];
+
+          return GestureDetector(
+            onTap: () {
+              _debounce?.cancel();
+              close(context, movie);
+            },
+            child: MovieCardWidget(
+              title: movie.title,
+              imageUrl: movie.posterPath,
+              rating: movie.voteAverage,
             ),
           );
-        }
-
-        return GridView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-          itemCount: searchProvider.searchResults.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,        
-            crossAxisSpacing: 12,      
-            mainAxisSpacing: 15,       
-            childAspectRatio: 0.65,    
-          ),
-          itemBuilder: (context, index) {
-            final movie = searchProvider.searchResults[index];
-            
-            return GestureDetector(
-              onTap: () {
-                _debounce?.cancel(); 
-                close(context, movie);
-              },
-              child: MovieCardWidget(
-                title: movie.title,
-                imageUrl: movie.posterPath,
-                rating: movie.voteAverage,
-              ),
-            ); 
-          },
-        );
-      },
-    );
-  }
+        },
+      );
+    },
+  );
+}
 }
