@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _carouselTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!mounted) return;
-      
+
       final movieProvider = context.read<MovieProvider>();
       if (movieProvider.featuredMovies.isEmpty) return;
 
@@ -62,7 +62,12 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: AppColors.primary,
         centerTitle: true,
         elevation: 0,
-        title: Image.asset('assets/images/icon_app.png', height: 45),
+        toolbarHeight: 65,
+        title: Image.asset(
+          'assets/images/logo.png',
+          height: 58,
+          fit: BoxFit.contain,
+        ),
       ),
       body: movieProvider.isLoading
           ? const Center(
@@ -86,12 +91,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 FeaturedCarouselWidget(
                   controller: _featuredController,
                   movies: movieProvider.featuredMovies,
-                  onPageChanged: (index) => setState(() => _currentPage = index),
+                  onPageChanged: (index) =>
+                      setState(() => _currentPage = index),
                 ),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(movieProvider.featuredMovies.length, (index) {
+                  children: List.generate(movieProvider.featuredMovies.length, (
+                    index,
+                  ) {
                     final isActive = index == _currentPage;
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
@@ -119,8 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 24),
                 MovieRowSectionWidget(
-                  title: 'Acción', 
-                  movies: movieProvider.actionMovies
+                  title: 'Acción',
+                  movies: movieProvider.actionMovies,
                 ),
 
                 const SizedBox(height: 24),
@@ -131,8 +139,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 24),
                 MovieRowSectionWidget(
-                  title: 'Comedia', 
-                  movies: movieProvider.comedyMovies
+                  title: 'Comedia',
+                  movies: movieProvider.comedyMovies,
                 ),
 
                 const SizedBox(height: 24),
@@ -145,31 +153,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SectionTitleWidget(title: 'Comentarios'),
                 const SizedBox(height: 15),
 
-                // 5. Los comentarios que ya tenías diseñados
                 const CommentWidget(
                   userName: 'Carlos',
                   rating: 4.8,
                   comment:
                       'Excelente aplicación, encontré rápidamente las películas.',
                 ),
+
                 const CommentWidget(
                   userName: 'Elena',
                   rating: 4.7,
                   comment:
                       'La selección de películas de animación es increíble, ¡me encanta!',
                 ),
+
                 const CommentWidget(
                   userName: 'Ana',
                   rating: 5.0,
                   comment:
                       'Me encanta el diseño. Parece una plataforma profesional.',
                 ),
+
                 const CommentWidget(
                   userName: 'Miguel',
                   rating: 4.5,
                   comment:
                       'Las recomendaciones son muy buenas y la navegación es sencilla.',
                 ),
+
                 const CommentWidget(
                   userName: 'Sofía',
                   rating: 4.9,

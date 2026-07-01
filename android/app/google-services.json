@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1077647994525",
+    "project_id": "chocomil-movies-app-bv",
+    "storage_bucket": "chocomil-movies-app-bv.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1077647994525:android:470b2aed2fe379b2046e74",
+        "android_client_info": {
+          "package_name": "com.example.chocomil"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1077647994525-74b9mp8l1miqrl0f2o0fmne6p64a13d5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chocomil",
+            "certificate_hash": "63f88bdf77377432da5941a51e53c36d0aacd1eb"
+          }
+        },
+        {
+          "client_id": "1077647994525-rri1suomsvfq6nehnav34lkdvqerkshi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRXQDY8r1f7_luvCIfLBXHFXGDf9N2X0c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1077647994525-rri1suomsvfq6nehnav34lkdvqerkshi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1077647994525-g3c5tfmc36o75bro3o67m46bgpk3lro5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.chocomil"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
