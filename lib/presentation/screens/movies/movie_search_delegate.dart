@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
+// Asegúrate de que esta ruta apunte correctamente a tu MovieProvider
+import 'package:chocomil_movies_app_bv/providers/movie_provider.dart'; 
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
 
@@ -32,7 +34,7 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
       icon: const Icon(Icons.arrow_back_ios_new),
       onPressed: () {
         _debounce?.cancel();
-        context.read<SearchProvider>().clearSearch();
+        context.read<SearchProvider>().clearSearch(); 
         close(context, null);
       },
     );
@@ -48,6 +50,11 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+    // Si no hay nada escrito, mostramos las películas por defecto de tu MovieProvider
+    if (query.isEmpty) {
+      return _buildDefaultMovies();
+    }
+
     final searchProvider = context.read<SearchProvider>();
 
     if (query != searchProvider.query) {
@@ -59,6 +66,49 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
     }
 
     return _buildSearchResults();
+  }
+
+  // Método que pinta las películas cuando el buscador está vacío
+  Widget _buildDefaultMovies() {
+    return Consumer<MovieProvider>(
+      builder: (context, movieProvider, child) {
+        
+
+        final defaultMovies = movieProvider.trendingMovies; 
+
+        if (defaultMovies.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(strokeWidth: 2),
+          );
+        }
+
+        return GridView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+          itemCount: defaultMovies.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,         
+            crossAxisSpacing: 12,      
+            mainAxisSpacing: 15,       
+            childAspectRatio: 0.65,    
+          ),
+          itemBuilder: (context, index) {
+            final movie = defaultMovies[index];
+            
+            return GestureDetector(
+              onTap: () {
+                _debounce?.cancel(); 
+                close(context, movie);
+              },
+              child: MovieCardWidget(
+                title: movie.title,
+                imageUrl: movie.posterPath,
+                rating: movie.voteAverage,
+              ),
+            ); 
+          },
+        );
+      },
+    );
   }
 
   Widget _buildSearchResults() {
@@ -98,7 +148,6 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
             return GestureDetector(
               onTap: () {
                 _debounce?.cancel(); 
-                
                 close(context, movie);
               },
               child: MovieCardWidget(
