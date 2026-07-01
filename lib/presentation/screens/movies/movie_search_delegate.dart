@@ -26,14 +26,13 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
     ];
   }
 
-  // 💡 SOLUCIÓN 1: Al tocar la flechita de atrás, SÍ borramos todo del proveedor
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.arrow_back_ios_new),
       onPressed: () {
         _debounce?.cancel();
-        context.read<SearchProvider>().clearSearch(); // Borra el estado al cerrar definitivamente
+        context.read<SearchProvider>().clearSearch();
         close(context, null);
       },
     );
@@ -99,8 +98,7 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
             return GestureDetector(
               onTap: () {
                 _debounce?.cancel(); 
-                // 💡 SOLUCIÓN 2: Al seleccionar una película, NO borramos el estado.
-                // Solo cerramos devolviendo la película para que la persistencia se mantenga al navegar.
+                
                 close(context, movie);
               },
               child: MovieCardWidget(

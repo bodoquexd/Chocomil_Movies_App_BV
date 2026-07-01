@@ -6,7 +6,7 @@ import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import '../screens/movies/movie_search_delegate.dart';
 
-// 💡 1. Convertimos a StatefulWidget para tener control del ciclo de vida (initState)
+
 class SearchWidget extends StatefulWidget {
   const SearchWidget({super.key});
 
@@ -20,12 +20,10 @@ class _SearchWidgetState extends State<SearchWidget> {
   void initState() {
     super.initState();
 
-    // 💡 2. ESTA ES LA MAGIA: Al reconstruirse la pestaña Home, revisamos la memoria
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final textoGuardado = context.read<SearchProvider>().query;
       
-      // Si hay texto guardado, significa que no cerraste el buscador con la flecha.
-      // Por lo tanto, lo volvemos a abrir automáticamente de inmediato.
+
       if (textoGuardado.isNotEmpty) {
         showSearch(
           context: context,
