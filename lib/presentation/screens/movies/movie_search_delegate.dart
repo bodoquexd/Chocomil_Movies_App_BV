@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
-// Asegúrate de que esta ruta apunte correctamente a tu MovieProvider
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart'; 
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
@@ -50,7 +49,6 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    // Si no hay nada escrito, mostramos las películas por defecto de tu MovieProvider
     if (query.isEmpty) {
       return _buildDefaultMovies();
     }
@@ -68,7 +66,6 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
     return _buildSearchResults();
   }
 
-  // Método que pinta las películas cuando el buscador está vacío
   Widget _buildDefaultMovies() {
     return Consumer<MovieProvider>(
       builder: (context, movieProvider, child) {
