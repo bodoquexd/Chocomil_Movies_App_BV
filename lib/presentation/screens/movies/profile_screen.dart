@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
@@ -16,10 +18,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _storage = const FlutterSecureStorage();
-  
+
   String _nombre = 'Cargando...';
   String _email = 'Cargando...';
   String _telefono = 'Cargando...';
+  String? _avatarUrl;
 
   @override
   void initState() {
@@ -29,20 +32,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _cargarDatosDeUsuario() async {
     final email = await _storage.read(key: 'email') ?? 'Correo no disponible';
-    final nombre = await _storage.read(key: 'name') ?? 'Usuario de Chocomil';
-    final telefono = await _storage.read(key: 'phone') ?? 'Teléfono no registrado';
+    String? nombre = await _storage.read(key: 'name');
+    if (nombre == null) {
+      final firstName = await _storage.read(key: 'first_name') ?? 'Usuario';
+      final lastName = await _storage.read(key: 'last_name') ?? 'Chocomil';
+      nombre = '$firstName $lastName'.trim();
+    }
+
+    final telefono =
+        await _storage.read(key: 'phone') ?? 'Teléfono no registrado';
+    final avatar = await _storage.read(key: 'avatar_url');
 
     setState(() {
       _email = email;
-      _nombre = nombre;
+      _nombre = nombre!;
       _telefono = telefono;
+      _avatarUrl = avatar;
     });
   }
 
   Future<void> _cerrarSesion() async {
-    await _storage.deleteAll();
-    if (mounted) {
-      context.go('/login');
+    final bool? confirmar = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false, 
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primaryDark,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Text(
+            'Cerrar Sesión',
+            style: TextosEstilos.subtitulo.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            '¿Estás seguro de que quieres cerrar sesión?',
+            style: TextosEstilos.cuerpo,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Cancelar',
+                style: TextosEstilos.boton.copyWith(color: AppColors.grayLight),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Sí, salir',
+                style: TextosEstilos.boton,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar == true) {
+      try {
+        await GoogleSignIn().signOut();
+        await FirebaseAuth.instance.signOut();
+      } catch (e) {
+        debugPrint('Error al cerrar sesión de Google: $e');
+      }
+      await _storage.deleteAll();
+      
+      if (mounted) {
+        context.go('/login');
+      }
     }
   }
 
@@ -51,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.cardBackground, // Usamos el fondo oscuro de tu app
+      backgroundColor: AppColors.cardBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -67,7 +127,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               SizedBox(height: screenSize.height * 0.04),
 
-              // --- FOTO DE PERFIL (Icono por defecto) ---
               Container(
                 width: 120,
                 height: 120,
@@ -75,17 +134,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: AppColors.primaryDark,
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.primary, width: 3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
-                child: const Icon(
-                  Icons.person,
-                  size: 80,
-                  color: AppColors.primary,
+                child: ClipOval(
+                  child: (_avatarUrl != null && _avatarUrl!.isNotEmpty)
+                      ? Image.network(
+                          _avatarUrl!,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.primary,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.person,
+                              size: 80,
+                              color: AppColors.primary,
+                            );
+                          },
+                        )
+                      : const Icon(
+                          Icons.person,
+                          size: 80,
+                          color: AppColors.primary,
+                        ),
                 ),
               ),
-              
-              SizedBox(height: screenSize.height * 0.02),
 
-              // --- NOMBRE DEL USUARIO ---
+              SizedBox(height: screenSize.height * 0.02),
               Text(
                 _nombre,
                 style: TextosEstilos.titulo.copyWith(fontSize: 24),
@@ -93,8 +179,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
 
               SizedBox(height: screenSize.height * 0.05),
-
-              // --- TARJETA CON LOS DATOS ---
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.primaryDark,
@@ -104,24 +188,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     // Fila del Correo
                     ListTile(
-                      leading: const Icon(Icons.email, color: AppColors.primary),
-                      title: Text('Correo Electrónico', style: TextosEstilos.cuerpo.copyWith(color: AppColors.textSecondary)),
+                      leading: const Icon(
+                        Icons.email,
+                        color: AppColors.primary,
+                      ),
+                      title: Text(
+                        'Correo Electrónico',
+                        style: TextosEstilos.cuerpo.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
+                      ),
                       subtitle: Text(_email, style: TextosEstilos.cuerpo),
                     ),
                     const Divider(color: AppColors.background, height: 1),
                     // Fila del Teléfono
                     ListTile(
-                      leading: const Icon(Icons.phone, color: AppColors.primary),
-                      title: Text('Teléfono', style: TextosEstilos.cuerpo.copyWith(color: AppColors.textSecondary)),
+                      leading: const Icon(
+                        Icons.phone,
+                        color: AppColors.primary,
+                      ),
+                      title: Text(
+                        'Teléfono',
+                        style: TextosEstilos.cuerpo.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
+                      ),
                       subtitle: Text(_telefono, style: TextosEstilos.cuerpo),
                     ),
                   ],
                 ),
               ),
 
-              const Spacer(), // Empuja el botón hacia abajo
-
-              // --- BOTÓN DE CERRAR SESIÓN ---
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ButtonWidget(
@@ -129,7 +229,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: _cerrarSesion,
                 ),
               ),
-              
               SizedBox(height: screenSize.height * 0.04),
             ],
           ),

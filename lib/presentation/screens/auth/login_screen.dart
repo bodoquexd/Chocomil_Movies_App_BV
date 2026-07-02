@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
@@ -22,10 +25,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final _storage = const FlutterSecureStorage(); 
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: kIsWeb ? '1077647994525-rri1suomsvfq6nehnav34lkdvqerkshi.apps.googleusercontent.com' : null,
+    scopes: ['email'],
+  );
+  final _storage = const FlutterSecureStorage();
 
   bool _isLoading = false;
-
   Future<void> _loginConServidor() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
@@ -37,153 +43,152 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final url = Uri.parse('${Environment.apiUrl}/auth/login');
-
       final response = await http
           .post(
             url,
-            headers: {
-              'Content-Type': 'application/json',
-//              'bypass-tunnel-reminder': 'true',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'email': email, 'password': password}),
           )
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
-        // 1. Extraemos los datos de la respuesta del servidor
         final responseData = jsonDecode(response.body);
-        
-        // 2. Armamos el nombre uniendo firstName y lastName (que es como los manda tu Node.js)
-        final String firstName = responseData['user']?['firstName'] ?? '';
-        final String lastName = responseData['user']?['lastName'] ?? '';
-        final String nombreCompleto = "$firstName $lastName".trim();
+        final user = responseData['user'];
 
-        // 3. Validamos que no esté vacío, de lo contrario ponemos uno por defecto
-        final nombreFinal = nombreCompleto.isNotEmpty ? nombreCompleto : 'Usuario de Chocomil';
-        final telefono = responseData['user']?['phone'] ?? 'Teléfono no registrado';
-
-        // 4. Guardamos todo en la memoria segura
         await _storage.write(key: 'email', value: email);
         await _storage.write(key: 'password', value: password);
         await _storage.write(key: 'has_credentials', value: 'true');
-        await _storage.write(key: 'name', value: nombreFinal); 
-        await _storage.write(key: 'phone', value: telefono); 
+        await _storage.write(key: 'token', value: responseData['token'] ?? '');
+        await _storage.write(key: 'first_name', value: user['firstName'] ?? '');
+        await _storage.write(key: 'last_name', value: user['lastName'] ?? '');
+        await _storage.write(key: 'phone', value: user['phone'] ?? 'Teléfono no registrado');
+        await _storage.write(key: 'avatar_url', value: user['avatarUrl'] ?? '');
+        final fullName = '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}'.trim();
+        await _storage.write(key: 'name', value: fullName);
 
-        if (mounted) {
-          context.go('/home');
-        }
+        if (!mounted) return;
+        context.go('/home');
       } else {
-        if (mounted) {
-          final errorData = jsonDecode(response.body);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorData['message'] ?? 'Error al iniciar sesión'),
-            ),
-          );
-        }
+        if (!mounted) return;
+        final errorData = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorData['message'] ?? 'Error al iniciar sesión'),
+          ),
+        );
       }
     } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo conectar con el servidor')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loginConGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      final String? firebaseIdToken = await userCredential.user?.getIdToken();
+     
+      final url = Uri.parse('${Environment.apiUrl}/auth/google-login');
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'idToken': firebaseIdToken}),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final user = responseData['user'];
+
+        await _storage.write(key: 'email', value: user['email'] ?? googleUser.email);
+        await _storage.write(key: 'token', value: responseData['token'] ?? '');
+        await _storage.write(key: 'first_name', value: user['firstName'] ?? '');
+        await _storage.write(key: 'last_name', value: user['lastName'] ?? '');
+        await _storage.write(key: 'avatar_url', value: user['avatarUrl'] ?? '');
+        await _storage.write(key: 'phone', value: 'Google SSO');
+        await _storage.write(key: 'has_credentials', value: 'false');
+        final fullName = '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}'.trim();
+        await _storage.write(key: 'name', value: fullName);
+
+        if (!mounted) return;
+        context.go('/home');
+      } else if (response.statusCode == 404) {
+        if (!mounted) return;
+        context.push(
+          '/register',
+          extra: {
+            'email': googleUser.email,
+            'name': googleUser.displayName?.split(' ').first ?? '',
+            'last_name': googleUser.displayName?.split(' ').last ?? '',
+          },
+        );
+      }
+    } catch (e) {
+      debugPrint("Error completo en Flutter: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo conectar con el servidor')),
+          const SnackBar(content: Text('Error al iniciar sesión con Google')),
         );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _authenticate(BuildContext context) async {
-    String? hasCredentials = await _storage.read(key: 'has_credentials');
-    
-    if (hasCredentials != 'true') {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Primero inicia sesión manualmente con correo y contraseña')),
-        );
-      }
+    final String? token = await _storage.read(key: 'token');
+
+    if (!mounted) return;
+
+    if (token == null || token.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Primero debes iniciar sesión de forma normal al menos una vez')),
+      );
       return;
     }
 
     final LocalAuthentication auth = LocalAuthentication();
-    bool authenticated = false;
-
     try {
-      authenticated = await auth.authenticate(
+      final bool authenticated = await auth.authenticate(
         localizedReason: 'Autentícate para ingresar a Chocomil Movies',
-        biometricOnly: true,
       );
-    } catch (e) {
-      return;
-    }
 
-    if (authenticated) {
-      setState(() {
-        _isLoading = true; 
-      });
+      if (!mounted) return;
 
-      try {
-        String? email = await _storage.read(key: 'email');
-        String? password = await _storage.read(key: 'password');
-
-        final url = Uri.parse('${Environment.apiUrl}/auth/login');
-        final response = await http.post(
-          url,
-          headers: {
-            'Content-Type': 'application/json',
-            'bypass-tunnel-reminder': 'true', 
-          },
-          body: jsonEncode({'email': email, 'password': password}),
-        ).timeout(const Duration(seconds: 10));
-
-        if (response.statusCode == 200) {
-          final responseData = jsonDecode(response.body);
-          
-          final String firstName = responseData['user']?['firstName'] ?? '';
-          final String lastName = responseData['user']?['lastName'] ?? '';
-          final String nombreCompleto = "$firstName $lastName".trim();
-
-          final nombreFinal = nombreCompleto.isNotEmpty ? nombreCompleto : 'Usuario de Chocomil';
-          final telefono = responseData['user']?['phone'] ?? 'Teléfono no registrado';
-
-          await _storage.write(key: 'name', value: nombreFinal);
-          await _storage.write(key: 'phone', value: telefono);
-
-          if (context.mounted) { 
-            context.go('/home');
-          }
-        } else {
-          if (context.mounted) { 
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Credenciales expiradas. Inicia sesión manualmente.')),
-            );
-          }
-        }
-      } catch (e) {
-        if (context.mounted) { 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error de red al iniciar con huella')),
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+      if (authenticated) {
+        context.go('/home');
       }
+    } catch (e) {
+      debugPrint('Error de autenticación biométrica: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al interactuar con el sensor biométrico')),
+      );
     }
-  } 
+  }
 
   @override
   void dispose() {
@@ -201,18 +206,17 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.06),
+            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.08),
             child: Column(
               children: [
-                SizedBox(height: screenSize.height * 0.05),
+                SizedBox(height: screenSize.height * 0.02),
 
+                // LOGO
                 Image.asset(
                   'assets/images/logo.png',
-                  height: screenSize.height * 0.22,
+                  height: screenSize.height * 0.20,
                   fit: BoxFit.contain,
                 ),
-
-                SizedBox(height: screenSize.height * 0.03),
 
                 Text(
                   'Iniciar sesión',
@@ -227,53 +231,43 @@ class _LoginScreenState extends State<LoginScreen> {
                   keyboardType: TextInputType.emailAddress,
                   controller: _emailController,
                 ),
-                SizedBox(height: screenSize.height * 0.02),
+                const SizedBox(height: 16),
                 InputWidget(
                   label: 'Contraseña',
                   obscureText: true,
                   controller: _passwordController,
                 ),
 
-                SizedBox(height: screenSize.height * 0.05),
-
+                SizedBox(height: screenSize.height * 0.04),
                 SizedBox(
-                  width: 150,
+                  width: 200,
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        )
                       : ButtonWidget(
                           texto: 'Aceptar',
                           onPressed: _loginConServidor,
                         ),
                 ),
 
-                SizedBox(height: screenSize.height * 0.03),
-                IconButton(
-                  onPressed: () => _authenticate(context),
-                  icon: const Icon(
-                    Icons.fingerprint,
-                    size: 50,
-                    color: AppColors.primary,
-                  ),
-                ),
+                const SizedBox(height: 24),
 
-                SizedBox(height: screenSize.height * 0.03),
-
+                // SECCIÓN: ¿NO TIENES CUENTA? REGÍSTRATE
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '¿No tienes una cuenta? ',
+                      '¿No tienes cuenta? ',
                       style: TextosEstilos.cuerpo.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
                     TextButton(
                       onPressed: () => context.push('/register'),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
                       child: Text(
                         'Regístrate',
                         style: TextosEstilos.cuerpo.copyWith(
@@ -283,7 +277,41 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: screenSize.height * 0.03),
+
+                const SizedBox(height: 20),
+
+                // SECCIÓN: O INICIA SESIÓN CON...
+                Text(
+                  'O inicia sesión con',
+                  style: TextosEstilos.cuerpo.copyWith(
+                    color: AppColors.textHint,
+                    fontSize: 14,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // ICONOS: GOOGLE Y HUELLA
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: _loginConGoogle,
+                      icon: Image.asset('assets/images/google.png', width: 35),
+                    ),
+
+                    IconButton(
+                      onPressed: () => _authenticate(context),
+                      icon: const Icon(
+                        Icons.fingerprint,
+                        size: 50,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 40),
               ],
             ),
           ),
