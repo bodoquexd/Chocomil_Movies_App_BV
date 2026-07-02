@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
@@ -16,11 +18,12 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _storage = const FlutterSecureStorage();
-  
+
   String _nombre = 'Cargando...';
   String _email = 'Cargando...';
   String _telefono = 'Cargando...';
-  String? _avatarUrl; 
+  String? _avatarUrl;
+
   @override
   void initState() {
     super.initState();
@@ -36,7 +39,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       nombre = '$firstName $lastName'.trim();
     }
 
-    final telefono = await _storage.read(key: 'phone') ?? 'Teléfono no registrado';
+    final telefono =
+        await _storage.read(key: 'phone') ?? 'Teléfono no registrado';
     final avatar = await _storage.read(key: 'avatar_url');
 
     setState(() {
@@ -46,10 +50,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _avatarUrl = avatar;
     });
   }
+
   Future<void> _cerrarSesion() async {
-    await _storage.deleteAll();
-    if (mounted) {
-      context.go('/login');
+    final bool? confirmar = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false, 
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primaryDark,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Text(
+            'Cerrar Sesión',
+            style: TextosEstilos.subtitulo.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            '¿Estás seguro de que quieres cerrar sesión?',
+            style: TextosEstilos.cuerpo,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Cancelar',
+                style: TextosEstilos.boton.copyWith(color: AppColors.grayLight),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Sí, salir',
+                style: TextosEstilos.boton,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar == true) {
+      try {
+        await GoogleSignIn().signOut();
+        await FirebaseAuth.instance.signOut();
+      } catch (e) {
+        debugPrint('Error al cerrar sesión de Google: $e');
+      }
+      await _storage.deleteAll();
+      
+      if (mounted) {
+        context.go('/login');
+      }
     }
   }
 
@@ -58,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.cardBackground, 
+      backgroundColor: AppColors.cardBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -86,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppColors.primary.withValues(alpha: 0.3),
                       blurRadius: 10,
                       spreadRadius: 2,
-                    )
+                    ),
                   ],
                 ),
                 child: ClipOval(
@@ -117,7 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                 ),
               ),
-              
+
               SizedBox(height: screenSize.height * 0.02),
               Text(
                 _nombre,
@@ -135,20 +188,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     // Fila del Correo
                     ListTile(
-                      leading: const Icon(Icons.email, color: AppColors.primary),
+                      leading: const Icon(
+                        Icons.email,
+                        color: AppColors.primary,
+                      ),
                       title: Text(
-                        'Correo Electrónico', 
-                        style: TextosEstilos.cuerpo.copyWith(color: AppColors.textSecondary, fontSize: 13),
+                        'Correo Electrónico',
+                        style: TextosEstilos.cuerpo.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
                       ),
                       subtitle: Text(_email, style: TextosEstilos.cuerpo),
                     ),
                     const Divider(color: AppColors.background, height: 1),
                     // Fila del Teléfono
                     ListTile(
-                      leading: const Icon(Icons.phone, color: AppColors.primary),
+                      leading: const Icon(
+                        Icons.phone,
+                        color: AppColors.primary,
+                      ),
                       title: Text(
-                        'Teléfono', 
-                        style: TextosEstilos.cuerpo.copyWith(color: AppColors.textSecondary, fontSize: 13),
+                        'Teléfono',
+                        style: TextosEstilos.cuerpo.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
                       ),
                       subtitle: Text(_telefono, style: TextosEstilos.cuerpo),
                     ),
