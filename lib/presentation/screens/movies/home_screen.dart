@@ -9,6 +9,7 @@ import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart'
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_row_section_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/featured_carousel_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/custom_error_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String name = 'home_screen';
@@ -51,6 +52,44 @@ class _HomeScreenState extends State<HomeScreen> {
     _featuredController.dispose();
     super.dispose();
   }
+  
+  Widget _buildErrorView(String errorCode, BuildContext context) {
+  if (errorCode == 'error_internet') {
+    return CustomErrorWidget(
+      imagePath: 'assets/images/no_internet.png', 
+      title: 'Sin conexión a Internet',
+      message: 'Revisa tu conexión Wi-Fi o datos móviles e intenta nuevamente.',
+      buttonText: 'Reintentar',
+      onRetry: () => context.read<MovieProvider>().loadAllMovies(),
+    );
+  } else if (errorCode == 'error_404') {
+    return CustomErrorWidget(
+      imagePath: 'assets/images/error_404.png',
+      title: 'Contenido no encontrado',
+      message: 'La película o recurso que buscas no está disponible (Error 404).',
+      buttonText: 'Volver a intentar',
+      onRetry: () => context.read<MovieProvider>().loadAllMovies(),
+    );
+  } else if (errorCode == 'error_500') {
+    return CustomErrorWidget(
+      imagePath: 'assets/images/error_500.png',
+      title: 'Problemas en el servidor',
+      message: 'Nuestros servidores están fallando en este momento. Vuelve a intentarlo más tarde.',
+      buttonText: 'Reintentar',
+      onRetry: () => context.read<MovieProvider>().loadAllMovies(),
+    );
+  } else {
+
+    // Error por defecto
+    return CustomErrorWidget(
+      imagePath: 'assets/images/error_generic.png',
+      title: 'Error inesperado',
+      message: 'Ocurrió un problema desconocido. Por favor, intenta de nuevo.',
+      buttonText: 'Reintentar',
+      onRetry: () => context.read<MovieProvider>().loadAllMovies(),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         toolbarHeight: 65,
         title: Image.asset(
-          'assets/images/logo.png',
+          'assets/images/icon_app.png',
           height: 58,
           fit: BoxFit.contain,
         ),
@@ -74,12 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CircularProgressIndicator(color: AppColors.textPrimary),
             )
           : movieProvider.errorMessage != null
-          ? Center(
-              child: Text(
-                movieProvider.errorMessage!,
-                style: const TextStyle(color: Colors.white),
-              ),
-            )
+          ? _buildErrorView(movieProvider.errorMessage!, context)
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [

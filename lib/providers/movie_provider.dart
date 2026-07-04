@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.dart';
@@ -41,8 +42,19 @@ class MovieProvider extends ChangeNotifier {
       
       isLoading = false;
     } catch (e) {
-      errorMessage = 'Error al conectar con TMDB. Revisa tu conexión.';
       isLoading = false;
+
+      final errorString = e.toString().toLowerCase();
+
+      if (e is SocketException || errorString.contains('socketexception') || errorString.contains('failed host lookup')) {
+        errorMessage = 'error_internet';
+      } else if (errorString.contains('404')) {
+        errorMessage = 'error_404';
+      } else if (errorString.contains('500')) {
+        errorMessage = 'error_500';
+      } else {
+        errorMessage = 'error_desconocido';
+      }
     } finally {
       notifyListeners(); 
     }
