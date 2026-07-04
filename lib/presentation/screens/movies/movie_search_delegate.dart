@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart'; 
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
+// 💡 IMPORTANTE: Importa aquí tu nueva pantalla de detalles (ajusta la ruta si es necesario)
+import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart'; 
 
 class MovieSearchDelegate extends SearchDelegate<Movie?> {
   Timer? _debounce;
@@ -56,6 +59,7 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
 
     if (query != searchProvider.query) {
       if (_debounce?.isActive ?? false) _debounce!.cancel();
+
       _debounce = Timer(const Duration(milliseconds: 500), () {
         searchProvider.updateQuery(query);
       });
@@ -67,8 +71,6 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
   Widget _buildDefaultMovies() {
     return Consumer<MovieProvider>(
       builder: (context, movieProvider, child) {
-        
-
         final defaultMovies = movieProvider.trendingMovies; 
 
         if (defaultMovies.isEmpty) {
@@ -92,7 +94,13 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
             return GestureDetector(
               onTap: () {
                 _debounce?.cancel(); 
-                close(context, movie);
+                // 💡 CAMBIO AQUÍ: Ahora navegamos a la pantalla de detalle
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MovieDetailScreen(movie: movie),
+                  ),
+                );
               },
               child: MovieCardWidget(
                 title: movie.title,
@@ -132,7 +140,7 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
           itemCount: searchProvider.searchResults.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,        
+            crossAxisCount: 2,         
             crossAxisSpacing: 12,      
             mainAxisSpacing: 15,       
             childAspectRatio: 0.65,    
@@ -143,7 +151,13 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
             return GestureDetector(
               onTap: () {
                 _debounce?.cancel(); 
-                close(context, movie);
+                // 💡 CAMBIO AQUÍ: También navegamos al detalle desde los resultados de búsqueda
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MovieDetailScreen(movie: movie),
+                  ),
+                );
               },
               child: MovieCardWidget(
                 title: movie.title,
