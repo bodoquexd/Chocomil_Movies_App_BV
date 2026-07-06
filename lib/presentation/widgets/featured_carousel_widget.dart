@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/featured_movie_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
 
 class FeaturedCarouselWidget extends StatelessWidget {
   final PageController controller;
@@ -39,9 +40,20 @@ class FeaturedCarouselWidget extends StatelessWidget {
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: FeaturedMovieWidget(
-                title: movie.title,
-                imageUrl: movie.backdropPath,
+
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MovieDetailScreen(movie: movie),
+                    ),
+                  );
+                },
+                child: FeaturedMovieWidget(
+                  title: movie.title,
+                  imageUrl: movie.backdropPath,
+                ),
               ),
             ),
           );

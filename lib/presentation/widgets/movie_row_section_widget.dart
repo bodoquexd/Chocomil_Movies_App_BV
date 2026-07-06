@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
-import 'package:chocomil_movies_app_bv/resources/colors/colors.dart'; // Importamos tus colores
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart'; 
+import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
 
 class MovieRowSectionWidget extends StatelessWidget {
   final String title;
@@ -47,10 +48,21 @@ class MovieRowSectionWidget extends StatelessWidget {
               separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 final movie = movies[index];
-                return MovieCardWidget(
-                  title: movie.title,
-                  imageUrl: movie.posterPath,
-                  rating: movie.voteAverage,
+                
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MovieDetailScreen(movie: movie),
+                      ),
+                    );
+                  },
+                  child: MovieCardWidget(
+                    title: movie.title,
+                    imageUrl: movie.posterPath,
+                    rating: movie.voteAverage,
+                  ),
                 );
               },
             ),
