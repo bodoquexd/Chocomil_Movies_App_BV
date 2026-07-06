@@ -16,7 +16,25 @@ class MovieProvider extends ChangeNotifier {
   bool isLoading = true;
   String? errorMessage;
 
+  // NUEVO: Set para guardar los IDs de las películas favoritas en memoria
+  final Set<int> _favoriteMovieIds = {};
+
   MovieProvider({required this.movieRepository});
+
+  // NUEVO: Método para saber si una película es favorita
+  bool isFavorite(int movieId) {
+    return _favoriteMovieIds.contains(movieId);
+  }
+
+  // NUEVO: Método para agregar/quitar de favoritos y notificar a la UI
+  void toggleFavorite(int movieId) {
+    if (_favoriteMovieIds.contains(movieId)) {
+      _favoriteMovieIds.remove(movieId);
+    } else {
+      _favoriteMovieIds.add(movieId);
+    }
+    notifyListeners(); 
+  }
 
   Future<void> loadAllMovies() async {
     try {

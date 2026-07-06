@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
+import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
 class MovieCardWidget extends StatelessWidget {
-  final String title;
-  final String imageUrl;
-  final double rating;
+  final Movie movie; // <--- Cambio 1: Recibe la película completa
 
   const MovieCardWidget({
     super.key,
-    required this.title,
-    required this.imageUrl,
-    required this.rating,
+    required this.movie,
   });
 
   @override
   Widget build(BuildContext context) {
+    // <--- Cambio 2: Llama al provider
+    final movieProvider = Provider.of<MovieProvider>(context);
+    final isFav = movieProvider.isFavorite(movie.id);
+
     return SizedBox(
       width: 180, 
       child: Card(
@@ -29,25 +32,44 @@ class MovieCardWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Image.network(
-                imageUrl,
-                width: double.infinity,
-                fit: BoxFit.cover, 
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: AppColors.primary,
-                    child: const Center(
-                      child: Icon(
-                        Icons.movie,
-                        color: AppColors.textPrimary,
-                        size: 50,
+              child: Stack( // <--- Cambio 3: Stack para encimar el botón
+                children: [
+                  Image.network(
+                    movie.posterPath,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover, 
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: AppColors.primary,
+                        child: const Center(
+                          child: Icon(Icons.movie, color: AppColors.textPrimary, size: 50),
+                        ),
+                      );
+                    },
+                  ),
+                  Positioned( // <--- Cambio 4: El botón del corazón
+                    top: 4,
+                    right: 4,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? Colors.red : Colors.white,
+                        ),
+                        onPressed: () {
+                          movieProvider.toggleFavorite(movie.id);
+                        },
                       ),
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
-
             SizedBox(
               height: 75, 
               child: Padding(
@@ -57,7 +79,7 @@ class MovieCardWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      title,
+                      movie.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextosEstilos.cuerpo.copyWith(
@@ -67,18 +89,11 @@ class MovieCardWidget extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        const Icon(
-                          Icons.star,
-                          color: AppColors.primaryLight,
-                          size: 16,
-                        ),
+                        const Icon(Icons.star, color: AppColors.primaryLight, size: 16),
                         const SizedBox(width: 4),
                         Text(
-                          rating.toStringAsFixed(1),
-                          style: TextosEstilos.cuerpo.copyWith(
-                            color: AppColors.grayLight,
-                            fontSize: 14,
-                          ),
+                          movie.voteAverage.toStringAsFixed(1),
+                          style: TextosEstilos.cuerpo.copyWith(color: AppColors.grayLight, fontSize: 14),
                         ),
                       ],
                     ),
