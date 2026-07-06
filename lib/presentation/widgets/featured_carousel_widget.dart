@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/featured_movie_widget.dart';
-// 💡 Asegúrate de importar la pantalla de detalle aquí
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
 
 class FeaturedCarouselWidget extends StatelessWidget {
@@ -41,7 +40,7 @@ class FeaturedCarouselWidget extends StatelessWidget {
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              // 💡 AQUÍ ENVOLVEMOS TU WIDGET CON EL GESTURE DETECTOR
+
               child: GestureDetector(
                 onTap: () {
                   Navigator.push(

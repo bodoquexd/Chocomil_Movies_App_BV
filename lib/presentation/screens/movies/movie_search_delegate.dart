@@ -6,7 +6,6 @@ import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart'; 
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
-// 💡 IMPORTANTE: Importa aquí tu nueva pantalla de detalles (ajusta la ruta si es necesario)
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart'; 
 
 class MovieSearchDelegate extends SearchDelegate<Movie?> {
@@ -94,7 +93,6 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
             return GestureDetector(
               onTap: () {
                 _debounce?.cancel(); 
-                // 💡 CAMBIO AQUÍ: Ahora navegamos a la pantalla de detalle
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -151,7 +149,6 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
             return GestureDetector(
               onTap: () {
                 _debounce?.cancel(); 
-                // 💡 CAMBIO AQUÍ: También navegamos al detalle desde los resultados de búsqueda
                 Navigator.push(
                   context,
                   MaterialPageRoute(

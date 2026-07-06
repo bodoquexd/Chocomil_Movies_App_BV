@@ -8,7 +8,6 @@ class MovieDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Lista estática de actores de prueba (Mocks) con imágenes genéricas de caras de Unsplash
     final List<Map<String, String>> mockCast = [
       {'name': 'Actor Principal 1', 'character': 'Héroe', 'url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'},
       {'name': 'Actriz Principal 2', 'character': 'Heroína', 'url': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150'},
@@ -17,7 +16,6 @@ class MovieDetailScreen extends StatelessWidget {
       {'name': 'Actor 5', 'character': 'Mentor', 'url': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150'},
     ];
 
-    // Lista estática de comentarios de prueba (Mocks)
     final List<Map<String, dynamic>> mockComments = [
       {'user': 'CinefiloAnonimo', 'rating': 4.5, 'text': '¡Una obra maestra absoluta! Los efectos visuales y la banda sonora te atrapan desde el primer segundo.'},
       {'user': 'MovieLover99', 'rating': 3.0, 'text': 'Está entretenida para pasar el rato en el fin de semana, aunque el final me pareció un poco predecible.'},
@@ -25,10 +23,10 @@ class MovieDetailScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF221A16), // Fondo café oscuro de la app
+      backgroundColor: const Color(0xFF221A16),
       body: CustomScrollView(
         slivers: [
-          // 1. PORTADA (SliverAppBar)
+
           SliverAppBar(
             backgroundColor: const Color(0xFF221A16),
             expandedHeight: 480,
@@ -52,7 +50,7 @@ class MovieDetailScreen extends StatelessWidget {
                       child: Icon(Icons.broken_image, size: 50, color: Colors.white54),
                     ),
                   ),
-                  // Degradado inferior para suavizar la transición con el fondo café
+
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -67,7 +65,6 @@ class MovieDetailScreen extends StatelessWidget {
             ),
           ),
           
-          // CONTENIDO DE LA PANTALLA
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
@@ -76,7 +73,6 @@ class MovieDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     
-                    // 2. TÍTULO Y CALIFICACIÓN
                     Text(
                       movie.title,
                       style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
@@ -95,7 +91,6 @@ class MovieDetailScreen extends StatelessWidget {
                     
                     const SizedBox(height: 25),
                     
-                    // 3. SINOPSIS
                     const Text(
                       'Sinopsis',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange),
@@ -108,7 +103,6 @@ class MovieDetailScreen extends StatelessWidget {
                     
                     const SizedBox(height: 25),
                     
-                    // 4. REPARTO (Actores y fotos)
                     const Text(
                       'Reparto Principal',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange),
@@ -152,7 +146,6 @@ class MovieDetailScreen extends StatelessWidget {
                     
                     const SizedBox(height: 20),
                     
-                    // 5. TRAILER (Contenedor visual estático/reproductor simulado)
                     const Text(
                       'Tráiler Oficial',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange),
@@ -160,7 +153,6 @@ class MovieDetailScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     GestureDetector(
                       onTap: () {
-                        // Aquí podrías usar paquetes como 'youtube_player_flutter' o 'url_launcher' en el futuro
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Reproduciendo tráiler... (Simulado)')),
                         );
@@ -171,7 +163,7 @@ class MovieDetailScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           image: DecorationImage(
-                            image: NetworkImage(movie.posterPath), // Reutiliza el poster como miniatura de fondo
+                            image: NetworkImage(movie.posterPath),
                             fit: BoxFit.cover,
                             colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.55), BlendMode.darken),
                           ),
@@ -188,15 +180,14 @@ class MovieDetailScreen extends StatelessWidget {
                     
                     const SizedBox(height: 30),
                     
-                    // 6. COMENTARIOS (Estáticos)
                     const Text(
                       'Comentarios de la Comunidad',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange),
                     ),
                     const SizedBox(height: 12),
                     ListView.builder(
-                      shrinkWrap: true, // Importante para que funcione dentro de un CustomScrollView
-                      physics: const NeverScrollableScrollPhysics(), // Evita conflictos de scroll
+                      shrinkWrap: true, 
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: mockComments.length,
                       itemBuilder: (context, index) {
                         final comment = mockComments[index];
@@ -204,7 +195,7 @@ class MovieDetailScreen extends StatelessWidget {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2E241F), // Un tono un poco más claro que el fondo
+                            color: const Color(0xFF2E241F),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.white10),
                           ),

@@ -3,7 +3,6 @@ import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart'; 
-// 💡 Importamos la pantalla de detalles para poder navegar a ella
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
 
 class MovieRowSectionWidget extends StatelessWidget {
@@ -50,7 +49,6 @@ class MovieRowSectionWidget extends StatelessWidget {
               itemBuilder: (context, index) {
                 final movie = movies[index];
                 
-                // 💡 Envolvemos tu tarjeta con el detector de gestos
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
