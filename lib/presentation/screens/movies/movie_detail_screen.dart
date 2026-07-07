@@ -1,32 +1,38 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 
-class MovieDetailScreen extends StatefulWidget {
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
+import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
+import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
+
+class MovieDetailScreen extends StatelessWidget {
   final Movie movie;
 
   const MovieDetailScreen({super.key, required this.movie});
 
   @override
-  State<MovieDetailScreen> createState() => _MovieDetailScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => MovieDetailProvider()..loadMovieDetails(movie.id),
+      child: _MovieDetailContent(movie: movie),
+    );
+  }
 }
 
-class _MovieDetailScreenState extends State<MovieDetailScreen> {
-  bool isLoading = true;
-  List<dynamic> cast = [];
-  List<dynamic> reviews = [];
-  String? trailerKey;
-  
-  YoutubePlayerController? _trailerController;
+class _MovieDetailContent extends StatefulWidget {
+  final Movie movie;
+  const _MovieDetailContent({required this.movie});
 
   @override
-  void initState() {
-    super.initState();
-    _fetchMovieExtraDetails();
-  }
+  State<_MovieDetailContent> createState() => _MovieDetailContentState();
+}
+
+class _MovieDetailContentState extends State<_MovieDetailContent> {
+  YoutubePlayerController? _trailerController;
 
   @override
   void dispose() {
@@ -34,97 +40,74 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchMovieExtraDetails() async {
-    final apiKey = dotenv.env['THE_MOVIEDB_KEY'] ?? '';
-    final movieId = widget.movie.id; 
-    
-    if (apiKey.isEmpty) {
-      debugPrint('⚠️ Error: No se encontró la variable THE_MOVIEDB_KEY en tu archivo .env');
-      setState(() => isLoading = false);
-      return;
-    }
-
-    try {
-      final castRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/credits?api_key=$apiKey&language=es-MX'));
-      if (castRes.statusCode == 200) {
-        final castData = json.decode(castRes.body);
-        cast = (castData['cast'] as List).take(10).toList();
-      }
-
-      final reviewsRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/reviews?api_key=$apiKey'));
-      if (reviewsRes.statusCode == 200) {
-        final reviewsData = json.decode(reviewsRes.body);
-        reviews = (reviewsData['results'] as List).take(5).toList();
-      }
-
-      final videoRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/videos?api_key=$apiKey&language=es-MX'));
-      if (videoRes.statusCode == 200) {
-        final videoData = json.decode(videoRes.body);
-        final videos = videoData['results'] as List;
-        for (var v in videos) {
-          if (v['site'] == 'YouTube' && (v['type'] == 'Trailer' || v['type'] == 'Teaser')) {
-            trailerKey = v['key'];
-            break;
-          }
-        }
-        
-        if (trailerKey == null) {
-          final videoResEn = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/videos?api_key=$apiKey'));
-          if (videoResEn.statusCode == 200) {
-            final videoDataEn = json.decode(videoResEn.body);
-            for (var v in videoDataEn['results']) {
-              if (v['site'] == 'YouTube' && v['type'] == 'Trailer') {
-                trailerKey = v['key'];
-                break;
-              }
-            }
-          }
-        }
-
-        if (trailerKey != null) {
-          _trailerController = YoutubePlayerController(
-            initialVideoId: trailerKey!,
-            flags: const YoutubePlayerFlags(
-              autoPlay: false,
-              mute: false,
-              disableDragSeek: false,
-              loop: false,
-              isLive: false,
-              forceHD: false,
-              enableCaption: true,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      debugPrint('Error cargando detalles: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
+  void _initYoutubeController(String videoId) {
+    _trailerController ??= YoutubePlayerController(
+      initialVideoId: videoId,
+      flags: const YoutubePlayerFlags(
+        autoPlay: false,
+        mute: false,
+        disableDragSeek: false,
+        loop: false,
+        isLive: false,
+        forceHD: false,
+        enableCaption: true,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final detailProvider = context.watch<MovieDetailProvider>();
+    final movieProvider = context.watch<MovieProvider>();
+    if (detailProvider.trailerKey != null && _trailerController == null) {
+      _initYoutubeController(detailProvider.trailerKey!);
+    }
+
     return Scaffold(
-      backgroundColor: const Color(0xFF221A16), 
+      backgroundColor: AppColors.primaryDark,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: const Color(0xFF221A16),
+            backgroundColor: AppColors.primaryDark,
             expandedHeight: 480,
             pinned: true,
+
             leading: IconButton(
               icon: Container(
                 padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
-                child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                decoration: const BoxDecoration(
+                  color: Colors.black26,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
               onPressed: () => Navigator.pop(context),
             ),
+
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: CircleAvatar(
+                  backgroundColor: Colors.black38,
+                  child: IconButton(
+                    icon: Icon(
+                      movieProvider.isFavorite(widget.movie)
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: Colors.red,
+                    ),
+                    onPressed: () {
+                      movieProvider.toggleFavorite(widget.movie);
+                    },
+                  ),
+                ),
+              ),
+            ],
+
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -133,15 +116,23 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                     widget.movie.posterPath,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => const Center(
-                      child: Icon(Icons.broken_image, size: 50, color: Colors.white54),
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 50,
+                        color: Colors.white54,
+                      ),
                     ),
                   ),
-                  const DecoratedBox(
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.transparent, Color(0xFF221A16)],
+                        colors: [
+                          Colors.transparent,
+                          Colors.transparent,
+                          AppColors.primaryDark,
+                        ],
                       ),
                     ),
                   ),
@@ -149,7 +140,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
               ),
             ),
           ),
-          
+
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
@@ -159,7 +150,11 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                   children: [
                     Text(
                       widget.movie.title,
-                      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -168,36 +163,56 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                         const SizedBox(width: 6),
                         Text(
                           widget.movie.voteAverage.toStringAsFixed(1),
-                          style: const TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 25),
-                    
-                    const Text('Sinopsis', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
+
+                    const SectionTitleWidget(title: 'Sinopsis'),
                     const SizedBox(height: 10),
                     Text(
-                      widget.movie.overview.isNotEmpty ? widget.movie.overview : 'No hay sinopsis disponible.',
-                      style: const TextStyle(fontSize: 15, color: Color.fromARGB(238, 228, 220, 220), height: 1.4),
+                      widget.movie.overview.isNotEmpty
+                          ? widget.movie.overview
+                          : 'No hay sinopsis disponible.',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Colors.white70,
+                        height: 1.4,
+                      ),
                     ),
                     const SizedBox(height: 25),
 
-                    if (isLoading)
-                      const Center(child: CircularProgressIndicator(color: Colors.orange))
+                    if (detailProvider.isLoading)
+                      Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.textPrimary,
+                        ),
+                      )
+                    else if (detailProvider.errorMessage != null)
+                      Center(
+                        child: Text(
+                          detailProvider.errorMessage!,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      )
                     else ...[
-                      
-                      if (cast.isNotEmpty) ...[
-                        const Text('Reparto Principal', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
+                      if (detailProvider.cast.isNotEmpty) ...[
+                        const SectionTitleWidget(title: 'Reparto Principal'),
                         const SizedBox(height: 12),
                         SizedBox(
                           height: 140,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: cast.length,
+                            itemCount: detailProvider.cast.length,
                             itemBuilder: (context, index) {
-                              final actor = cast[index];
+                              final actor = detailProvider.cast[index];
                               final profilePath = actor['profile_path'];
-                              final imageUrl = profilePath != null 
+                              final imageUrl = profilePath != null
                                   ? 'https://image.tmdb.org/t/p/w200$profilePath'
                                   : 'https://via.placeholder.com/150x150.png?text=No+Image';
 
@@ -208,8 +223,17 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                                   children: [
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
-                                      child: Image.network(imageUrl, height: 85, width: 85, fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) => Container(height: 85, width: 85, color: Colors.grey, child: const Icon(Icons.person)),
+                                      child: Image.network(
+                                        imageUrl,
+                                        height: 85,
+                                        width: 85,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, _, _) => Container(
+                                          height: 85,
+                                          width: 85,
+                                          color: Colors.grey,
+                                          child: const Icon(Icons.person),
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(height: 6),
@@ -218,7 +242,11 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -230,93 +258,59 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                       ],
 
                       if (_trailerController != null) ...[
-                        const Text('Tráiler Oficial', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
+                        const SectionTitleWidget(title: 'Tráiler Oficial'),
                         const SizedBox(height: 12),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(15),
                           child: YoutubePlayer(
                             controller: _trailerController!,
                             showVideoProgressIndicator: true,
-                            progressIndicatorColor: Colors.orange,
-                            progressColors: const ProgressBarColors(
-                              playedColor: Colors.orange,
-                              handleColor: Colors.orangeAccent,
+                            progressIndicatorColor: AppColors.textPrimary,
+                            progressColors: ProgressBarColors(
+                              playedColor: AppColors.textPrimary,
+                              handleColor: AppColors.textPrimary,
                             ),
                           ),
                         ),
                         const SizedBox(height: 30),
                       ],
 
-                      // COMENTARIOS
-                      if (reviews.isNotEmpty) ...[
-                        const Text('Comentarios de la Comunidad', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
+                      if (detailProvider.reviews.isNotEmpty) ...[
+                        const SectionTitleWidget(
+                          title: 'Comentarios de la Comunidad',
+                        ),
                         const SizedBox(height: 12),
                         ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: reviews.length,
+                          itemCount: detailProvider.reviews.length,
                           itemBuilder: (context, index) {
-                            final review = reviews[index];
+                            final review = detailProvider.reviews[index];
                             final author = review['author'] ?? 'Anónimo';
                             final content = review['content'] ?? '';
                             final rating = review['author_details']?['rating'];
 
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF2E241F),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.white10),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundColor: Colors.orange.shade800,
-                                            radius: 12,
-                                            child: Text(
-                                              author[0].toUpperCase(),
-                                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(author, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                                        ],
-                                      ),
-                                      if (rating != null)
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.star, color: Colors.amber, size: 14),
-                                            const SizedBox(width: 3),
-                                            Text(rating.toString(), style: const TextStyle(color: Colors.white70, fontSize: 12))
-                                          ],
-                                        )
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    content,
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(color: Colors.white10, fontSize: 13, height: 1.3),
-                                  ),
-                                ],
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: CommentWidget(
+                                userName: author,
+                                rating: rating != null
+                                    ? (rating as num).toDouble()
+                                    : 0.0,
+                                comment: content,
                               ),
                             );
                           },
                         ),
                       ] else ...[
-                        const Text('Aún no hay comentarios para esta película.', style: TextStyle(color: Colors.white54)),
+                        const Text(
+                          'Aún no hay comentarios para esta película.',
+                          style: TextStyle(color: Colors.white54),
+                        ),
                       ],
-                      
+
                       const SizedBox(height: 20),
-                    ], 
+                    ],
                   ],
                 ),
               ),

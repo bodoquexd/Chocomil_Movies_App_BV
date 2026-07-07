@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
-import 'package:chocomil_movies_app_bv/resources/colors/colors.dart'; 
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
 
 class MovieRowSectionWidget extends StatelessWidget {
@@ -10,8 +10,8 @@ class MovieRowSectionWidget extends StatelessWidget {
   final List<Movie> movies;
 
   const MovieRowSectionWidget({
-    super.key, 
-    required this.title, 
+    super.key,
+    required this.title,
     required this.movies,
   });
 
@@ -28,40 +28,38 @@ class MovieRowSectionWidget extends StatelessWidget {
             return LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              stops: const [0.0, 0.05, 0.95, 1.0], 
+              stops: const [0.0, 0.05, 0.95, 1.0],
               colors: [
                 Colors.transparent,
-                AppColors.textPrimary, 
-                AppColors.textPrimary, 
+                AppColors.textPrimary,
+                AppColors.textPrimary,
                 Colors.transparent,
               ],
             ).createShader(bounds);
           },
           blendMode: BlendMode.dstIn,
-          
+
           child: SizedBox(
-            height: 310, 
+            height: 310,
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 4), 
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               scrollDirection: Axis.horizontal,
               itemCount: movies.length,
               separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 final movie = movies[index];
-                
+
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MovieDetailScreen(movie: movie),
+                        builder: (_) => MovieDetailScreen(movie: movie),
                       ),
                     );
                   },
                   child: MovieCardWidget(
-                    title: movie.title,
-                    imageUrl: movie.posterPath,
-                    rating: movie.voteAverage,
+                    movie: movie,
                   ),
                 );
               },
