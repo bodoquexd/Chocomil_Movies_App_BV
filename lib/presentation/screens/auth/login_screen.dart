@@ -159,15 +159,14 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Lógica de Autenticación Biométrica
   Future<void> _authenticate(BuildContext context) async {
-    final String? hasCredentials = await _storage.read(key: 'has_credentials');
+    final String? token = await _storage.read(key: 'token');
 
     if (!mounted) return;
 
-    if (hasCredentials != 'true') {
+    if (token == null || token.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Primero inicia sesión con contraseña')),
+        const SnackBar(content: Text('Primero debes iniciar sesión de forma normal al menos una vez')),
       );
       return;
     }
@@ -185,6 +184,9 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       debugPrint('Error de autenticación biométrica: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al interactuar con el sensor biométrico')),
+      );
     }
   }
 
