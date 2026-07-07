@@ -47,12 +47,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
   Future<void> _cerrarSesion() async {
+  final confirmar = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: AppColors.primaryDark,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Row(
+          children: [
+            Icon(
+              Icons.logout,
+              color: AppColors.primary,
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Cerrar sesión',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+        content: const Text(
+          '¿Estás seguro de que deseas cerrar sesión?',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.black,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Cerrar sesión'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmar == true) {
     await _storage.deleteAll();
+
     if (mounted) {
       context.go('/login');
     }
   }
-
+}
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
