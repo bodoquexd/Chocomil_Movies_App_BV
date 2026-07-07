@@ -52,60 +52,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _cerrarSesion() async {
-    final bool? confirmar = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false, 
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: AppColors.primaryDark,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          title: Text(
-            'Cerrar Sesión',
-            style: TextosEstilos.subtitulo.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Text(
-            '¿Estás seguro de que quieres cerrar sesión?',
-            style: TextosEstilos.cuerpo,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(
-                'Cancelar',
-                style: TextosEstilos.boton.copyWith(color: AppColors.grayLight),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(
-                'Sí, salir',
-                style: TextosEstilos.boton,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmar == true) {
-      try {
-        await GoogleSignIn().signOut();
-        await FirebaseAuth.instance.signOut();
-      } catch (e) {
-        debugPrint('Error al cerrar sesión de Google: $e');
-      }
-      await _storage.deleteAll();
-      
-      if (mounted) {
-        context.go('/login');
-      }
+    await _storage.deleteAll();
+    if (mounted) {
+      context.go('/login');
     }
   }
-
+}
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
