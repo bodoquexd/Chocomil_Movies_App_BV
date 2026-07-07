@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/movie_card_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/custom_error_widget.dart';
 
 class MovieSearchDelegate extends SearchDelegate<Movie?> {
   Timer? _debounce;
@@ -56,6 +59,7 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
 
     if (query != searchProvider.query) {
       if (_debounce?.isActive ?? false) _debounce!.cancel();
+
       _debounce = Timer(const Duration(milliseconds: 500), () {
         searchProvider.updateQuery(query);
       });
@@ -88,9 +92,15 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
             return GestureDetector(
               onTap: () {
                 _debounce?.cancel();
-                close(context, movie);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MovieDetailScreen(movie: movie),
+                  ),
+                );
               },
-child: MovieCardWidget(movie: movie),            );
+              child: MovieCardWidget(movie: movie),
+            );
           },
         );
       },
@@ -105,14 +115,16 @@ child: MovieCardWidget(movie: movie),            );
         }
 
         if (searchProvider.searchResults.isEmpty && query.isNotEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'No se encontraron resultados para: "$query"',
-                textAlign: TextAlign.center,
-              ),
-            ),
+          return CustomErrorWidget(
+            imagePath: 'assets/images/error_404.png',
+            title: 'Película no encontrada',
+            message: 'No encontramos ninguna película con el nombre "$query".',
+            buttonText: 'Buscar otra',
+            onRetry: () {
+              query = '';
+              context.read<SearchProvider>().clearSearch();
+              showSuggestions(context);
+            },
           );
         }
 
@@ -131,9 +143,15 @@ child: MovieCardWidget(movie: movie),            );
             return GestureDetector(
               onTap: () {
                 _debounce?.cancel();
-                close(context, movie);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MovieDetailScreen(movie: movie),
+                  ),
+                );
               },
-child: MovieCardWidget(movie: movie),            );
+              child: MovieCardWidget(movie: movie),
+            );
           },
         );
       },

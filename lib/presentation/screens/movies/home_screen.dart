@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // <-- Importación agregada
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 
@@ -20,13 +21,63 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final PageController _featuredController;
+  late PageController _featuredController;
   Timer? _carouselTimer;
   int _currentPage = 0;
+  Future<bool?> _mostrarDialogoSalir() {
+  return showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.exit_to_app, color: Colors.red),
+            SizedBox(width: 10),
+            Text('Salir'),
+          ],
+        ),
+        content: const Text(
+          '¿Estás seguro de que deseas salir de Chocomil Movies?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: const Text(
+              'Salir',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+  // <-- 1. Instancia del Storage agregada
+  final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
+
+    // <-- 2. Llamada para cargar los favoritos
+    _initUserFavorites();
+
     _featuredController = PageController(viewportFraction: 0.78);
 
     _carouselTimer = Timer.periodic(const Duration(seconds: 5), (_) {
@@ -46,50 +97,61 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // <-- 3. Función que lee el correo y carga la lista en el provider
+  Future<void> _initUserFavorites() async {
+    final email = await _storage.read(key: 'email') ?? 'invitado';
+    if (mounted) {
+      context.read<MovieProvider>().loadFavoritesForUser(email);
+    }
+  }
+
   @override
   void dispose() {
     _carouselTimer?.cancel();
     _featuredController.dispose();
     super.dispose();
   }
-  
-  Widget _buildErrorView(String errorCode, BuildContext context) {
-  if (errorCode == 'error_internet') {
-    return CustomErrorWidget(
-      imagePath: 'assets/images/no_internet.png', 
-      title: 'Sin conexión a Internet',
-      message: 'Revisa tu conexión Wi-Fi o datos móviles e intenta nuevamente.',
-      buttonText: 'Reintentar',
-      onRetry: () => context.read<MovieProvider>().loadAllMovies(),
-    );
-  } else if (errorCode == 'error_404') {
-    return CustomErrorWidget(
-      imagePath: 'assets/images/error_404.png',
-      title: 'Contenido no encontrado',
-      message: 'La película o recurso que buscas no está disponible (Error 404).',
-      buttonText: 'Volver a intentar',
-      onRetry: () => context.read<MovieProvider>().loadAllMovies(),
-    );
-  } else if (errorCode == 'error_500') {
-    return CustomErrorWidget(
-      imagePath: 'assets/images/error_500.png',
-      title: 'Problemas en el servidor',
-      message: 'Nuestros servidores están fallando en este momento. Vuelve a intentarlo más tarde.',
-      buttonText: 'Reintentar',
-      onRetry: () => context.read<MovieProvider>().loadAllMovies(),
-    );
-  } else {
 
-    // Error por defecto
-    return CustomErrorWidget(
-      imagePath: 'assets/images/error_generic.png',
-      title: 'Error inesperado',
-      message: 'Ocurrió un problema desconocido. Por favor, intenta de nuevo.',
-      buttonText: 'Reintentar',
-      onRetry: () => context.read<MovieProvider>().loadAllMovies(),
-    );
+  Widget _buildErrorView(String errorCode, BuildContext context) {
+    if (errorCode == 'error_internet') {
+      return CustomErrorWidget(
+        imagePath: 'assets/images/no_internet.png',
+        title: 'Sin conexión a Internet',
+        message:
+            'Revisa tu conexión Wi-Fi o datos móviles e intenta nuevamente.',
+        buttonText: 'Reintentar',
+        onRetry: () => context.read<MovieProvider>().loadAllMovies(),
+      );
+    } else if (errorCode == 'error_404') {
+      return CustomErrorWidget(
+        imagePath: 'assets/images/error_404.png',
+        title: 'Contenido no encontrado',
+        message:
+            'La película o recurso que buscas no está disponible (Error 404).',
+        buttonText: 'Volver a intentar',
+        onRetry: () => context.read<MovieProvider>().loadAllMovies(),
+      );
+    } else if (errorCode == 'error_500') {
+      return CustomErrorWidget(
+        imagePath: 'assets/images/error_500.png',
+        title: 'Problemas en el servidor',
+        message:
+            'Nuestros servidores están fallando en este momento. Vuelve a intentarlo más tarde.',
+        buttonText: 'Reintentar',
+        onRetry: () => context.read<MovieProvider>().loadAllMovies(),
+      );
+    } else {
+      // Error por defecto
+      return CustomErrorWidget(
+        imagePath: 'assets/images/error_generic.png',
+        title: 'Error inesperado',
+        message:
+            'Ocurrió un problema desconocido. Por favor, intenta de nuevo.',
+        buttonText: 'Reintentar',
+        onRetry: () => context.read<MovieProvider>().loadAllMovies(),
+      );
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +180,48 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 const SearchWidget(),
+   return PopScope(
+  canPop: false,
+  onPopInvokedWithResult: (didPop, result) async {
+    if (didPop) return;
+
+    final salir = await _mostrarDialogoSalir();
+
+    if (salir == true && mounted) {
+      Navigator.of(context).pop();
+    }
+  },
+  child: Scaffold(
+    backgroundColor: AppColors.primaryDark,
+    appBar: AppBar(
+      backgroundColor: AppColors.primary,
+      centerTitle: true,
+      elevation: 0,
+      toolbarHeight: 65,
+      title: Image.asset(
+        'assets/images/logo.png',
+        height: 58,
+        fit: BoxFit.contain,
+      ),
+    ),
+    body: movieProvider.isLoading
+        ? const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.textPrimary,
+            ),
+          )
+        : movieProvider.errorMessage != null
+            ? Center(
+                child: Text(
+                  movieProvider.errorMessage!,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              )
+            : ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  // Todo tu contenido...
+                  const SearchWidget(),
                 const SizedBox(height: 22),
 
                 const SectionTitleWidget(title: 'Destacadas'),
@@ -221,8 +325,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   comment:
                       'La interfaz es moderna y muy agradable visualmente.',
                 ),
-              ],
-            ),
-    );
+            
+            
+                ],
+              ),
+  ),
+);
   }
 }
