@@ -15,13 +15,18 @@ class MovieProvider extends ChangeNotifier {
   List<Movie> sciFiMovies = [];
   List<Movie> comedyMovies = [];
   List<Movie> animationMovies = [];
+  
+  // Listas de usuario
   List<Movie> favoriteMovies = [];
+  List<Movie> watchlistMovies = []; // NUEVA LISTA PARA LA WATCHLIST
 
   String? _currentUserEmail;
 
   Future<void> loadFavoritesForUser(String email) async {
     _currentUserEmail = email;
     final prefs = await SharedPreferences.getInstance();
+    
+    // 1. Cargar Favoritos
     final String? favoritesJson = prefs.getString(
       'favoritos_$_currentUserEmail',
     );
@@ -32,9 +37,25 @@ class MovieProvider extends ChangeNotifier {
     } else {
       favoriteMovies = [];
     }
+
+    // 2. Cargar Watchlist (Guardados)
+    final String? watchlistJson = prefs.getString(
+      'watchlist_$_currentUserEmail',
+    );
+
+    if (watchlistJson != null) {
+      final List<dynamic> decodedWatchlist = jsonDecode(watchlistJson);
+      watchlistMovies = decodedWatchlist.map((item) => Movie.fromJson(item)).toList();
+    } else {
+      watchlistMovies = [];
+    }
+
     notifyListeners();
   }
 
+  // ==========================================
+  // LÓGICA DE FAVORITOS (Corazón)
+  // ==========================================
   bool isFavorite(Movie movie) {
     return favoriteMovies.any((m) => m.id == movie.id);
   }
@@ -61,6 +82,38 @@ class MovieProvider extends ChangeNotifier {
     await prefs.setString('favoritos_$_currentUserEmail', encodedList);
   }
 
+  // ==========================================
+  // LÓGICA DE WATCHLIST (Marcador)
+  // ==========================================
+  bool isInWatchlist(Movie movie) {
+    return watchlistMovies.any((m) => m.id == movie.id);
+  }
+
+  Future<void> toggleWatchlist(Movie movie) async {
+    if (isInWatchlist(movie)) {
+      watchlistMovies.removeWhere((m) => m.id == movie.id);
+    } else {
+      watchlistMovies.add(movie);
+    }
+
+    notifyListeners();
+    await _saveWatchlistToStorage();
+  }
+
+  Future<void> _saveWatchlistToStorage() async {
+    if (_currentUserEmail == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final String encodedList = jsonEncode(
+      watchlistMovies.map((movie) => movie.toJson()).toList(),
+    );
+
+    await prefs.setString('watchlist_$_currentUserEmail', encodedList);
+  }
+
+  // ==========================================
+  // LÓGICA DE CARGA DE PELÍCULAS (API)
+  // ==========================================
   bool isLoading = true;
   String? errorMessage;
 

@@ -5,6 +5,7 @@ import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart'; // IMPORTANTE: Tu widget animado
 
 class MovieCardWidget extends StatelessWidget {
   final Movie movie;
@@ -18,6 +19,7 @@ class MovieCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final movieProvider = context.watch<MovieProvider>();
     final bool isFavorite = movieProvider.isFavorite(movie);
+    final bool isSaved = movieProvider.isInWatchlist(movie); // Verifica si está guardada
 
     return SizedBox(
       width: 180,
@@ -53,8 +55,7 @@ class MovieCardWidget extends StatelessWidget {
                       },
                     ),
                   ),
-
-                  // APARTADO DEL CORAZÓN MODIFICADO CON LA ANIMACIÓN
+                  // FAVORITOS (Corazón arriba a la derecha)
                   Positioned(
                     top: 10,
                     right: 10,
@@ -69,6 +70,7 @@ class MovieCardWidget extends StatelessWidget {
               ),
             ),
 
+            // APARTADO INFERIOR (Títulos, Rating y Guardado)
             SizedBox(
               height: 75,
               child: Padding(
@@ -86,19 +88,38 @@ class MovieCardWidget extends StatelessWidget {
                         height: 1.1,
                       ),
                     ),
+                    
+                    // ESTA ES LA MAGIA PARA PONERLO A LA DERECHA DEL RATING
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween, 
                       children: [
-                        const Icon(
-                          Icons.star,
-                          color: AppColors.primaryLight,
-                          size: 16,
+                        // Lado Izquierdo: Estrella y calificación
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.star,
+                              color: AppColors.primaryLight,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              movie.voteAverage.toStringAsFixed(1),
+                              style: TextosEstilos.cuerpo.copyWith(
+                                color: AppColors.grayLight,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          movie.voteAverage.toStringAsFixed(1),
-                          style: TextosEstilos.cuerpo.copyWith(
-                            color: AppColors.grayLight,
-                            fontSize: 14,
+                        
+                        // Lado Derecho: Tu nuevo botón animado de guardado
+                        Transform.scale(
+                          scale: 0.85, // Un poco más pequeño para que no estorbe
+                          child: AnimatedBookmarkWidget(
+                            isSaved: isSaved,
+                            onTap: () {
+                              movieProvider.toggleWatchlist(movie);
+                            },
                           ),
                         ),
                       ],
@@ -114,7 +135,7 @@ class MovieCardWidget extends StatelessWidget {
   }
 }
 
-// WIDGET ESPECIALIZADO PARA LA ANIMACIÓN DE LATIDO (PULSE EFFECT)
+// WIDGET HELPER DEL CORAZÓN
 class _AnimatedHeartButton extends StatefulWidget {
   final bool isFavorite;
   final VoidCallback onTap;
@@ -141,7 +162,6 @@ class _AnimatedHeartButtonState extends State<_AnimatedHeartButton>
       duration: const Duration(milliseconds: 300),
     );
 
-    // Animación de escala tipo "rebote elástico"
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(begin: 1.0, end: 1.4)
@@ -159,8 +179,6 @@ class _AnimatedHeartButtonState extends State<_AnimatedHeartButton>
   @override
   void didUpdateWidget(covariant _AnimatedHeartButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // TRUCO CLAVE: Si el valor de favorito cambió tras la reconstrucción del Provider,
-    // disparamos la animación inmediatamente.
     if (oldWidget.isFavorite != widget.isFavorite) {
       _controller.forward(from: 0.0);
     }
