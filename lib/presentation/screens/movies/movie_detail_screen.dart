@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart'; 
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
@@ -34,23 +34,15 @@ class _MovieDetailContent extends StatefulWidget {
 class _MovieDetailContentState extends State<_MovieDetailContent> {
   YoutubePlayerController? _trailerController;
 
-  @override
-  void dispose() {
-    _trailerController?.dispose();
-    super.dispose();
-  }
-
   void _initYoutubeController(String videoId) {
-    _trailerController ??= YoutubePlayerController(
-      initialVideoId: videoId,
-      flags: const YoutubePlayerFlags(
-        autoPlay: false,
+    _trailerController ??= YoutubePlayerController.fromVideoId(
+      videoId: videoId,
+      autoPlay: false,
+      params: const YoutubePlayerParams(
+        showControls: true,
+        showFullscreenButton: true,
         mute: false,
-        disableDragSeek: false,
         loop: false,
-        isLive: false,
-        forceHD: false,
-        enableCaption: true,
       ),
     );
   }
@@ -264,12 +256,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           borderRadius: BorderRadius.circular(15),
                           child: YoutubePlayer(
                             controller: _trailerController!,
-                            showVideoProgressIndicator: true,
-                            progressIndicatorColor: AppColors.textPrimary,
-                            progressColors: ProgressBarColors(
-                              playedColor: AppColors.textPrimary,
-                              handleColor: AppColors.textPrimary,
-                            ),
+                            aspectRatio: 16 / 9,
                           ),
                         ),
                         const SizedBox(height: 30),
