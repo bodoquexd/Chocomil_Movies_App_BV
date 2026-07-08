@@ -5,6 +5,8 @@ import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
+// Importamos el nuevo widget animado
+import 'package:chocomil_movies_app_bv/presentation/widgets/animated_favorite_widget.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -58,8 +60,9 @@ class FavoritesScreen extends StatelessWidget {
                       style: const TextStyle(color: Colors.white70),
                     ),
 
-                    trailing: IconButton(
-                      icon: const Icon(Icons.favorite, color: Colors.red),
+                    // Implementación del widget con la animación de latido
+                    trailing: AnimatedFavoriteWidget(
+                      isFavorite: true,
                       onPressed: () {
                         movieProvider.toggleFavorite(movie);
                       },
