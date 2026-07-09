@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart'; 
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
+
+// NUEVA IMPORTACIÓN: Tu widget animado
+import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart';
 
 class MovieDetailScreen extends StatelessWidget {
   final Movie movie;
@@ -34,23 +37,15 @@ class _MovieDetailContent extends StatefulWidget {
 class _MovieDetailContentState extends State<_MovieDetailContent> {
   YoutubePlayerController? _trailerController;
 
-  @override
-  void dispose() {
-    _trailerController?.dispose();
-    super.dispose();
-  }
-
   void _initYoutubeController(String videoId) {
-    _trailerController ??= YoutubePlayerController(
-      initialVideoId: videoId,
-      flags: const YoutubePlayerFlags(
-        autoPlay: false,
+    _trailerController ??= YoutubePlayerController.fromVideoId(
+      videoId: videoId,
+      autoPlay: false,
+      params: const YoutubePlayerParams(
+        showControls: true,
+        showFullscreenButton: true,
         mute: false,
-        disableDragSeek: false,
         loop: false,
-        isLive: false,
-        forceHD: false,
-        enableCaption: true,
       ),
     );
   }
@@ -71,7 +66,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
             backgroundColor: AppColors.primaryDark,
             expandedHeight: 480,
             pinned: true,
-
             leading: IconButton(
               icon: Container(
                 padding: const EdgeInsets.all(6),
@@ -87,10 +81,10 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               ),
               onPressed: () => Navigator.pop(context),
             ),
-
             actions: [
+              // 1. BOTÓN DE FAVORITOS (CORAZÓN)
               Padding(
-                padding: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.only(right: 8),
                 child: CircleAvatar(
                   backgroundColor: Colors.black38,
                   child: IconButton(
@@ -106,8 +100,19 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                   ),
                 ),
               ),
+              
+              // 2. NUEVO BOTÓN ANIMADO DE GUARDADO (MARCADOR)
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: AnimatedBookmarkWidget(
+                  // NOTA: Asegúrate de que tu MovieProvider tenga estos métodos creados
+                  isSaved: movieProvider.isInWatchlist(widget.movie), 
+                  onTap: () {
+                    movieProvider.toggleWatchlist(widget.movie);
+                  },
+                ),
+              ),
             ],
-
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -140,7 +145,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               ),
             ),
           ),
-
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
@@ -172,7 +176,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       ],
                     ),
                     const SizedBox(height: 25),
-
                     const SectionTitleWidget(title: 'Sinopsis'),
                     const SizedBox(height: 10),
                     Text(
@@ -186,7 +189,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       ),
                     ),
                     const SizedBox(height: 25),
-
                     if (detailProvider.isLoading)
                       Center(
                         child: CircularProgressIndicator(
@@ -256,7 +258,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         ),
                         const SizedBox(height: 20),
                       ],
-
                       if (_trailerController != null) ...[
                         const SectionTitleWidget(title: 'Tráiler Oficial'),
                         const SizedBox(height: 12),
@@ -264,17 +265,11 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           borderRadius: BorderRadius.circular(15),
                           child: YoutubePlayer(
                             controller: _trailerController!,
-                            showVideoProgressIndicator: true,
-                            progressIndicatorColor: AppColors.textPrimary,
-                            progressColors: ProgressBarColors(
-                              playedColor: AppColors.textPrimary,
-                              handleColor: AppColors.textPrimary,
-                            ),
+                            aspectRatio: 16 / 9,
                           ),
                         ),
                         const SizedBox(height: 30),
                       ],
-
                       if (detailProvider.reviews.isNotEmpty) ...[
                         const SectionTitleWidget(
                           title: 'Comentarios de la Comunidad',
@@ -308,7 +303,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           style: TextStyle(color: Colors.white54),
                         ),
                       ],
-
                       const SizedBox(height: 20),
                     ],
                   ],

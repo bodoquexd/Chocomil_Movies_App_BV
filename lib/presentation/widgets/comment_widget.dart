@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
-class CommentWidget extends StatelessWidget {
+class CommentWidget extends StatefulWidget {
   final String userName;
   final String comment;
   final double rating;
@@ -15,7 +15,20 @@ class CommentWidget extends StatelessWidget {
   });
 
   @override
+  State<CommentWidget> createState() => _CommentWidgetState();
+}
+
+class _CommentWidgetState extends State<CommentWidget> {
+  bool isExpanded = false;
+  final int characterLimit = 120; 
+
+  @override
   Widget build(BuildContext context) {
+    final bool isLongComment = widget.comment.length > characterLimit;
+    final String displayText = (isLongComment && !isExpanded)
+        ? '${widget.comment.substring(0, characterLimit)}...' 
+        : widget.comment;
+
     return Card(
       color: AppColors.backgroundBlack, 
       margin: const EdgeInsets.symmetric(
@@ -38,7 +51,7 @@ class CommentWidget extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    userName,
+                    widget.userName, 
                     style: TextosEstilos.subtitulo.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -51,18 +64,37 @@ class CommentWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  rating.toStringAsFixed(1),
+                  widget.rating.toStringAsFixed(1),
                   style: TextosEstilos.cuerpo,
                 ),
               ],
             ),
             const SizedBox(height: 10),
             Text(
-              comment,
+              displayText,
               style: TextosEstilos.cuerpo.copyWith(
                 color: AppColors.grayLight,
               ),
             ),
+
+            if (isLongComment)
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    isExpanded = !isExpanded;
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    isExpanded ? 'Ver menos' : 'Leer completo',
+                    style: TextosEstilos.cuerpo.copyWith(
+                      color: AppColors.primaryLight, 
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
