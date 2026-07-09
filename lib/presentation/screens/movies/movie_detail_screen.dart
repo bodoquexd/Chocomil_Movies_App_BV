@@ -9,7 +9,8 @@ import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget
 import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 
-// NUEVA IMPORTACIÓN: Tu widget animado
+// IMPORTACIONES DE TUS WIDGETS ANIMADOS
+import 'package:chocomil_movies_app_bv/presentation/widgets/animated_favorite_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart';
 
 class MovieDetailScreen extends StatelessWidget {
@@ -62,6 +63,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
   Widget build(BuildContext context) {
     final detailProvider = context.watch<MovieDetailProvider>();
     final movieProvider = context.watch<MovieProvider>();
+    
     if (detailProvider.trailerKey != null && _trailerController == null) {
       _initYoutubeController(detailProvider.trailerKey!);
     }
@@ -90,33 +92,49 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
-              // 1. BOTÓN DE FAVORITOS (CORAZÓN)
+              // 1. BOTÓN FAVORITO (CORAZÓN) CON ANIMACIÓN
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: CircleAvatar(
                   backgroundColor: Colors.black38,
-                  child: IconButton(
-                    icon: Icon(
-                      movieProvider.isFavorite(widget.movie)
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: Colors.red,
-                    ),
+                  child: AnimatedFavoriteWidget(
+                    isFavorite: movieProvider.isFavorite(widget.movie),
                     onPressed: () {
                       movieProvider.toggleFavorite(widget.movie);
+                      final isNowFav = movieProvider.isFavorite(widget.movie);
+                      
+                      // Feedback visual
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isNowFav ? "¡Añadida a Favoritos! ❤️" : "Eliminada de Favoritos"),
+                          duration: const Duration(seconds: 1),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
                     },
                   ),
                 ),
               ),
               
-              // 2. NUEVO BOTÓN ANIMADO DE GUARDADO (MARCADOR)
+              // 2. BOTÓN GUARDADO (MARCADOR) CON ANIMACIÓN
               Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: AnimatedBookmarkWidget(
-                  // NOTA: Asegúrate de que tu MovieProvider tenga estos métodos creados
-                  isSaved: movieProvider.isInWatchlist(widget.movie), 
+                  isSaved: movieProvider.isInWatchlist(widget.movie),
                   onTap: () {
                     movieProvider.toggleWatchlist(widget.movie);
+                    final isNowSaved = movieProvider.isInWatchlist(widget.movie);
+                    
+                    // Feedback visual
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isNowSaved ? "¡Guardada en tu Watchlist! 🔖" : "Eliminada de tu Watchlist"),
+                        duration: const Duration(seconds: 1),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
                   },
                 ),
               ),
@@ -136,7 +154,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       ),
                     ),
                   ),
-                  DecoratedBox(
+                  const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -197,8 +215,10 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       ),
                     ),
                     const SizedBox(height: 25),
+                    
+                    // --- CARGA DE CONTENIDO ---
                     if (detailProvider.isLoading)
-                      Center(
+                      const Center(
                         child: CircularProgressIndicator(
                           color: AppColors.textPrimary,
                         ),
