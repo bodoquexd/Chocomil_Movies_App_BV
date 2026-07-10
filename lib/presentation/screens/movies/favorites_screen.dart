@@ -26,14 +26,22 @@ class FavoritesScreen extends StatelessWidget {
             child: Text(
               "Mis Favoritos",
               textAlign: TextAlign.center,
-              style: TextosEstilos.titulo.copyWith(color: Colors.white, fontSize: 22),
+              style: TextosEstilos.titulo.copyWith(
+                color: Colors.white,
+                fontSize: 22,
+              ),
             ),
           ),
-          
+
           // Lista
           Expanded(
             child: favoriteMovies.isEmpty
-                ? Center(child: Text("No tienes películas favoritas", style: TextStyle(color: Colors.white)))
+                ? Center(
+                    child: Text(
+                      "No tienes películas favoritas",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: favoriteMovies.length,
@@ -45,10 +53,20 @@ class FavoritesScreen extends StatelessWidget {
                         child: ListTile(
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(movie.posterPath, width: 55, fit: BoxFit.cover),
+                            child: Image.network(
+                              movie.posterPath,
+                              width: 55,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          title: Text(movie.title, style: const TextStyle(color: Colors.white)),
-                          subtitle: Text("⭐ ${movie.voteAverage.toStringAsFixed(1)}", style: const TextStyle(color: Colors.white70)),
+                          title: Text(
+                            movie.title,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          subtitle: Text(
+                            "⭐ ${movie.voteAverage.toStringAsFixed(1)}",
+                            style: const TextStyle(color: Colors.white70),
+                          ),
                           trailing: AnimatedFavoriteWidget(
                             isFavorite: true,
 onPressed: () {
@@ -85,7 +103,6 @@ onPressed: () {
     );
 },
                           ),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MovieDetailScreen(movie: movie))),
                         ),
                       );
                     },

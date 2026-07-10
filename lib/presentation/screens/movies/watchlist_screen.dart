@@ -25,14 +25,22 @@ class WatchlistScreen extends StatelessWidget {
             child: Text(
               "Mis Guardados",
               textAlign: TextAlign.center,
-              style: TextosEstilos.titulo.copyWith(color: Colors.white, fontSize: 22),
+              style: TextosEstilos.titulo.copyWith(
+                color: Colors.white,
+                fontSize: 22,
+              ),
             ),
           ),
-          
+
           // Lista
           Expanded(
             child: watchlistMovies.isEmpty
-                ? Center(child: Text("No tienes películas guardadas", style: TextStyle(color: Colors.white)))
+                ? Center(
+                    child: Text(
+                      "No tienes películas guardadas",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: watchlistMovies.length,
@@ -44,10 +52,20 @@ class WatchlistScreen extends StatelessWidget {
                         child: ListTile(
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(movie.posterPath, width: 55, fit: BoxFit.cover),
+                            child: Image.network(
+                              movie.posterPath,
+                              width: 55,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          title: Text(movie.title, style: const TextStyle(color: Colors.white)),
-                          subtitle: Text("⭐ ${movie.voteAverage.toStringAsFixed(1)}", style: const TextStyle(color: Colors.white70)),
+                          title: Text(
+                            movie.title,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          subtitle: Text(
+                            "⭐ ${movie.voteAverage.toStringAsFixed(1)}",
+                            style: const TextStyle(color: Colors.white70),
+                          ),
                           trailing: IconButton(
   icon: const Icon(
     Icons.bookmark,
