@@ -4,7 +4,7 @@ import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/animated_favorite_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/heart_button_widget.dart'; // Asegúrate de que esta sea la importación correcta
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -33,7 +33,7 @@ class FavoritesScreen extends StatelessWidget {
           // Lista
           Expanded(
             child: favoriteMovies.isEmpty
-                ? Center(child: Text("No tienes películas favoritas", style: TextStyle(color: Colors.white)))
+                ? const Center(child: Text("No tienes películas favoritas", style: TextStyle(color: Colors.white)))
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: favoriteMovies.length,
@@ -49,11 +49,17 @@ class FavoritesScreen extends StatelessWidget {
                           ),
                           title: Text(movie.title, style: const TextStyle(color: Colors.white)),
                           subtitle: Text("⭐ ${movie.voteAverage.toStringAsFixed(1)}", style: const TextStyle(color: Colors.white70)),
-                          trailing: AnimatedFavoriteWidget(
-                            isFavorite: true,
-                            onPressed: () => movieProvider.toggleFavorite(movie),
+                          
+                          // --- CAMBIO AQUÍ: Usamos el nuevo widget y onTap ---
+                          trailing: HeartButtonWidget(
+                            isFavorite: true, // En esta pantalla siempre son favoritos
+                            onTap: () => movieProvider.toggleFavorite(movie),
                           ),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MovieDetailScreen(movie: movie))),
+                          
+                          onTap: () => Navigator.push(
+                            context, 
+                            MaterialPageRoute(builder: (_) => MovieDetailScreen(movie: movie))
+                          ),
                         ),
                       );
                     },

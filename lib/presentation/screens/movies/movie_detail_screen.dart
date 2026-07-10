@@ -10,7 +10,7 @@ import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 
 // IMPORTACIONES DE TUS WIDGETS ANIMADOS
-import 'package:chocomil_movies_app_bv/presentation/widgets/animated_favorite_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/heart_button_widget.dart'; 
 import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart';
 
 class MovieDetailScreen extends StatelessWidget {
@@ -91,54 +91,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               ),
               onPressed: () => Navigator.pop(context),
             ),
-            actions: [
-              // 1. BOTÓN FAVORITO (CORAZÓN) CON ANIMACIÓN
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: CircleAvatar(
-                  backgroundColor: Colors.black38,
-                  child: AnimatedFavoriteWidget(
-                    isFavorite: movieProvider.isFavorite(widget.movie),
-                    onPressed: () {
-                      movieProvider.toggleFavorite(widget.movie);
-                      final isNowFav = movieProvider.isFavorite(widget.movie);
-                      
-                      // Feedback visual
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(isNowFav ? "¡Añadida a Favoritos! ❤️" : "Eliminada de Favoritos"),
-                          duration: const Duration(seconds: 1),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              
-              // 2. BOTÓN GUARDADO (MARCADOR) CON ANIMACIÓN
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: AnimatedBookmarkWidget(
-                  isSaved: movieProvider.isInWatchlist(widget.movie),
-                  onTap: () {
-                    movieProvider.toggleWatchlist(widget.movie);
-                    final isNowSaved = movieProvider.isInWatchlist(widget.movie);
-                    
-                    // Feedback visual
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(isNowSaved ? "¡Guardada en tu Watchlist! 🔖" : "Eliminada de tu Watchlist"),
-                        duration: const Duration(seconds: 1),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+            // ACTIONS ELIMINADOS DE AQUÍ
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -178,13 +131,34 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.movie.title,
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    // --- AQUÍ SE AGREGARON LOS BOTONES ---
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.movie.title,
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            HeartButtonWidget(
+                              isFavorite: movieProvider.isFavorite(widget.movie),
+                              onTap: () => movieProvider.toggleFavorite(widget.movie),
+                            ),
+                            const SizedBox(width: 8),
+                            AnimatedBookmarkWidget(
+                              isSaved: movieProvider.isInWatchlist(widget.movie),
+                              onTap: () => movieProvider.toggleWatchlist(widget.movie),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Row(

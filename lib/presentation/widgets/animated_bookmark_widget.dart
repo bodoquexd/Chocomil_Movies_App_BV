@@ -83,7 +83,6 @@ class _AnimatedBookmarkWidgetState extends State<AnimatedBookmarkWidget>
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5), // Fondo oscuro semitransparente
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
