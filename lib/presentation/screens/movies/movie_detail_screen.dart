@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
-
-// IMPORTACIONES DE TUS WIDGETS ANIMADOS
-import 'package:chocomil_movies_app_bv/presentation/widgets/heart_button_widget.dart'; 
 import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart';
 
 class MovieDetailScreen extends StatelessWidget {
@@ -38,23 +35,15 @@ class _MovieDetailContent extends StatefulWidget {
 class _MovieDetailContentState extends State<_MovieDetailContent> {
   YoutubePlayerController? _trailerController;
 
-  @override
-  void dispose() {
-    _trailerController?.dispose();
-    super.dispose();
-  }
-
   void _initYoutubeController(String videoId) {
-    _trailerController ??= YoutubePlayerController(
-      initialVideoId: videoId,
-      flags: const YoutubePlayerFlags(
-        autoPlay: false,
+    _trailerController ??= YoutubePlayerController.fromVideoId(
+      videoId: videoId,
+      autoPlay: false,
+      params: const YoutubePlayerParams(
+        showControls: true,
+        showFullscreenButton: true,
         mute: false,
-        disableDragSeek: false,
         loop: false,
-        isLive: false,
-        forceHD: false,
-        enableCaption: true,
       ),
     );
   }
@@ -91,7 +80,92 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               ),
               onPressed: () => Navigator.pop(context),
             ),
-            // ACTIONS ELIMINADOS DE AQUÍ
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: CircleAvatar(
+                  backgroundColor: Colors.black38,
+                  child: IconButton(
+                    icon: Icon(
+                      movieProvider.isFavorite(widget.movie)
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: Colors.red,
+                    ),
+                    onPressed: () {
+  final isFavorite = movieProvider.isFavorite(widget.movie);
+
+  movieProvider.toggleFavorite(widget.movie);
+
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          Icon(
+            isFavorite ? Icons.favorite_border : Icons.favorite,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            isFavorite
+                ? 'Se eliminó de Favoritos'
+                : 'Se añadió a Favoritos',
+          ),
+        ],
+      ),
+      backgroundColor: AppColors.backgroundBlack,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  );
+},
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: AnimatedBookmarkWidget(
+                  isSaved: movieProvider.isInWatchlist(widget.movie),
+                  onTap: () {
+  final isSaved = movieProvider.isInWatchlist(widget.movie);
+
+  movieProvider.toggleWatchlist(widget.movie);
+
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          Icon(
+            isSaved ? Icons.bookmark_remove : Icons.bookmark,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            isSaved
+                ? 'Se eliminó de Guardados'
+                : 'Se guardó correctamente',
+          ),
+        ],
+      ),
+      backgroundColor: AppColors.backgroundBlack,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  );
+},
+                ),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -177,7 +251,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                     ),
                     const SizedBox(height: 25),
                     const SectionTitleWidget(title: 'Sinopsis'),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     Text(
                       widget.movie.overview.isNotEmpty
                           ? widget.movie.overview
@@ -188,9 +262,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         height: 1.4,
                       ),
                     ),
-                    const SizedBox(height: 25),
-                    
-                    // --- CARGA DE CONTENIDO ---
+                    const SizedBox(height: 24),
                     if (detailProvider.isLoading)
                       const Center(
                         child: CircularProgressIndicator(
@@ -206,6 +278,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       )
                     else ...[
                       if (detailProvider.cast.isNotEmpty) ...[
+                        const SizedBox(height: 24),
                         const SectionTitleWidget(title: 'Reparto Principal'),
                         const SizedBox(height: 12),
                         SizedBox(
@@ -258,7 +331,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                             },
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 12),
                       ],
                       if (_trailerController != null) ...[
                         const SectionTitleWidget(title: 'Tráiler Oficial'),
@@ -267,15 +340,10 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           borderRadius: BorderRadius.circular(15),
                           child: YoutubePlayer(
                             controller: _trailerController!,
-                            showVideoProgressIndicator: true,
-                            progressIndicatorColor: AppColors.textPrimary,
-                            progressColors: ProgressBarColors(
-                              playedColor: AppColors.textPrimary,
-                              handleColor: AppColors.textPrimary,
-                            ),
+                            aspectRatio: 16 / 9,
                           ),
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 24),
                       ],
                       if (detailProvider.reviews.isNotEmpty) ...[
                         const SectionTitleWidget(
@@ -310,7 +378,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           style: TextStyle(color: Colors.white54),
                         ),
                       ],
-                      const SizedBox(height: 20),
                     ],
                   ],
                 ),

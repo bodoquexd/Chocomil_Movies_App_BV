@@ -26,14 +26,22 @@ class FavoritesScreen extends StatelessWidget {
             child: Text(
               "Mis Favoritos",
               textAlign: TextAlign.center,
-              style: TextosEstilos.titulo.copyWith(color: Colors.white, fontSize: 22),
+              style: TextosEstilos.titulo.copyWith(
+                color: Colors.white,
+                fontSize: 22,
+              ),
             ),
           ),
-          
+
           // Lista
           Expanded(
             child: favoriteMovies.isEmpty
-                ? const Center(child: Text("No tienes películas favoritas", style: TextStyle(color: Colors.white)))
+                ? Center(
+                    child: Text(
+                      "No tienes películas favoritas",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: favoriteMovies.length,
@@ -45,20 +53,55 @@ class FavoritesScreen extends StatelessWidget {
                         child: ListTile(
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(movie.posterPath, width: 55, fit: BoxFit.cover),
+                            child: Image.network(
+                              movie.posterPath,
+                              width: 55,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          title: Text(movie.title, style: const TextStyle(color: Colors.white)),
-                          subtitle: Text("⭐ ${movie.voteAverage.toStringAsFixed(1)}", style: const TextStyle(color: Colors.white70)),
-                          
-                          // --- CAMBIO AQUÍ: Usamos el nuevo widget y onTap ---
-                          trailing: HeartButtonWidget(
-                            isFavorite: true, // En esta pantalla siempre son favoritos
-                            onTap: () => movieProvider.toggleFavorite(movie),
+                          title: Text(
+                            movie.title,
+                            style: const TextStyle(color: Colors.white),
                           ),
-                          
-                          onTap: () => Navigator.push(
-                            context, 
-                            MaterialPageRoute(builder: (_) => MovieDetailScreen(movie: movie))
+                          subtitle: Text(
+                            "⭐ ${movie.voteAverage.toStringAsFixed(1)}",
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          trailing: AnimatedFavoriteWidget(
+                            isFavorite: true,
+onPressed: () {
+  movieProvider.toggleFavorite(movie);
+
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              Icons.favorite_border,
+              color: Colors.white, // Igual que el otro
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                '"${movie.title}" se ha quitado de la lista de favoritos',
+                style: const TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.backgroundBlack, // Igual que el otro
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+},
                           ),
                         ),
                       );
