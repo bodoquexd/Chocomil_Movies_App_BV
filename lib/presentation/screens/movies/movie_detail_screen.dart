@@ -35,6 +35,9 @@ class _MovieDetailContent extends StatefulWidget {
 class _MovieDetailContentState extends State<_MovieDetailContent> {
   YoutubePlayerController? _trailerController;
 
+  // Llave global para identificar y hacer scroll hacia la sección del tráiler
+  final GlobalKey _trailerKey = GlobalKey();
+
   void _initYoutubeController(String videoId) {
     _trailerController ??= YoutubePlayerController.fromVideoId(
       videoId: videoId,
@@ -52,6 +55,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
   Widget build(BuildContext context) {
     final detailProvider = context.watch<MovieDetailProvider>();
     final movieProvider = context.watch<MovieProvider>();
+
     if (detailProvider.trailerKey != null && _trailerController == null) {
       _initYoutubeController(detailProvider.trailerKey!);
     }
@@ -79,92 +83,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               ),
               onPressed: () => Navigator.pop(context),
             ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: CircleAvatar(
-                  backgroundColor: Colors.black38,
-                  child: IconButton(
-                    icon: Icon(
-                      movieProvider.isFavorite(widget.movie)
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: Colors.red,
-                    ),
-                    onPressed: () {
-  final isFavorite = movieProvider.isFavorite(widget.movie);
-
-  movieProvider.toggleFavorite(widget.movie);
-
-  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Row(
-        children: [
-          Icon(
-            isFavorite ? Icons.favorite_border : Icons.favorite,
-            color: Colors.white,
-          ),
-          const SizedBox(width: 10),
-          Text(
-            isFavorite
-                ? 'Se eliminó de Favoritos'
-                : 'Se añadió a Favoritos',
-          ),
-        ],
-      ),
-      backgroundColor: AppColors.backgroundBlack,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-    ),
-  );
-},
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: AnimatedBookmarkWidget(
-                  isSaved: movieProvider.isInWatchlist(widget.movie),
-                  onTap: () {
-  final isSaved = movieProvider.isInWatchlist(widget.movie);
-
-  movieProvider.toggleWatchlist(widget.movie);
-
-  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Row(
-        children: [
-          Icon(
-            isSaved ? Icons.bookmark_remove : Icons.bookmark,
-            color: Colors.white,
-          ),
-          const SizedBox(width: 10),
-          Text(
-            isSaved
-                ? 'Se eliminó de Guardados'
-                : 'Se guardó correctamente',
-          ),
-        ],
-      ),
-      backgroundColor: AppColors.backgroundBlack,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-    ),
-  );
-},
-                ),
-              ),
-            ],
+            // Los actions (favoritos y guardado) se movieron abajo
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -200,19 +119,73 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
-                padding: const EdgeInsets.all(20.0),
+                // Se ajusta el padding superior a 0 para que el título suba
+                padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // TÍTULO GRANDE (Estilo imagen)
                     Text(
-                      widget.movie.title,
+                      widget.movie.title.toUpperCase(),
                       style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 38,
+                        fontWeight: FontWeight.w900,
                         color: Colors.white,
+                        letterSpacing: -1.0,
+                        height: 1.1,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 20),
+
+                    // BOTÓN VER TRÁILER
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        icon: const Icon(Icons.play_arrow, size: 28),
+                        label: const Text(
+                          'Ver tráiler',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onPressed: () {
+                          if (_trailerKey.currentContext != null) {
+                            Scrollable.ensureVisible(
+                              _trailerKey.currentContext!,
+                              duration: const Duration(milliseconds: 600),
+                              curve: Curves.easeInOut,
+                            );
+                          } else if (detailProvider.isLoading) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Cargando detalles, por favor espera...',
+                                ),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'El tráiler no está disponible para esta película.',
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
                     Row(
                       children: [
                         const Icon(Icons.star, color: Colors.amber, size: 20),
@@ -227,7 +200,8 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 20),
+
                     const SectionTitleWidget(title: 'Sinopsis'),
                     const SizedBox(height: 12),
                     Text(
@@ -240,7 +214,130 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         height: 1.4,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 25),
+
+                    // FILA DE ACCIONES (Guardado y Favoritos reubicados aquí)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Botón Mi lista (Guardado)
+                        Column(
+                          children: [
+                            AnimatedBookmarkWidget(
+                              isSaved: movieProvider.isInWatchlist(
+                                widget.movie,
+                              ),
+                              onTap: () {
+                                final isSaved = movieProvider.isInWatchlist(
+                                  widget.movie,
+                                );
+                                movieProvider.toggleWatchlist(widget.movie);
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).hideCurrentSnackBar();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Row(
+                                      children: [
+                                        Icon(
+                                          isSaved
+                                              ? Icons.bookmark_remove
+                                              : Icons.bookmark,
+                                          color: Colors.white,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          isSaved
+                                              ? 'Se eliminó de Guardados'
+                                              : 'Se guardó correctamente',
+                                        ),
+                                      ],
+                                    ),
+                                    backgroundColor: AppColors.backgroundBlack,
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: const Duration(seconds: 2),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Mi lista',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Botón Calificar / Favorito
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                movieProvider.isFavorite(widget.movie)
+                                    ? Icons.thumb_up
+                                    : Icons
+                                          .thumb_up_alt_outlined, // Cambiado ligeramente para verse más como la imagen, pero puedes dejar Icons.favorite si prefieres
+                                color: Colors.white,
+                              ),
+                              iconSize: 28,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              onPressed: () {
+                                final isFavorite = movieProvider.isFavorite(
+                                  widget.movie,
+                                );
+                                movieProvider.toggleFavorite(widget.movie);
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).hideCurrentSnackBar();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Row(
+                                      children: [
+                                        Icon(
+                                          isFavorite
+                                              ? Icons.thumb_down
+                                              : Icons.thumb_up,
+                                          color: Colors.white,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          isFavorite
+                                              ? 'Se eliminó de Favoritos'
+                                              : 'Se añadió a Favoritos',
+                                        ),
+                                      ],
+                                    ),
+                                    backgroundColor: AppColors.backgroundBlack,
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: const Duration(seconds: 2),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Me gusta',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 25),
+
                     if (detailProvider.isLoading)
                       Center(
                         child: CircularProgressIndicator(
@@ -256,7 +353,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       )
                     else ...[
                       if (detailProvider.cast.isNotEmpty) ...[
-                        const SizedBox(height: 24),
                         const SectionTitleWidget(title: 'Reparto Principal'),
                         const SizedBox(height: 12),
                         SizedBox(
@@ -312,13 +408,24 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         const SizedBox(height: 12),
                       ],
                       if (_trailerController != null) ...[
-                        const SectionTitleWidget(title: 'Tráiler Oficial'),
-                        const SizedBox(height: 12),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: YoutubePlayer(
-                            controller: _trailerController!,
-                            aspectRatio: 16 / 9,
+                        // CONTENEDOR CON LA LLAVE GLOBAL PARA EL SCROLL
+                        Container(
+                          key: _trailerKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SectionTitleWidget(
+                                title: 'Tráiler Oficial',
+                              ),
+                              const SizedBox(height: 12),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: YoutubePlayer(
+                                  controller: _trailerController!,
+                                  aspectRatio: 16 / 9,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 24),

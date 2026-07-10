@@ -53,6 +53,14 @@ class FeaturedCarouselWidget extends StatelessWidget {
                 child: FeaturedMovieWidget(
                   title: movie.title,
                   imageUrl: movie.backdropPath,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MovieDetailScreen(movie: movie),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
