@@ -1,7 +1,7 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:like_button/like_button.dart';
 
-class AnimatedBookmarkWidget extends StatefulWidget {
+class AnimatedBookmarkWidget extends StatelessWidget {
   final bool isSaved;
   final VoidCallback onTap;
 
@@ -12,91 +12,63 @@ class AnimatedBookmarkWidget extends StatefulWidget {
   });
 
   @override
-  State<AnimatedBookmarkWidget> createState() => _AnimatedBookmarkWidgetState();
-}
-
-class _AnimatedBookmarkWidgetState extends State<AnimatedBookmarkWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _rotationAnimation;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-
-    // Animación 1: Giro completo de 360 grados (2 * pi) con un efecto de retroceso al final
-    _rotationAnimation = Tween<double>(begin: 0.0, end: 2 * pi).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutBack,
-      ),
-    );
-
-    // Animación 2: Salto sutil mientras gira
-    _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 1.3)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 50,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.3, end: 1.0)
-            .chain(CurveTween(curve: Curves.bounceOut)),
-        weight: 50,
-      ),
-    ]).animate(_controller);
-  }
-
-  @override
-  void didUpdateWidget(covariant AnimatedBookmarkWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Dispara la animación inmediatamente si el Provider cambia el estado de guardado
-    if (oldWidget.isSaved != widget.isSaved) {
-      _controller.forward(from: 0.0);
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            // Aplicamos la rotación sobre el eje Z
-            child: Transform.rotate(
-              angle: _rotationAnimation.value,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5), // Fondo oscuro semitransparente
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  widget.isSaved ? Icons.bookmark : Icons.bookmark_border,
-                  // Color ámbar para distinguir la Watchlist de los Favoritos (rojo)
-                  color: widget.isSaved ? Colors.amber : Colors.white70,
-                  size: 22,
-                ),
+    return LikeButton(
+      size: 26,
+      isLiked: isSaved,
+      animationDuration: const Duration(milliseconds: 1200),
+      
+      circleColor: const CircleColor(start: Color(0xFF8D6E63), end: Color(0xFF4E342E)),
+      bubblesSize: 40,
+      bubblesColor: const BubblesColor(
+        dotPrimaryColor: Color(0xFFA1887F),
+        dotSecondaryColor: Color(0xFF6D4C41),
+        dotThirdColor: Color(0xFF3E2723),
+        dotLastColor: Color(0xFFD7CCC8),
+      ),
+
+      likeBuilder: (bool isLiked) {
+        return Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            const Icon(Icons.bookmark_border, color: Colors.white, size: 26),
+            
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 1200),
+              curve: Curves.easeInOutCubic,
+              height: isLiked ? 26 : 0, 
+              width: 26,
+              child: ClipPath(
+                clipper: BookmarkClipper(),
+                child: Container(color: const Color(0xFF6D4C41)), 
               ),
             ),
-          );
-        },
-      ),
+            
+            if (isLiked)
+              const Icon(Icons.bookmark, color: Color(0xFF4E342E), size: 26),
+          ],
+        );
+      },
+      onTap: (bool isLiked) async {
+        onTap();
+        return !isLiked;
+      },
     );
   }
+}
+
+class BookmarkClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    Path path = Path();
+    path.lineTo(0, size.height);
+    path.lineTo(size.width / 2, size.height * 0.85);
+    path.lineTo(size.width, size.height);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
