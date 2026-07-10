@@ -69,14 +69,39 @@ class FavoritesScreen extends StatelessWidget {
                           ),
                           trailing: AnimatedFavoriteWidget(
                             isFavorite: true,
-                            onPressed: () =>
-                                movieProvider.toggleFavorite(movie),
-                          ),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => MovieDetailScreen(movie: movie),
-                            ),
+onPressed: () {
+  movieProvider.toggleFavorite(movie);
+
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              Icons.favorite_border,
+              color: Colors.white, // Igual que el otro
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                '"${movie.title}" se ha quitado de la lista de favoritos',
+                style: const TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.backgroundBlack, // Igual que el otro
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+},
                           ),
                         ),
                       );
