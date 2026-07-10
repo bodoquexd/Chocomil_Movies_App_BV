@@ -49,9 +49,44 @@ class WatchlistScreen extends StatelessWidget {
                           title: Text(movie.title, style: const TextStyle(color: Colors.white)),
                           subtitle: Text("⭐ ${movie.voteAverage.toStringAsFixed(1)}", style: const TextStyle(color: Colors.white70)),
                           trailing: IconButton(
-                            icon: const Icon(Icons.bookmark, color: Colors.blue), // Icono de guardado
-                            onPressed: () => movieProvider.toggleWatchlist(movie),
-                          ),
+  icon: const Icon(
+    Icons.bookmark,
+    color: Colors.blue,
+  ),
+  onPressed: () {
+    movieProvider.toggleWatchlist(movie);
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(
+                Icons.bookmark_remove,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  '"${movie.title}" se ha quitado de Guardados',
+                  style: const TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.backgroundBlack,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+  },
+),
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MovieDetailScreen(movie: movie))),
                         ),
                       );

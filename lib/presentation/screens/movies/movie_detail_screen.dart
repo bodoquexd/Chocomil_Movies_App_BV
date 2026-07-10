@@ -95,8 +95,37 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       color: Colors.red,
                     ),
                     onPressed: () {
-                      movieProvider.toggleFavorite(widget.movie);
-                    },
+  final isFavorite = movieProvider.isFavorite(widget.movie);
+
+  movieProvider.toggleFavorite(widget.movie);
+
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          Icon(
+            isFavorite ? Icons.favorite_border : Icons.favorite,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            isFavorite
+                ? 'Se eliminó de Favoritos'
+                : 'Se añadió a Favoritos',
+          ),
+        ],
+      ),
+      backgroundColor: AppColors.backgroundBlack,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  );
+},
                   ),
                 ),
               ),
@@ -108,8 +137,37 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                   // NOTA: Asegúrate de que tu MovieProvider tenga estos métodos creados
                   isSaved: movieProvider.isInWatchlist(widget.movie), 
                   onTap: () {
-                    movieProvider.toggleWatchlist(widget.movie);
-                  },
+  final isSaved = movieProvider.isInWatchlist(widget.movie);
+
+  movieProvider.toggleWatchlist(widget.movie);
+
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          Icon(
+            isSaved ? Icons.bookmark_remove : Icons.bookmark,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            isSaved
+                ? 'Se eliminó de Guardados'
+                : 'Se guardó correctamente',
+          ),
+        ],
+      ),
+      backgroundColor: AppColors.backgroundBlack,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  );
+},
                 ),
               ),
             ],

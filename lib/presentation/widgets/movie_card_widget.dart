@@ -58,9 +58,43 @@ class MovieCardWidget extends StatelessWidget {
                     right: 10,
                     child: _AnimatedHeartButton(
                       isFavorite: isFavorite,
-                      onTap: () {
-                        movieProvider.toggleFavorite(movie);
-                      },
+                      onTap: () async {
+  final wasFavorite = isFavorite;
+
+  await movieProvider.toggleFavorite(movie);
+
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              wasFavorite
+                  ? Icons.favorite_border
+                  : Icons.favorite,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                wasFavorite
+                    ? '"${movie.title}" se ha quitado de Favoritos'
+                    : '"${movie.title}" se añadió a Favoritos',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.backgroundBlack,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+},
                     ),
                   ),
                 ],
@@ -115,9 +149,43 @@ class MovieCardWidget extends StatelessWidget {
                               0.85, // Un poco más pequeño para que no estorbe
                           child: AnimatedBookmarkWidget(
                             isSaved: isSaved,
-                            onTap: () {
-                              movieProvider.toggleWatchlist(movie);
-                            },
+                            onTap: () async {
+  final wasSaved = isSaved;
+
+  await movieProvider.toggleWatchlist(movie);
+
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              wasSaved
+                  ? Icons.bookmark_remove
+                  : Icons.bookmark_added,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                wasSaved
+                    ? '"${movie.title}" se ha quitado de Guardados'
+                    : '"${movie.title}" se añadió a Guardados',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.backgroundBlack,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+},
                           ),
                         ),
                       ],
