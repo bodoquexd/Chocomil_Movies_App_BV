@@ -4,7 +4,7 @@ import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/heart_button_widget.dart'; // Asegúrate de que esta sea la importación correcta
+import 'package:chocomil_movies_app_bv/presentation/widgets/animated_heart_widget.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -36,7 +36,7 @@ class FavoritesScreen extends StatelessWidget {
           // Lista
           Expanded(
             child: favoriteMovies.isEmpty
-                ? Center(
+                ? const Center(
                     child: Text(
                       "No tienes películas favoritas",
                       style: TextStyle(color: Colors.white),
@@ -67,41 +67,42 @@ class FavoritesScreen extends StatelessWidget {
                             "⭐ ${movie.voteAverage.toStringAsFixed(1)}",
                             style: const TextStyle(color: Colors.white70),
                           ),
-                          trailing: AnimatedFavoriteWidget(
+                          // Aquí está la corrección aplicada
+                          trailing: AnimatedHeartWidget(
                             isFavorite: true,
-onPressed: () {
-  movieProvider.toggleFavorite(movie);
+                            onTap: () {
+                              movieProvider.toggleFavorite(movie);
 
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(
-              Icons.favorite_border,
-              color: Colors.white, // Igual que el otro
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                '"${movie.title}" se ha quitado de la lista de favoritos',
-                style: const TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppColors.backgroundBlack, // Igual que el otro
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-    );
-},
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(
+                                  SnackBar(
+                                    content: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.favorite_border,
+                                          color: Colors.white, // Igual que el otro
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            '"${movie.title}" se ha quitado de la lista de favoritos',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    backgroundColor: AppColors.backgroundBlack, // Igual que el otro
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: const Duration(seconds: 2),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                );
+                            },
                           ),
                         ),
                       );
