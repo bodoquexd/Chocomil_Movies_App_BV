@@ -5,7 +5,8 @@ import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart'; // IMPORTANTE: Tu widget animado
+import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/heart_button_widget.dart'; // Nuevo import
 
 class MovieCardWidget extends StatelessWidget {
   final Movie movie;
@@ -52,11 +53,10 @@ class MovieCardWidget extends StatelessWidget {
                       },
                     ),
                   ),
-                  // FAVORITOS (Corazón arriba a la derecha)
                   Positioned(
                     top: 10,
                     right: 10,
-                    child: _AnimatedHeartButton(
+                    child: HeartButtonWidget( // Usamos el widget centralizado
                       isFavorite: isFavorite,
                       onTap: () async {
   final wasFavorite = isFavorite;
@@ -100,8 +100,6 @@ class MovieCardWidget extends StatelessWidget {
                 ],
               ),
             ),
-
-            // APARTADO INFERIOR (Títulos, Rating y Guardado)
             SizedBox(
               height: 75,
               child: Padding(
@@ -124,7 +122,6 @@ class MovieCardWidget extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Lado Izquierdo: Estrella y calificación
                         Row(
                           children: [
                             const Icon(

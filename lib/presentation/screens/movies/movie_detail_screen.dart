@@ -52,6 +52,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
   Widget build(BuildContext context) {
     final detailProvider = context.watch<MovieDetailProvider>();
     final movieProvider = context.watch<MovieProvider>();
+    
     if (detailProvider.trailerKey != null && _trailerController == null) {
       _initYoutubeController(detailProvider.trailerKey!);
     }
@@ -180,7 +181,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       ),
                     ),
                   ),
-                  DecoratedBox(
+                  const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -204,13 +205,34 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.movie.title,
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    // --- AQUÍ SE AGREGARON LOS BOTONES ---
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.movie.title,
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            HeartButtonWidget(
+                              isFavorite: movieProvider.isFavorite(widget.movie),
+                              onTap: () => movieProvider.toggleFavorite(widget.movie),
+                            ),
+                            const SizedBox(width: 8),
+                            AnimatedBookmarkWidget(
+                              isSaved: movieProvider.isInWatchlist(widget.movie),
+                              onTap: () => movieProvider.toggleWatchlist(widget.movie),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -242,7 +264,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                     ),
                     const SizedBox(height: 24),
                     if (detailProvider.isLoading)
-                      Center(
+                      const Center(
                         child: CircularProgressIndicator(
                           color: AppColors.textPrimary,
                         ),

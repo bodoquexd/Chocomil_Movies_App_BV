@@ -4,7 +4,7 @@ import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/animated_favorite_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/heart_button_widget.dart'; // Asegúrate de que esta sea la importación correcta
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
