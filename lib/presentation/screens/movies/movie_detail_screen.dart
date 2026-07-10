@@ -4,12 +4,10 @@ import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart'; 
+import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
-
-// NUEVA IMPORTACIÓN: Tu widget animado
 import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart';
 
 class MovieDetailScreen extends StatelessWidget {
@@ -82,7 +80,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
-              // 1. BOTÓN DE FAVORITOS (CORAZÓN)
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: CircleAvatar(
@@ -100,13 +97,10 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                   ),
                 ),
               ),
-              
-              // 2. NUEVO BOTÓN ANIMADO DE GUARDADO (MARCADOR)
               Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: AnimatedBookmarkWidget(
-                  // NOTA: Asegúrate de que tu MovieProvider tenga estos métodos creados
-                  isSaved: movieProvider.isInWatchlist(widget.movie), 
+                  isSaved: movieProvider.isInWatchlist(widget.movie),
                   onTap: () {
                     movieProvider.toggleWatchlist(widget.movie);
                   },
@@ -177,7 +171,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                     ),
                     const SizedBox(height: 25),
                     const SectionTitleWidget(title: 'Sinopsis'),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     Text(
                       widget.movie.overview.isNotEmpty
                           ? widget.movie.overview
@@ -188,7 +182,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         height: 1.4,
                       ),
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 24),
                     if (detailProvider.isLoading)
                       Center(
                         child: CircularProgressIndicator(
@@ -204,6 +198,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       )
                     else ...[
                       if (detailProvider.cast.isNotEmpty) ...[
+                        const SizedBox(height: 24),
                         const SectionTitleWidget(title: 'Reparto Principal'),
                         const SizedBox(height: 12),
                         SizedBox(
@@ -256,7 +251,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                             },
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 12),
                       ],
                       if (_trailerController != null) ...[
                         const SectionTitleWidget(title: 'Tráiler Oficial'),
@@ -268,7 +263,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                             aspectRatio: 16 / 9,
                           ),
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 24),
                       ],
                       if (detailProvider.reviews.isNotEmpty) ...[
                         const SectionTitleWidget(
@@ -303,7 +298,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           style: TextStyle(color: Colors.white54),
                         ),
                       ],
-                      const SizedBox(height: 20),
                     ],
                   ],
                 ),
