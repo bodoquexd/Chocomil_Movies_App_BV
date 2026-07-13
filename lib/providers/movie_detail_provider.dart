@@ -9,6 +9,7 @@ class MovieDetailProvider extends ChangeNotifier {
   List<dynamic> reviews = [];
   String? trailerKey;
   String? errorMessage;
+  String? movieLogoPath;
 
   Future<void> loadMovieDetails(int movieId) async {
     isLoading = true;
@@ -16,6 +17,7 @@ class MovieDetailProvider extends ChangeNotifier {
     cast = [];
     reviews = [];
     trailerKey = null;
+    movieLogoPath = null; 
     notifyListeners(); 
 
     final apiKey = dotenv.env['THE_MOVIEDB_KEY'] ?? '';
@@ -28,20 +30,21 @@ class MovieDetailProvider extends ChangeNotifier {
     }
 
     try {
-      // 1. Obtener reparto (Cast)
+      //Obtener reparto (Cast)
       final castRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/credits?api_key=$apiKey&language=es-MX'));
       if (castRes.statusCode == 200) {
         final castData = json.decode(castRes.body);
         cast = (castData['cast'] as List).take(10).toList();
       }
 
+      //Obtener Reviews
       final reviewsRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/reviews?api_key=$apiKey'));
       if (reviewsRes.statusCode == 200) {
         final reviewsData = json.decode(reviewsRes.body);
         reviews = (reviewsData['results'] as List).take(5).toList();
       }
 
-      // 3. Obtener Tráiler
+      //Obtener Tráiler
       final videoRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/videos?api_key=$apiKey&language=es-MX'));
       if (videoRes.statusCode == 200) {
         final videoData = json.decode(videoRes.body);
@@ -66,6 +69,19 @@ class MovieDetailProvider extends ChangeNotifier {
           }
         }
       }
+
+      //Obtener el Logo de la película
+      final imagesRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/images?api_key=$apiKey&include_image_language=es,en,null'));
+      if (imagesRes.statusCode == 200) {
+        final imagesData = json.decode(imagesRes.body);
+        final logos = imagesData['logos'] as List;
+        
+        if (logos.isNotEmpty) {
+          final String logoPath = logos.first['file_path'];
+          movieLogoPath = 'https://image.tmdb.org/t/p/w500$logoPath';
+        }
+      }
+
     } catch (e) {
       debugPrint('Error cargando detalles: $e');
       errorMessage = 'Error de conexión';

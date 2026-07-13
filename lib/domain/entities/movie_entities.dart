@@ -16,6 +16,7 @@ class Movie {
   final bool video;
   final double voteAverage;
   final int voteCount;
+  final String? logoPath;
 
   Movie({
     required this.adult,
@@ -32,6 +33,7 @@ class Movie {
     required this.video,
     required this.voteAverage,
     required this.voteCount,
+    this.logoPath,
   });
 
   // Convertir JSON a Película al leer de SharedPreferences
@@ -52,6 +54,7 @@ class Movie {
     video: json['video'] ?? false,
     voteAverage: (json['voteAverage'] ?? 0.0).toDouble(),
     voteCount: json['voteCount'] ?? 0,
+    logoPath: json['logoPath'],
   );
 
   Map<String, dynamic> toJson() => {
@@ -69,5 +72,6 @@ class Movie {
     'video': video,
     'voteAverage': voteAverage,
     'voteCount': voteCount,
+    'logoPath': logoPath,
   };
 }

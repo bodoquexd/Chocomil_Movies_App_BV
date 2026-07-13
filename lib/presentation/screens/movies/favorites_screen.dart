@@ -5,7 +5,9 @@ import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/animated_favorite_widget.dart';
-import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart'; 
+import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
+
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
 
@@ -22,8 +24,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     super.initState();
     _currentFavorites = List.from(context.read<MovieProvider>().favoriteMovies);
   }
+
   void _removeItem(int index, Movie movie) {
-    // 1. Obtenemos el estado de la lista animada
     final AnimatedListState? animatedList = _listKey.currentState;
     animatedList?.removeItem(
       index,
@@ -47,35 +49,36 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        centerTitle: true,
+        elevation: 0,
+        toolbarHeight: 65,
+        title: Image.asset(
+          'assets/images/icon_app.png',
+          height: 58,
+          fit: BoxFit.contain,
+        ),
+      ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Encabezado Banner
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            color: Colors.brown[900],
-            child: Text(
-              "Mis Favoritos",
-              textAlign: TextAlign.center,
-              style: TextosEstilos.titulo.copyWith(
-                color: Colors.white,
-                fontSize: 22,
-              ),
-            ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 20, 16, 10),
+            child: SectionTitleWidget(title: 'Mis Favoritos'),
           ),
 
-          // Lista
           Expanded(
             child: _currentFavorites.isEmpty
-                ? Center(
+                ? const Center(
                     child: Text(
                       "No tienes películas favoritas",
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
                     ),
                   )
                 : AnimatedList(
                     key: _listKey, 
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     initialItemCount: _currentFavorites.length,
                     itemBuilder: (context, index, animation) {
                       return _buildMovieCard(_currentFavorites[index], animation, index);
@@ -96,22 +99,41 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         child: Card(
           color: AppColors.backgroundBlack,
           margin: const EdgeInsets.only(bottom: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             leading: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
                 movie.posterPath,
                 width: 55,
+                height: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (_,_,_) => Container(
+                  width: 55, 
+                  color: Colors.grey[800], 
+                  child: const Icon(Icons.broken_image, color: Colors.white54)
+                ),
               ),
             ),
             title: Text(
               movie.title,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            subtitle: Text(
-              "⭐ ${movie.voteAverage.toStringAsFixed(1)}",
-              style: const TextStyle(color: Colors.white70),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 6.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.star, color: Colors.amber, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    movie.voteAverage.toStringAsFixed(1),
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
             ),
             trailing: AnimatedFavoriteWidget(
               isFavorite: true,
@@ -131,10 +153,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              '"${movie.title}" se ha quitado de la lista de favoritos',
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
+                              '"${movie.title}" se ha quitado de favoritos',
+                              style: const TextStyle(color: Colors.white),
                             ),
                           ),
                         ],
@@ -149,6 +169,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   );
               },
             ),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MovieDetailScreen(movie: movie))),
           ),
         ),
       ),

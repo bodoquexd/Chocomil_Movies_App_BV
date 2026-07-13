@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/button_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart'; // NUEVA IMPORTACIÓN
 
 class ProfileScreen extends StatefulWidget {
   static const String name = 'profile_screen';
@@ -111,127 +112,147 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.cardBackground,
+      // 1. Fondo estandarizado
+      backgroundColor: AppColors.primaryDark,
+      
+      // 2. AppBar unificado con el logo
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text('Mi Perfil', style: TextosEstilos.titulo),
+        backgroundColor: AppColors.primary,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        elevation: 0,
+        toolbarHeight: 65,
+        title: Image.asset(
+          'assets/images/icon_app.png',
+          height: 58,
+          fit: BoxFit.contain,
+        ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.06),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(height: screenSize.height * 0.04),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 3. Título de Sección estilo Home
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 20, 16, 10),
+              child: SectionTitleWidget(title: 'Mi Perfil'),
+            ),
+            
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.06),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: screenSize.height * 0.02),
 
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryDark,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primary, width: 3),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: (_avatarUrl != null && _avatarUrl!.isNotEmpty)
-                      ? Image.network(
-                          _avatarUrl!,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return const Center(
-                              child: CircularProgressIndicator(
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryDark,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.primary, width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.3),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: (_avatarUrl != null && _avatarUrl!.isNotEmpty)
+                            ? Image.network(
+                                _avatarUrl!,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.primary,
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.person,
+                                    size: 80,
+                                    color: AppColors.primary,
+                                  );
+                                },
+                              )
+                            : const Icon(
+                                Icons.person,
+                                size: 80,
                                 color: AppColors.primary,
                               ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.person,
-                              size: 80,
+                      ),
+                    ),
+
+                    SizedBox(height: screenSize.height * 0.02),
+                    Text(
+                      _nombre,
+                      style: TextosEstilos.titulo.copyWith(fontSize: 24, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    SizedBox(height: screenSize.height * 0.05),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundBlack, // Contraste ligero para los datos
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Column(
+                        children: [
+                          // Fila del Correo
+                          ListTile(
+                            leading: const Icon(
+                              Icons.email,
                               color: AppColors.primary,
-                            );
-                          },
-                        )
-                      : const Icon(
-                          Icons.person,
-                          size: 80,
-                          color: AppColors.primary,
-                        ),
-                ),
-              ),
-
-              SizedBox(height: screenSize.height * 0.02),
-              Text(
-                _nombre,
-                style: TextosEstilos.titulo.copyWith(fontSize: 24),
-                textAlign: TextAlign.center,
-              ),
-
-              SizedBox(height: screenSize.height * 0.05),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.primaryDark,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Column(
-                  children: [
-                    // Fila del Correo
-                    ListTile(
-                      leading: const Icon(
-                        Icons.email,
-                        color: AppColors.primary,
+                            ),
+                            title: Text(
+                              'Correo Electrónico',
+                              style: TextosEstilos.cuerpo.copyWith(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                            subtitle: Text(_email, style: TextosEstilos.cuerpo.copyWith(color: Colors.white)),
+                          ),
+                          const Divider(color: Colors.white12, height: 1),
+                          // Fila del Teléfono
+                          ListTile(
+                            leading: const Icon(
+                              Icons.phone,
+                              color: AppColors.primary,
+                            ),
+                            title: Text(
+                              'Teléfono',
+                              style: TextosEstilos.cuerpo.copyWith(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                            subtitle: Text(_telefono, style: TextosEstilos.cuerpo.copyWith(color: Colors.white)),
+                          ),
+                        ],
                       ),
-                      title: Text(
-                        'Correo Electrónico',
-                        style: TextosEstilos.cuerpo.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 13,
-                        ),
-                      ),
-                      subtitle: Text(_email, style: TextosEstilos.cuerpo),
                     ),
-                    const Divider(color: AppColors.background, height: 1),
-                    // Fila del Teléfono
-                    ListTile(
-                      leading: const Icon(
-                        Icons.phone,
-                        color: AppColors.primary,
+
+                    const Spacer(),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ButtonWidget(
+                        texto: 'Cerrar Sesión',
+                        onPressed: _cerrarSesion,
                       ),
-                      title: Text(
-                        'Teléfono',
-                        style: TextosEstilos.cuerpo.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 13,
-                        ),
-                      ),
-                      subtitle: Text(_telefono, style: TextosEstilos.cuerpo),
                     ),
+                    SizedBox(height: screenSize.height * 0.04),
                   ],
                 ),
               ),
-
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ButtonWidget(
-                  texto: 'Cerrar Sesión',
-                  onPressed: _cerrarSesion,
-                ),
-              ),
-              SizedBox(height: screenSize.height * 0.04),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

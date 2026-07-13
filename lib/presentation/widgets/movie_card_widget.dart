@@ -18,7 +18,7 @@ class MovieCardWidget extends StatelessWidget {
     final bool isFavorite = movieProvider.isFavorite(movie);
     final bool isSaved = movieProvider.isInWatchlist(
       movie,
-    ); // Verifica si está guardada
+    );
 
     return SizedBox(
       width: 180,
@@ -52,7 +52,6 @@ class MovieCardWidget extends StatelessWidget {
                       },
                     ),
                   ),
-                  // FAVORITOS (Corazón arriba a la derecha)
                   Positioned(
                     top: 10,
                     right: 10,

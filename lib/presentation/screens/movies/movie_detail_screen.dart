@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-
+import 'package:chocomil_movies_app_bv/presentation/utils/animation_utils.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/animated_favorite_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart';
 
 class MovieDetailScreen extends StatelessWidget {
@@ -34,8 +35,6 @@ class _MovieDetailContent extends StatefulWidget {
 
 class _MovieDetailContentState extends State<_MovieDetailContent> {
   YoutubePlayerController? _trailerController;
-
-  // Llave global para identificar y hacer scroll hacia la sección del tráiler
   final GlobalKey _trailerKey = GlobalKey();
 
   void _initYoutubeController(String videoId) {
@@ -83,13 +82,15 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               ),
               onPressed: () => Navigator.pop(context),
             ),
-            // Los actions (favoritos y guardado) se movieron abajo
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
                 children: [
+                  // 1. EL FONDO: Usamos backdropPath para que sea horizontal
                   Image.network(
-                    widget.movie.posterPath,
+                    widget.movie.backdropPath.isNotEmpty
+                        ? widget.movie.backdropPath
+                        : widget.movie.posterPath,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => const Center(
                       child: Icon(
@@ -99,6 +100,8 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       ),
                     ),
                   ),
+                  
+                  // 2. EL GRADIENTE OSCURO
                   DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -106,12 +109,30 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.transparent,
+                          Colors.black.withOpacity(0.3),
                           AppColors.primaryDark,
                         ],
+                        stops: const [0.0, 0.6, 1.0],
                       ),
                     ),
                   ),
+
+                  // 3. EL LOGO TRANSPARENTE
+                  if (detailProvider.movieLogoPath != null)
+                    Positioned(
+                      bottom: 25,
+                      left: 20,
+                      child: SizedBox(
+                        width: 260,
+                        height: 120,
+                        child: Image.network(
+                          detailProvider.movieLogoPath!,
+                          fit: BoxFit.contain,
+                          alignment: Alignment.bottomLeft,
+                          errorBuilder: (_, __, ___) => const SizedBox(),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -119,25 +140,29 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
-                // Se ajusta el padding superior a 0 para que el título suba
                 padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // TÍTULO GRANDE (Estilo imagen)
-                    Text(
-                      widget.movie.title.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 38,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: -1.0,
-                        height: 1.1,
+                    
+                    // 4. TÍTULO EN TEXTO (Solo se muestra si NO hay logo)
+                    if (detailProvider.movieLogoPath == null) ...[
+                      Text(
+                        widget.movie.title.toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 38,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: -1.0,
+                          height: 1.1,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
+                    ],
 
-                    // BOTÓN VER TRÁILER
+                    if (detailProvider.movieLogoPath != null)
+                      const SizedBox(height: 15),
+
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -167,17 +192,13 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           } else if (detailProvider.isLoading) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text(
-                                  'Cargando detalles, por favor espera...',
-                                ),
+                                content: Text('Cargando detalles, por favor espera...'),
                               ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text(
-                                  'El tráiler no está disponible para esta película.',
-                                ),
+                                content: Text('El tráiler no está disponible para esta película.'),
                               ),
                             );
                           }
@@ -216,33 +237,24 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                     ),
                     const SizedBox(height: 25),
 
-                    // FILA DE ACCIONES (Guardado y Favoritos reubicados aquí)
+                    // 5. TUS WIDGETS ANIMADOS CORRECTAMENTE IMPLEMENTADOS
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        // Botón Mi lista (Guardado)
                         Column(
                           children: [
                             AnimatedBookmarkWidget(
-                              isSaved: movieProvider.isInWatchlist(
-                                widget.movie,
-                              ),
+                              isSaved: movieProvider.isInWatchlist(widget.movie),
                               onTap: () {
-                                final isSaved = movieProvider.isInWatchlist(
-                                  widget.movie,
-                                );
+                                final isSaved = movieProvider.isInWatchlist(widget.movie);
                                 movieProvider.toggleWatchlist(widget.movie);
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).hideCurrentSnackBar();
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Row(
                                       children: [
                                         Icon(
-                                          isSaved
-                                              ? Icons.bookmark_remove
-                                              : Icons.bookmark,
+                                          isSaved ? Icons.bookmark_remove : Icons.bookmark,
                                           color: Colors.white,
                                         ),
                                         const SizedBox(width: 10),
@@ -266,51 +278,39 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                             const SizedBox(height: 8),
                             const Text(
                               'Mi lista',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
-                              ),
+                              style: TextStyle(color: Colors.white70, fontSize: 13),
                             ),
                           ],
                         ),
 
-                        // Botón Calificar / Favorito
                         Column(
                           children: [
-                            IconButton(
-                              icon: Icon(
-                                movieProvider.isFavorite(widget.movie)
-                                    ? Icons.thumb_up
-                                    : Icons
-                                          .thumb_up_alt_outlined, // Cambiado ligeramente para verse más como la imagen, pero puedes dejar Icons.favorite si prefieres
-                                color: Colors.white,
-                              ),
-                              iconSize: 28,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
+                            AnimatedFavoriteWidget(
+                              isFavorite: movieProvider.isFavorite(widget.movie),
                               onPressed: () {
-                                final isFavorite = movieProvider.isFavorite(
-                                  widget.movie,
-                                );
+                                final wasFavorite = movieProvider.isFavorite(widget.movie);
                                 movieProvider.toggleFavorite(widget.movie);
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).hideCurrentSnackBar();
+                                
+                                if (!wasFavorite) {
+                                  showFloatingHeart(context);
+                                }
+                                
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Row(
                                       children: [
                                         Icon(
-                                          isFavorite
-                                              ? Icons.thumb_down
-                                              : Icons.thumb_up,
+                                          wasFavorite ? Icons.favorite_border : Icons.favorite,
                                           color: Colors.white,
                                         ),
                                         const SizedBox(width: 10),
-                                        Text(
-                                          isFavorite
-                                              ? 'Se eliminó de Favoritos'
-                                              : 'Se añadió a Favoritos',
+                                        Expanded(
+                                          child: Text(
+                                            wasFavorite
+                                                ? '"${widget.movie.title}" se eliminó de Favoritos'
+                                                : '"${widget.movie.title}" se añadió a Favoritos',
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -326,11 +326,8 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                             ),
                             const SizedBox(height: 8),
                             const Text(
-                              'Me gusta',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
-                              ),
+                              'Favorito',
+                              style: TextStyle(color: Colors.white70, fontSize: 13),
                             ),
                           ],
                         ),
@@ -338,11 +335,10 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                     ),
                     const SizedBox(height: 25),
 
+                    // RESTO DE TU UI (Actores, Trailers, Reseñas...)
                     if (detailProvider.isLoading)
                       Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.textPrimary,
-                        ),
+                        child: CircularProgressIndicator(color: AppColors.textPrimary),
                       )
                     else if (detailProvider.errorMessage != null)
                       Center(
@@ -408,7 +404,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         const SizedBox(height: 12),
                       ],
                       if (_trailerController != null) ...[
-                        // CONTENEDOR CON LA LLAVE GLOBAL PARA EL SCROLL
                         Container(
                           key: _trailerKey,
                           child: Column(

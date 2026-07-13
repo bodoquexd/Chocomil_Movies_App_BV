@@ -27,7 +27,6 @@ class _AnimatedHeartWidgetState extends State<AnimatedHeartWidget>
       duration: const Duration(milliseconds: 350),
     );
 
-    // Secuencia: Crece a 1.4x y regresa a 1.0x con rebote
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(begin: 1.0, end: 1.4)
@@ -36,7 +35,7 @@ class _AnimatedHeartWidgetState extends State<AnimatedHeartWidget>
       ),
       TweenSequenceItem(
         tween: Tween<double>(begin: 1.4, end: 1.0)
-            .chain(CurveTween(curve: Curves.elasticOut)), // Efecto de gelatina/rebote
+            .chain(CurveTween(curve: Curves.elasticOut)), 
         weight: 60,
       ),
     ]).animate(_controller);
@@ -49,9 +48,7 @@ class _AnimatedHeartWidgetState extends State<AnimatedHeartWidget>
   }
 
   void _handleTap() {
-    widget.onTap(); // Ejecuta la lógica para guardar/quitar de favoritos
-    
-    // Dispara la animación siempre que se toque
+    widget.onTap(); 
     _controller.forward(from: 0.0);
   }
 
