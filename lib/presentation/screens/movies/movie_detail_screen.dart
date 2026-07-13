@@ -86,7 +86,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // 1. EL FONDO: Usamos backdropPath para que sea horizontal
                   Image.network(
                     widget.movie.backdropPath.isNotEmpty
                         ? widget.movie.backdropPath
@@ -101,7 +100,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                     ),
                   ),
                   
-                  // 2. EL GRADIENTE OSCURO
                   DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -117,22 +115,42 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                     ),
                   ),
 
-                  // 3. EL LOGO TRANSPARENTE
-                  if (detailProvider.movieLogoPath != null)
-                    Positioned(
-                      bottom: 25,
-                      left: 20,
-                      child: SizedBox(
-                        width: 260,
-                        height: 120,
-                        child: Image.network(
-                          detailProvider.movieLogoPath!,
-                          fit: BoxFit.contain,
-                          alignment: Alignment.bottomLeft,
-                          errorBuilder: (_, __, ___) => const SizedBox(),
+                  if (!detailProvider.isLoading) ...[
+                    
+                    if (detailProvider.movieLogoPath != null)
+                      Positioned(
+                        bottom: 25,
+                        left: 20,
+                        child: SizedBox(
+                          width: 260,
+                          height: 120,
+                          child: Image.network(
+                            detailProvider.movieLogoPath!,
+                            fit: BoxFit.contain,
+                            alignment: Alignment.bottomLeft,
+                            errorBuilder: (_, _, _) => const SizedBox(),
+                          ),
+                        ),
+                      )
+                    else
+                      Positioned(
+                        bottom: 25,
+                        left: 20,
+                        right: 20, 
+                        child: Text(
+                          widget.movie.title.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 34,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: -1.0,
+                            height: 1.1,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ),
+                  ],
                 ],
               ),
             ),
@@ -140,29 +158,10 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 20.0),
+                padding: const EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    
-                    // 4. TÍTULO EN TEXTO (Solo se muestra si NO hay logo)
-                    if (detailProvider.movieLogoPath == null) ...[
-                      Text(
-                        widget.movie.title.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 38,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: -1.0,
-                          height: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-
-                    if (detailProvider.movieLogoPath != null)
-                      const SizedBox(height: 15),
-
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -237,7 +236,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                     ),
                     const SizedBox(height: 25),
 
-                    // 5. TUS WIDGETS ANIMADOS CORRECTAMENTE IMPLEMENTADOS
+                    // TUS WIDGETS ANIMADOS
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -334,8 +333,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       ],
                     ),
                     const SizedBox(height: 25),
-
-                    // RESTO DE TU UI (Actores, Trailers, Reseñas...)
                     if (detailProvider.isLoading)
                       Center(
                         child: CircularProgressIndicator(color: AppColors.textPrimary),

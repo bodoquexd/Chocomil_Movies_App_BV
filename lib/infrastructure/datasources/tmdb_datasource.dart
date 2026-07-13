@@ -116,7 +116,7 @@ class TmdbDatasource implements MovieDatasources {
     final url = Uri.parse(
       '$_baseUrl/movie/$movieId/images'
       '?api_key=$_apiKey'
-      '&include_image_language=es,en,null'
+      '&include_image_language=MX,en,null'
     );
 
     try {
