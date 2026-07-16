@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:chocomil_movies_app_bv/presentation/widgets/custom_refresh_indicator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -93,7 +94,6 @@ class _HomeScreenState extends State<HomeScreen> {
         onRetry: () => context.read<MovieProvider>().loadAllMovies(),
       );
     } else {
-      // Error por defecto
       return CustomErrorWidget(
         imagePath: 'assets/images/error_generic.png',
         title: 'Error inesperado',
@@ -128,114 +128,123 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : movieProvider.errorMessage != null
           ? _buildErrorView(movieProvider.errorMessage!, context)
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                const SearchWidget(),
-                const SizedBox(height: 22),
+          : CustomRefreshIndicator(
+              onRefresh: () async {
+                await context.read<MovieProvider>().loadAllMovies();
+                final email = await _storage.read(key: 'email') ?? 'invitado';
+                if (mounted) {
+                  context.read<MovieProvider>().loadFavoritesForUser(email);
+                }
+              },
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  const SearchWidget(),
+                  const SizedBox(height: 22),
 
-                const SectionTitleWidget(title: 'Destacadas'),
-                const SizedBox(height: 14),
-                FeaturedCarouselWidget(
-                  controller: _featuredController,
-                  movies: movieProvider.featuredMovies,
-                  onPageChanged: (index) =>
-                      setState(() => _currentPage = index),
-                ),
+                  const SectionTitleWidget(title: 'Destacadas'),
+                  const SizedBox(height: 14),
+                  FeaturedCarouselWidget(
+                    controller: _featuredController,
+                    movies: movieProvider.featuredMovies,
+                    onPageChanged: (index) =>
+                        setState(() => _currentPage = index),
+                  ),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(movieProvider.featuredMovies.length, (
-                    index,
-                  ) {
-                    final isActive = index == _currentPage;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 10,
-                      ),
-                      width: isActive ? 18 : 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: isActive
-                            ? AppColors.textPrimary
-                            : AppColors.textHint,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    );
-                  }),
-                ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(movieProvider.featuredMovies.length, (
+                      index,
+                    ) {
+                      final isActive = index == _currentPage;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 10,
+                        ),
+                        width: isActive ? 18 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? AppColors.textPrimary
+                              : AppColors.textHint,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      );
+                    }),
+                  ),
 
-                const SizedBox(height: 24),
-                MovieRowSectionWidget(
-                  title: 'Tendencias',
-                  movies: movieProvider.trendingMovies,
-                ),
+                  const SizedBox(height: 24),
+                  MovieRowSectionWidget(
+                    title: 'Tendencias',
+                    movies: movieProvider.trendingMovies,
+                  ),
 
-                const SizedBox(height: 24),
-                MovieRowSectionWidget(
-                  title: 'Acción',
-                  movies: movieProvider.actionMovies,
-                ),
+                  const SizedBox(height: 24),
+                  MovieRowSectionWidget(
+                    title: 'Acción',
+                    movies: movieProvider.actionMovies,
+                  ),
 
-                const SizedBox(height: 24),
-                MovieRowSectionWidget(
-                  title: 'Ciencia ficción',
-                  movies: movieProvider.sciFiMovies,
-                ),
+                  const SizedBox(height: 24),
+                  MovieRowSectionWidget(
+                    title: 'Ciencia ficción',
+                    movies: movieProvider.sciFiMovies,
+                  ),
 
-                const SizedBox(height: 24),
-                MovieRowSectionWidget(
-                  title: 'Comedia',
-                  movies: movieProvider.comedyMovies,
-                ),
+                  const SizedBox(height: 24),
+                  MovieRowSectionWidget(
+                    title: 'Comedia',
+                    movies: movieProvider.comedyMovies,
+                  ),
 
-                const SizedBox(height: 24),
-                MovieRowSectionWidget(
-                  title: 'Animación',
-                  movies: movieProvider.animationMovies,
-                ),
+                  const SizedBox(height: 24),
+                  MovieRowSectionWidget(
+                    title: 'Animación',
+                    movies: movieProvider.animationMovies,
+                  ),
 
-                const SizedBox(height: 30),
-                const SectionTitleWidget(title: 'Comentarios'),
-                const SizedBox(height: 15),
+                  const SizedBox(height: 30),
+                  const SectionTitleWidget(title: 'Comentarios'),
+                  const SizedBox(height: 15),
 
-                const CommentWidget(
-                  userName: 'Carlos',
-                  rating: 4.8,
-                  comment:
-                      'Excelente aplicación, encontré rápidamente las películas.',
-                ),
+                  const CommentWidget(
+                    userName: 'Carlos',
+                    rating: 4.8,
+                    comment:
+                        'Excelente aplicación, encontré rápidamente las películas.',
+                  ),
 
-                const CommentWidget(
-                  userName: 'Elena',
-                  rating: 4.7,
-                  comment:
-                      'La selección de películas de animación es increíble, ¡me encanta!',
-                ),
+                  const CommentWidget(
+                    userName: 'Elena',
+                    rating: 4.7,
+                    comment:
+                        'La selección de películas de animación es increíble, ¡me encanta!',
+                  ),
 
-                const CommentWidget(
-                  userName: 'Ana',
-                  rating: 5.0,
-                  comment:
-                      'Me encanta el diseño. Parece una plataforma profesional.',
-                ),
+                  const CommentWidget(
+                    userName: 'Ana',
+                    rating: 5.0,
+                    comment:
+                        'Me encanta el diseño. Parece una plataforma profesional.',
+                  ),
 
-                const CommentWidget(
-                  userName: 'Miguel',
-                  rating: 4.5,
-                  comment:
-                      'Las recomendaciones son muy buenas y la navegación es sencilla.',
-                ),
+                  const CommentWidget(
+                    userName: 'Miguel',
+                    rating: 4.5,
+                    comment:
+                        'Las recomendaciones son muy buenas y la navegación es sencilla.',
+                  ),
 
-                const CommentWidget(
-                  userName: 'Sofía',
-                  rating: 4.9,
-                  comment:
-                      'La interfaz es moderna y muy agradable visualmente.',
-                ),
-              ],
+                  const CommentWidget(
+                    userName: 'Sofía',
+                    rating: 4.9,
+                    comment:
+                        'La interfaz es moderna y muy agradable visualmente.',
+                  ),
+                ],
+              ),
             ),
     );
   }

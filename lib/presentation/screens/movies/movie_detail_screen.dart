@@ -1,3 +1,4 @@
+import 'package:chocomil_movies_app_bv/presentation/widgets/custom_refresh_indicator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
@@ -61,7 +62,11 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
 
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
-      body: CustomScrollView(
+      body: CustomRefreshIndicator(
+        onRefresh: () async {
+          await context.read<MovieDetailProvider>().loadMovieDetails(widget.movie.id);
+        },
+      child: CustomScrollView(
         slivers: [
           SliverAppBar(
             backgroundColor: AppColors.primaryDark,
@@ -221,7 +226,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       ],
                     ),
                     const SizedBox(height: 20),
-
                     const SectionTitleWidget(title: 'Sinopsis'),
                     const SizedBox(height: 12),
                     Text(
@@ -463,6 +467,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
           ),
         ],
       ),
+      )
     );
   }
 }

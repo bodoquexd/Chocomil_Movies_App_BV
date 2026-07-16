@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:chocomil_movies_app_bv/presentation/widgets/custom_refresh_indicator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -76,32 +77,37 @@ class MovieSearchDelegate extends SearchDelegate<Movie?> {
         if (defaultMovies.isEmpty) {
           return const Center(child: CircularProgressIndicator(strokeWidth: 2));
         }
-
-        return GridView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-          itemCount: defaultMovies.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 15,
-            childAspectRatio: 0.65,
-          ),
-          itemBuilder: (context, index) {
-            final movie = defaultMovies[index];
-
-            return GestureDetector(
-              onTap: () {
-                _debounce?.cancel();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MovieDetailScreen(movie: movie),
-                  ),
-                );
-              },
-              child: MovieCardWidget(movie: movie),
-            );
+        return CustomRefreshIndicator(
+          onRefresh: () async {
+            await context.read<MovieProvider>().loadAllMovies();
           },
+          child: GridView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            itemCount: defaultMovies.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 15,
+              childAspectRatio: 0.65,
+            ),
+            itemBuilder: (context, index) {
+              final movie = defaultMovies[index];
+
+              return GestureDetector(
+                onTap: () {
+                  _debounce?.cancel();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MovieDetailScreen(movie: movie),
+                    ),
+                  );
+                },
+                child: MovieCardWidget(movie: movie),
+              );
+            },
+          ),
         );
       },
     );
