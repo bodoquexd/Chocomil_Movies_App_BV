@@ -35,7 +35,6 @@ class _MovieDetailContent extends StatefulWidget {
 
 class _MovieDetailContentState extends State<_MovieDetailContent> {
   YoutubePlayerController? _trailerController;
-  final GlobalKey _trailerKey = GlobalKey();
 
   void _initYoutubeController(String videoId) {
     _trailerController ??= YoutubePlayerController.fromVideoId(
@@ -48,6 +47,12 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
         loop: false,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _trailerController?.close();
+    super.dispose();
   }
 
   @override
@@ -116,7 +121,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                   ),
 
                   if (!detailProvider.isLoading) ...[
-                    
                     if (detailProvider.movieLogoPath != null)
                       Positioned(
                         bottom: 25,
@@ -162,56 +166,32 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                    if (_trailerController != null) ...[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SectionTitleWidget(
+                            title: 'Tráiler Oficial',
                           ),
-                        ),
-                        icon: const Icon(Icons.play_arrow, size: 28),
-                        label: const Text(
-                          'Ver tráiler',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                          const SizedBox(height: 12),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: YoutubePlayer(
+                              controller: _trailerController!,
+                              aspectRatio: 16 / 9,
+                            ),
                           ),
-                        ),
-                        onPressed: () {
-                          if (_trailerKey.currentContext != null) {
-                            Scrollable.ensureVisible(
-                              _trailerKey.currentContext!,
-                              duration: const Duration(milliseconds: 600),
-                              curve: Curves.easeInOut,
-                            );
-                          } else if (detailProvider.isLoading) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Cargando detalles, por favor espera...'),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('El tráiler no está disponible para esta película.'),
-                              ),
-                            );
-                          }
-                        },
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 24),
+                    ],
 
                     Row(
                       children: [
                         const Icon(Icons.star, color: Colors.amber, size: 20),
                         const SizedBox(width: 6),
                         Text(
-                          widget.movie.voteAverage.toStringAsFixed(1),
+                          'Calificación: ${widget.movie.voteAverage.toStringAsFixed(1)}',
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 16,
@@ -236,7 +216,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                     ),
                     const SizedBox(height: 25),
 
-                    // TUS WIDGETS ANIMADOS
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -333,8 +312,9 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                       ],
                     ),
                     const SizedBox(height: 25),
+                    
                     if (detailProvider.isLoading)
-                      Center(
+                      const Center(
                         child: CircularProgressIndicator(color: AppColors.textPrimary),
                       )
                     else if (detailProvider.errorMessage != null)
@@ -400,33 +380,12 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         ),
                         const SizedBox(height: 12),
                       ],
-                      if (_trailerController != null) ...[
-                        Container(
-                          key: _trailerKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SectionTitleWidget(
-                                title: 'Tráiler Oficial',
-                              ),
-                              const SizedBox(height: 12),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: YoutubePlayer(
-                                  controller: _trailerController!,
-                                  aspectRatio: 16 / 9,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
+
                       if (detailProvider.reviews.isNotEmpty) ...[
                         const SectionTitleWidget(
                           title: 'Comentarios de la Comunidad',
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 2),
                         ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
