@@ -22,7 +22,7 @@ class MovieProvider extends ChangeNotifier {
   List<Movie> watchlistMovies = []; 
 
   String? _currentUserEmail;
-  Map<String, List<String>> _avatarCategories = {};
+  final Map<String, List<String>> _avatarCategories = {};
   Map<String, List<String>> get avatarCategories => _avatarCategories;
 
   Future<void> loadAvatars() async {
