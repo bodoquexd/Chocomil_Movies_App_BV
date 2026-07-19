@@ -22,4 +22,9 @@ class MovieRepositoryImpl implements MovieRepositories {
   Future<List<Movie>> searchMovies(String query, {int page = 1}) {
     return datasource.searchMovies(query, page: page);
   }
+
+  @override
+  Future<String?> getMovieLogo(int movieId) {
+    return datasource.getMovieLogo(movieId);
+  }
 }

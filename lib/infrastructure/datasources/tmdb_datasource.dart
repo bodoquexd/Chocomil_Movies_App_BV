@@ -51,7 +51,7 @@ class TmdbDatasource implements MovieDatasources {
     final url = Uri.parse(
       '$_baseUrl/trending/movie/day'
       '?api_key=$_apiKey'
-      '&language=es-ES'
+      '&language=es-MX'
       '&page=$page',
     );
 
@@ -71,7 +71,7 @@ class TmdbDatasource implements MovieDatasources {
       '$_baseUrl/discover/movie'
       '?api_key=$_apiKey'
       '&with_genres=$genreId'
-      '&language=es-ES'
+      '&language=es-MX'
       '&sort_by=popularity.desc'
       '&page=$page',
     );
@@ -96,7 +96,7 @@ class TmdbDatasource implements MovieDatasources {
     final url = Uri.parse(
       '$_baseUrl/search/movie'
       '?api_key=$_apiKey'
-      '&language=es-ES'
+      '&language=es-MX'
       '&query=$encodedQuery'
       '&include_adult=false'
       '&page=$page',
@@ -109,6 +109,30 @@ class TmdbDatasource implements MovieDatasources {
       return _jsonToMovies(data['results']);
     } else {
       throw Exception('Error al buscar películas: $query');
+    }
+  }
+  @override
+  Future<String?> getMovieLogo(int movieId) async {
+    final url = Uri.parse(
+      '$_baseUrl/movie/$movieId/images'
+      '?api_key=$_apiKey'
+      '&include_image_language=MX,en,null'
+    );
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> logos = data['logos'] ?? [];
+        if (logos.isNotEmpty) {
+          final String logoPath = logos.first['file_path'];
+          return getImageUrl(logoPath); 
+        }
+      }
+      return null;
+    } catch (e) {
+      return null; 
     }
   }
 }

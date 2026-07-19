@@ -5,11 +5,13 @@ import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 class FeaturedMovieWidget extends StatelessWidget {
   final String imageUrl;
   final String title;
+  final VoidCallback onTap;
 
   const FeaturedMovieWidget({
     super.key,
     required this.imageUrl,
     required this.title,
+    required this.onTap,
   });
 
   @override
@@ -65,7 +67,7 @@ class FeaturedMovieWidget extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: onTap, 
                     label: Text(
                       'Ver Ahora',
                       style: TextosEstilos.boton.copyWith(
