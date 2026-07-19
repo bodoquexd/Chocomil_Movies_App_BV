@@ -58,10 +58,12 @@ class _AnimatedFavoriteWidgetState extends State<AnimatedFavoriteWidget>
     return ScaleTransition(
       scale: _scaleAnimation,
       child: IconButton(
+        padding: EdgeInsets.zero, 
+        constraints: const BoxConstraints(), 
         icon: Icon(
           widget.isFavorite ? Icons.favorite : Icons.favorite_border,
           color: widget.isFavorite ? Colors.red : Colors.white70,
-          size: 28,
+          size: 26, 
         ),
         onPressed: _handleTap,
       ),
