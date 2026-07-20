@@ -1,4 +1,3 @@
-import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +10,8 @@ import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.da
 import 'package:chocomil_movies_app_bv/infrastructure/datasources/movie_repository_impl.dart';
 import 'package:chocomil_movies_app_bv/infrastructure/datasources/tmdb_datasource.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
+import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
+import 'package:chocomil_movies_app_bv/providers/profile_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +46,9 @@ class MyApp extends StatelessWidget {
           create: (context) => SearchProvider(
             movieRepository: context.read<MovieRepositories>(),
           ),
+        ),
+        ChangeNotifierProvider<ProfileProvider>(
+          create: (_) => ProfileProvider(),
         ),
       ],
       child: MaterialApp.router(

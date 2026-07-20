@@ -81,7 +81,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               isLoading: detailProvider.isLoading,
               movieLogoPath: detailProvider.movieLogoPath,
             ),
-            
+
             SliverList(
               delegate: SliverChildListDelegate([
                 Padding(
@@ -89,7 +89,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_trailerController != null) 
+                      if (_trailerController != null)
                         TrailerSectionWidget(controller: _trailerController!),
 
                       Row(
@@ -136,12 +136,13 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           message: detailProvider.errorMessage!,
                           buttonText: 'Reintentar',
                           onRetry: () {
-                            context.read<MovieDetailProvider>().loadMovieDetails(widget.movie.id);
+                            context
+                                .read<MovieDetailProvider>()
+                                .loadMovieDetails(widget.movie.id);
                           },
                         )
-
                       else ...[
-                        if (detailProvider.cast.isNotEmpty) 
+                        if (detailProvider.cast.isNotEmpty)
                           CastSectionWidget(cast: detailProvider.cast),
 
                         // Comentarios
@@ -158,7 +159,8 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                               final review = detailProvider.reviews[index];
                               final author = review['author'] ?? 'Anónimo';
                               final content = review['content'] ?? '';
-                              final rating = review['author_details']?['rating'];
+                              final rating =
+                                  review['author_details']?['rating'];
 
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12.0),

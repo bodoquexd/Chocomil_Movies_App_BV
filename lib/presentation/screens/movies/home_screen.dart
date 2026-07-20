@@ -153,26 +153,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(movieProvider.featuredMovies.length, (
-                      index,
-                    ) {
-                      final isActive = index == _currentPage;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 10,
-                        ),
-                        width: isActive ? 18 : 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? AppColors.textPrimary
-                              : AppColors.textHint,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      );
-                    }),
+                    children: List.generate(
+                      movieProvider.featuredMovies.length,
+                      (index) {
+                        final isActive = index == _currentPage;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 10,
+                          ),
+                          width: isActive ? 18 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? AppColors.textPrimary
+                                : AppColors.textHint,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        );
+                      },
+                    ),
                   ),
 
                   const SizedBox(height: 24),
