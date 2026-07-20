@@ -86,7 +86,18 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   Future<void> cerrarSesion() async {
-    await GoogleSignIn().signOut();
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      
+      if (user != null) {
+        bool isGoogleUser = user.providerData.any((provider) => provider.providerId == 'google.com');
+        if (isGoogleUser) {
+          await GoogleSignIn().signOut();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error verificando/cerrando sesión de Google: $e');
+    }
     await FirebaseAuth.instance.signOut();
     await _storage.deleteAll();
   }
