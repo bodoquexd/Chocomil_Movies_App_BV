@@ -176,7 +176,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           ),
                         ] else ...[
                           const Text(
-                            'Aún no hay comentarios para esta película.',
+                            'Aún no hay comentarios para esta película.', 
                             style: TextStyle(color: Colors.white54),
                           ),
                         ],
