@@ -151,8 +151,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         setState(() => _currentPage = index),
                   ),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 0,
                     children: List.generate(
                       movieProvider.featuredMovies.length,
                       (index) {
