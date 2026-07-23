@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart'; 
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -111,6 +112,7 @@ class TmdbDatasource implements MovieDatasources {
       throw Exception('Error al buscar películas: $query');
     }
   }
+
   @override
   Future<String?> getMovieLogo(int movieId) async {
     final url = Uri.parse(
@@ -134,5 +136,95 @@ class TmdbDatasource implements MovieDatasources {
     } catch (e) {
       return null; 
     }
+  }
+
+  @override
+  Future<List<dynamic>> getMovieCast(int movieId) async {
+    final url = Uri.parse('$_baseUrl/movie/$movieId/credits?api_key=$_apiKey&language=es-MX');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return (data['cast'] as List).take(10).toList();
+      }
+    } catch (e) {
+      debugPrint('Error en Cast: $e');
+    }
+    return [];
+  }
+
+  @override
+  Future<List<dynamic>> getMovieReviews(int movieId) async {
+    final url = Uri.parse('$_baseUrl/movie/$movieId/reviews?api_key=$_apiKey');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return (data['results'] as List).take(5).toList();
+      }
+    } catch (e) {
+      debugPrint('Error en Reviews: $e');
+    }
+    return [];
+  }
+
+  @override
+  Future<String?> getMovieTrailer(int movieId) async {
+    try {
+      // Intento en Español
+      final urlEs = Uri.parse('$_baseUrl/movie/$movieId/videos?api_key=$_apiKey&language=es-MX');
+      final responseEs = await http.get(urlEs);
+      if (responseEs.statusCode == 200) {
+        final data = json.decode(responseEs.body);
+        for (var v in data['results']) {
+          if (v['site'] == 'YouTube' && (v['type'] == 'Trailer' || v['type'] == 'Teaser')) {
+            return v['key'];
+          }
+        }
+      }
+
+      // Fallback en Inglés si no hay tráiler en español
+      final urlEn = Uri.parse('$_baseUrl/movie/$movieId/videos?api_key=$_apiKey');
+      final responseEn = await http.get(urlEn);
+      if (responseEn.statusCode == 200) {
+        final dataEn = json.decode(responseEn.body);
+        for (var v in dataEn['results']) {
+          if (v['site'] == 'YouTube' && v['type'] == 'Trailer') {
+            return v['key'];
+          }
+        }
+      }
+    } catch (e) {
+       debugPrint('Error en Trailer: $e');
+    }
+    return null;
+  }
+
+  @override
+  Future<Map<String, dynamic>> getActorDetails(int actorId) async {
+    final url = Uri.parse('$_baseUrl/person/$actorId?api_key=$_apiKey&language=es-MX');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      debugPrint('Error obteniendo actor: $e');
+    }
+    return {};
+  }
+
+  @override
+  Future<Map<String, dynamic>> getActorMovies(int actorId) async {
+    final url = Uri.parse('$_baseUrl/person/$actorId/movie_credits?api_key=$_apiKey&language=es-MX');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      debugPrint('Error obteniendo películas del actor: $e');
+    }
+    return {};
   }
 }

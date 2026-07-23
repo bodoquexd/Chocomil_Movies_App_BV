@@ -7,7 +7,7 @@ import 'firebase_options.dart';
 import 'package:chocomil_movies_app_bv/theme/app_theme.dart';
 import 'package:chocomil_movies_app_bv/config/router/app_router.dart';
 import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.dart';
-import 'package:chocomil_movies_app_bv/infrastructure/datasources/movie_repository_impl.dart';
+import 'package:chocomil_movies_app_bv/infrastructure/repositories/movie_repository_impl.dart';
 import 'package:chocomil_movies_app_bv/infrastructure/datasources/tmdb_datasource.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/search_provider.dart';

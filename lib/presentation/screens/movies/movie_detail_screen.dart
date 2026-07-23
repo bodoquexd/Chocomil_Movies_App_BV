@@ -4,6 +4,8 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
+import 'package:chocomil_movies_app_bv/infrastructure/datasources/tmdb_datasource.dart';
+import 'package:chocomil_movies_app_bv/infrastructure/repositories/movie_repository_impl.dart';
 
 import 'package:chocomil_movies_app_bv/presentation/widgets/custom_refresh_indicator_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
@@ -22,7 +24,11 @@ class MovieDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => MovieDetailProvider()..loadMovieDetails(movie.id),
+      create: (_) => MovieDetailProvider(
+        movieRepository: MovieRepositoryImpl(
+          TmdbDatasource(),
+        ),
+      )..loadMovieDetails(movie.id),
       child: _MovieDetailContent(movie: movie),
     );
   }

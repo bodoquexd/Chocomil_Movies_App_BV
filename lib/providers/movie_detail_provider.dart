@@ -1,9 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.dart'; 
 
 class MovieDetailProvider extends ChangeNotifier {
+  final MovieRepositories movieRepository;
+  
+  MovieDetailProvider({required this.movieRepository});
+
   bool isLoading = true;
   List<dynamic> cast = [];
   List<dynamic> reviews = [];
@@ -20,67 +22,18 @@ class MovieDetailProvider extends ChangeNotifier {
     movieLogoPath = null; 
     notifyListeners(); 
 
-    final apiKey = dotenv.env['THE_MOVIEDB_KEY'] ?? '';
-    
-    if (apiKey.isEmpty) {
-      errorMessage = 'Error: No se encontró la API Key';
-      isLoading = false;
-      notifyListeners();
-      return;
-    }
-
     try {
-      //Obtener reparto (Cast)
-      final castRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/credits?api_key=$apiKey&language=es-MX'));
-      if (castRes.statusCode == 200) {
-        final castData = json.decode(castRes.body);
-        cast = (castData['cast'] as List).take(10).toList();
-      }
+      final results = await Future.wait(<Future<dynamic>>[
+        movieRepository.getMovieCast(movieId),
+        movieRepository.getMovieReviews(movieId),
+        movieRepository.getMovieTrailer(movieId),
+        movieRepository.getMovieLogo(movieId), 
+      ]);
 
-      //Obtener Reviews
-      final reviewsRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/reviews?api_key=$apiKey'));
-      if (reviewsRes.statusCode == 200) {
-        final reviewsData = json.decode(reviewsRes.body);
-        reviews = (reviewsData['results'] as List).take(5).toList();
-      }
-
-      //Obtener Tráiler
-      final videoRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/videos?api_key=$apiKey&language=es-MX'));
-      if (videoRes.statusCode == 200) {
-        final videoData = json.decode(videoRes.body);
-        final videos = videoData['results'] as List;
-        for (var v in videos) {
-          if (v['site'] == 'YouTube' && (v['type'] == 'Trailer' || v['type'] == 'Teaser')) {
-            trailerKey = v['key'];
-            break;
-          }
-        }
-        
-        if (trailerKey == null) {
-          final videoResEn = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/videos?api_key=$apiKey'));
-          if (videoResEn.statusCode == 200) {
-            final videoDataEn = json.decode(videoResEn.body);
-            for (var v in videoDataEn['results']) {
-              if (v['site'] == 'YouTube' && v['type'] == 'Trailer') {
-                trailerKey = v['key'];
-                break;
-              }
-            }
-          }
-        }
-      }
-
-      //Obtener el Logo de la película
-      final imagesRes = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/$movieId/images?api_key=$apiKey&include_image_language=es,en,null'));
-      if (imagesRes.statusCode == 200) {
-        final imagesData = json.decode(imagesRes.body);
-        final logos = imagesData['logos'] as List;
-        
-        if (logos.isNotEmpty) {
-          final String logoPath = logos.first['file_path'];
-          movieLogoPath = 'https://image.tmdb.org/t/p/w500$logoPath';
-        }
-      }
+      cast = results[0] as List<dynamic>;
+      reviews = results[1] as List<dynamic>;
+      trailerKey = results[2] as String?;
+      movieLogoPath = results[3] as String?;
 
     } catch (e) {
       debugPrint('Error cargando detalles: $e');
@@ -89,5 +42,13 @@ class MovieDetailProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<Map<String, dynamic>> getActorDetails(int actorId) async {
+    return await movieRepository.getActorDetails(actorId);
+  }
+
+  Future<Map<String, dynamic>> getActorMovies(int actorId) async {
+    return await movieRepository.getActorMovies(actorId);
   }
 }
