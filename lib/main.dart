@@ -12,15 +12,14 @@ import 'package:chocomil_movies_app_bv/infrastructure/datasources/tmdb_datasourc
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import 'package:chocomil_movies_app_bv/providers/profile_provider.dart';
+import 'package:chocomil_movies_app_bv/providers/auth_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: ".env");
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }
@@ -37,9 +36,9 @@ class MyApp extends StatelessWidget {
         ),
 
         ChangeNotifierProvider<MovieProvider>(
-          create: (context) => MovieProvider(
-            movieRepository: context.read<MovieRepositories>(),
-          )..loadAllMovies(),
+          create: (context) =>
+              MovieProvider(movieRepository: context.read<MovieRepositories>())
+                ..loadAllMovies(),
         ),
 
         ChangeNotifierProvider<SearchProvider>(
@@ -47,9 +46,12 @@ class MyApp extends StatelessWidget {
             movieRepository: context.read<MovieRepositories>(),
           ),
         ),
+
         ChangeNotifierProvider<ProfileProvider>(
           create: (_) => ProfileProvider(),
         ),
+
+        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
       ],
       child: MaterialApp.router(
         routerConfig: appRouter,

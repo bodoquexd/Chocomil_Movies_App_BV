@@ -1,17 +1,12 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:http/http.dart' as http;
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/input_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/button_widget.dart';
-import 'package:chocomil_movies_app_bv/config/constants/environment.dart';
+import 'package:chocomil_movies_app_bv/providers/auth_provider.dart'; 
 
 class LoginScreen extends StatefulWidget {
   static const String name = 'login_screen';
@@ -25,14 +20,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  static final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: kIsWeb ? '1077647994525-rri1suomsvfq6nehnav34lkdvqerkshi.apps.googleusercontent.com' : null,
-    scopes: ['email'],
-  );
-  final _storage = const FlutterSecureStorage();
 
-  bool _isLoading = false;
-  Future<void> _loginConServidor() async {
+  Future<void> _hacerLoginNormal() async {
+    FocusScope.of(context).unfocus();
+
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -43,128 +34,51 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    final authProvider = context.read<AuthProvider>();
+    final exito = await authProvider.loginConServidor(email, password);
 
-    try {
-      final url = Uri.parse('${Environment.apiUrl}/auth/login');
-      final response = await http
-          .post(
-            url,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'email': email, 'password': password}),
-          )
-          .timeout(const Duration(seconds: 10));
+    if (!mounted) return;
 
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        final user = responseData['user'];
-
-        await _storage.write(key: 'email', value: email);
-        await _storage.write(key: 'password', value: password);
-        await _storage.write(key: 'has_credentials', value: 'true');
-        await _storage.write(key: 'token', value: responseData['token'] ?? '');
-        await _storage.write(key: 'first_name', value: user['firstName'] ?? '');
-        await _storage.write(key: 'last_name', value: user['lastName'] ?? '');
-        await _storage.write(key: 'phone', value: user['phone'] ?? 'Teléfono no registrado');
-        await _storage.write(key: 'avatar_url', value: user['avatarUrl'] ?? '');
-        final fullName = '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}'.trim();
-        await _storage.write(key: 'name', value: fullName);
-
-        if (!mounted) return;
-        context.go('/home');
-      } else {
-        if (!mounted) return;
-        final errorData = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorData['message'] ?? 'Error al iniciar sesión'),
-          ),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
+    if (exito) {
+      context.go('/home');
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo conectar con el servidor')),
+        SnackBar(content: Text(authProvider.errorMessage ?? 'Error al iniciar sesión')),
       );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  Future<void> _loginConGoogle() async {
-    setState(() => _isLoading = true);
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        if (mounted) setState(() => _isLoading = false);
-        return;
-      }
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+  Future<void> _hacerLoginConGoogle() async {
+    final authProvider = context.read<AuthProvider>();
+    final resultado = await authProvider.loginConGoogle();
 
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+    if (!mounted) return;
+
+    if (resultado['status'] == 'success') {
+      context.go('/home');
+    } else if (resultado['status'] == 'needs_registration') {
+      context.push(
+        '/register',
+        extra: {
+          'email': resultado['email'],
+          'name': resultado['name'],
+          'last_name': resultado['last_name'],
+        },
       );
-
-      final UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-      final String? firebaseIdToken = await userCredential.user?.getIdToken();
-     
-      final url = Uri.parse('${Environment.apiUrl}/auth/google-login');
-      final response = await http
-          .post(
-            url,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'idToken': firebaseIdToken}),
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        final user = responseData['user'];
-
-        await _storage.write(key: 'email', value: user['email'] ?? googleUser.email);
-        await _storage.write(key: 'token', value: responseData['token'] ?? '');
-        await _storage.write(key: 'first_name', value: user['firstName'] ?? '');
-        await _storage.write(key: 'last_name', value: user['lastName'] ?? '');
-        await _storage.write(key: 'avatar_url', value: user['avatarUrl'] ?? '');
-        await _storage.write(key: 'phone', value: 'Google SSO');
-        await _storage.write(key: 'has_credentials', value: 'false');
-        final fullName = '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}'.trim();
-        await _storage.write(key: 'name', value: fullName);
-
-        if (!mounted) return;
-        context.go('/home');
-      } else if (response.statusCode == 404) {
-        if (!mounted) return;
-        context.push(
-          '/register',
-          extra: {
-            'email': googleUser.email,
-            'name': googleUser.displayName?.split(' ').first ?? '',
-            'last_name': googleUser.displayName?.split(' ').last ?? '',
-          },
-        );
-      }
-    } catch (e) {
-      debugPrint("Error completo en Flutter: $e");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al iniciar sesión con Google')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+    } else if (resultado['status'] == 'error') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.errorMessage ?? 'Error al iniciar sesión con Google')),
+      );
     }
   }
 
   Future<void> _authenticate(BuildContext context) async {
-    final String? token = await _storage.read(key: 'token');
+    final authProvider = context.read<AuthProvider>();
+    final tieneSesion = await authProvider.checkSesionActiva();
 
     if (!mounted) return;
 
-    if (token == null || token.isEmpty) {
+    if (!tieneSesion) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Primero debes iniciar sesión de forma normal al menos una vez')),
       );
@@ -200,6 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
       backgroundColor: AppColors.cardBackground,
@@ -226,12 +141,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 SizedBox(height: screenSize.height * 0.04),
+                
                 InputWidget(
                   label: 'Correo Electrónico',
                   keyboardType: TextInputType.emailAddress,
                   controller: _emailController,
                 ),
+                
                 const SizedBox(height: 16),
+                
                 InputWidget(
                   label: 'Contraseña',
                   obscureText: true,
@@ -239,9 +157,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 SizedBox(height: screenSize.height * 0.04),
+                
                 SizedBox(
                   width: 200,
-                  child: _isLoading
+                  child: isLoading
                       ? const Center(
                           child: CircularProgressIndicator(
                             color: AppColors.primary,
@@ -249,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         )
                       : ButtonWidget(
                           texto: 'Aceptar',
-                          onPressed: _loginConServidor,
+                          onPressed: _hacerLoginNormal,
                         ),
                 ),
 
@@ -296,12 +215,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      onPressed: _loginConGoogle,
+                      // Evitamos múltiples peticiones si ya está cargando
+                      onPressed: isLoading ? null : _hacerLoginConGoogle,
                       icon: Image.asset('assets/images/google.png', width: 35),
                     ),
 
                     IconButton(
-                      onPressed: () => _authenticate(context),
+                      // Evitamos usar biometría si ya está procesando una solicitud
+                      onPressed: isLoading ? null : () => _authenticate(context),
                       icon: const Icon(
                         Icons.fingerprint,
                         size: 50,
