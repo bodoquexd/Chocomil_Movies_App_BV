@@ -92,7 +92,10 @@ class ProfileProvider extends ChangeNotifier {
       if (user != null) {
         bool isGoogleUser = user.providerData.any((provider) => provider.providerId == 'google.com');
         if (isGoogleUser) {
-          await GoogleSignIn().signOut();
+          // Adaptado a v7.x: Se usa GoogleSignIn.instance y se asegura la inicialización
+          final googleSignIn = GoogleSignIn.instance;
+          await googleSignIn.initialize();
+          await googleSignIn.signOut();
         }
       }
     } catch (e) {

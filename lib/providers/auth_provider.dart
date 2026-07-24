@@ -9,11 +9,8 @@ import 'package:chocomil_movies_app_bv/config/constants/environment.dart';
 
 class AuthProvider extends ChangeNotifier {
   final _storage = const FlutterSecureStorage();
-  
-  static final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: kIsWeb ? '1077647994525-rri1suomsvfq6nehnav34lkdvqerkshi.apps.googleusercontent.com' : null,
-    scopes: ['email'],
-  );
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  bool _isGoogleSignInInitialized = false;
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -24,6 +21,15 @@ class AuthProvider extends ChangeNotifier {
   static final nameRegex = RegExp(r'^[A-ZÁÉÍÓÚÑ][A-záéíóúñÁÉÍÓÚÑ\s]+$');
   static final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@(gmail\.com|hotmail\.com|outlook\.com|live\.com|icloud\.com|yahoo\.com)$');
   static final passwordRegex = RegExp(r'^(?=.*[A-Z]).{8,}$');
+
+  Future<void> _ensureGoogleSignInInitialized() async {
+    if (!_isGoogleSignInInitialized) {
+      await _googleSignIn.initialize(
+        clientId: kIsWeb ? '1077647994525-rri1suomsvfq6nehnav34lkdvqerkshi.apps.googleusercontent.com' : null,
+      );
+      _isGoogleSignInInitialized = true;
+    }
+  }
 
   void _setLoading(bool value) {
     _isLoading = value;
@@ -38,11 +44,11 @@ class AuthProvider extends ChangeNotifier {
     await _storage.write(key: 'user_data', value: jsonEncode(user));
   }
 
-  // Método para el SplashScreen: Verifica si hay sesión
   Future<bool> checkSesionActiva() async {
     final token = await _storage.read(key: 'token');
     return token != null && token.isNotEmpty;
   }
+
   Future<bool> loginConServidor(String email, String password) async {
     _setLoading(true);
     _errorMessage = null;
@@ -59,7 +65,6 @@ class AuthProvider extends ChangeNotifier {
         final data = jsonDecode(response.body);
         await _saveUserData(data['user'], data['token'] ?? '', true);
         
-        // Opcional: Si quieres guardar las credenciales para la huella dactilar
         await _storage.write(key: 'email', value: email);
         await _storage.write(key: 'password', value: password);
         
@@ -76,6 +81,7 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
   Future<bool> registrarConServidor({
     required String nombre,
     required String apellido,
@@ -120,15 +126,15 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
 
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        _setLoading(false);
-        return {'status': 'canceled'};
-      }
+      await _ensureGoogleSignInInitialized();
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate(
+        scopeHint: ['email'],
+      );
+
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
@@ -151,7 +157,6 @@ class AuthProvider extends ChangeNotifier {
         return {'status': 'success'};
       } 
       else if (response.statusCode == 404) {
-        // Necesita registrarse
         return {
           'status': 'needs_registration',
           'email': googleUser.email,
@@ -163,6 +168,14 @@ class AuthProvider extends ChangeNotifier {
         _errorMessage = 'Error en el servidor al autenticar con Google';
         return {'status': 'error'};
       }
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        _setLoading(false);
+        return {'status': 'canceled'};
+      }
+      debugPrint("Error GoogleSignInException: ${e.code} - ${e.description}");
+      _errorMessage = 'Error al iniciar sesión con Google';
+      return {'status': 'error'};
     } catch (e) {
       debugPrint("Error completo en Flutter: $e");
       _errorMessage = 'Error al iniciar sesión con Google';
@@ -171,10 +184,11 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
   Future<void> logout() async {
     await _storage.deleteAll();
+    await _ensureGoogleSignInInitialized();
     await _googleSignIn.signOut();
     await FirebaseAuth.instance.signOut();
-    // notifyListeners(); // Si tuvieras datos del usuario en memoria
   }
 }
