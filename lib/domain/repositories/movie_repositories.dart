@@ -12,6 +12,5 @@ abstract class MovieRepositories {
   Future<List<Movie>> searchMovies(String query, {int page = 1});
   Future<Map<String, dynamic>> getActorDetails(int actorId);
   Future<Map<String, dynamic>> getActorMovies(int actorId);
-  
 
 }
