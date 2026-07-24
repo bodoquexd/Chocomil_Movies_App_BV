@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
-import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/animated_favorite_widget.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';

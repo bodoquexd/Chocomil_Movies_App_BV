@@ -43,16 +43,24 @@ class WatchlistScreen extends StatelessWidget {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     itemCount: watchlistMovies.length,
                     itemBuilder: (context, index) {
                       final movie = watchlistMovies[index];
                       return Card(
                         color: AppColors.backgroundBlack,
                         margin: const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
@@ -60,16 +68,22 @@ class WatchlistScreen extends StatelessWidget {
                               width: 55,
                               height: double.infinity,
                               fit: BoxFit.cover,
-                              errorBuilder: (_,_,_) => Container(
-                                width: 55, 
-                                color: Colors.grey[800], 
-                                child: const Icon(Icons.broken_image, color: Colors.white54)
+                              errorBuilder: (_, _, _) => Container(
+                                width: 55,
+                                color: Colors.grey[800],
+                                child: const Icon(
+                                  Icons.broken_image,
+                                  color: Colors.white54,
+                                ),
                               ),
                             ),
                           ),
                           title: Text(
                             movie.title,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -77,7 +91,11 @@ class WatchlistScreen extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 6.0),
                             child: Row(
                               children: [
-                                const Icon(Icons.star, color: Colors.amber, size: 16),
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   movie.voteAverage.toStringAsFixed(1),
@@ -126,7 +144,12 @@ class WatchlistScreen extends StatelessWidget {
                                 );
                             },
                           ),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MovieDetailScreen(movie: movie))),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MovieDetailScreen(movie: movie),
+                            ),
+                          ),
                         ),
                       );
                     },

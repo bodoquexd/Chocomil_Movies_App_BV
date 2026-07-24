@@ -27,4 +27,30 @@ class MovieRepositoryImpl implements MovieRepositories {
   Future<String?> getMovieLogo(int movieId) {
     return datasource.getMovieLogo(movieId);
   }
+
+  @override
+  Future<List<dynamic>> getMovieCast(int movieId) {
+    return datasource.getMovieCast(movieId);
+  }
+
+  @override
+  Future<List<dynamic>> getMovieReviews(int movieId) {
+    return datasource.getMovieReviews(movieId);
+  }
+
+  @override
+  Future<String?> getMovieTrailer(int movieId) {
+    return datasource.getMovieTrailer(movieId);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getActorDetails(int actorId) {
+    return datasource.getActorDetails(actorId);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getActorMovies(int actorId) {
+    return datasource.getActorMovies(actorId);
+  }
+  
 }

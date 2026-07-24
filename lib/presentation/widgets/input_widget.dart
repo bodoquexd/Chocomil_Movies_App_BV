@@ -10,9 +10,8 @@ class InputWidget extends StatefulWidget {
   final TextEditingController? controller;
   final String? errorText;
   final ValueChanged<String>? onChanged;
-
-  // NUEVO
   final TextCapitalization textCapitalization;
+  final String? Function(String?)? validator; 
 
   const InputWidget({
     super.key,
@@ -23,6 +22,7 @@ class InputWidget extends StatefulWidget {
     this.errorText,
     this.onChanged,
     this.textCapitalization = TextCapitalization.none,
+    this.validator, 
   });
 
   @override
@@ -40,14 +40,14 @@ class _InputWidgetState extends State<InputWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField( 
       controller: widget.controller,
       obscureText: _isObscured,
       keyboardType: widget.keyboardType,
       textCapitalization: widget.textCapitalization,
-
       style: TextosEstilos.cuerpo,
       onChanged: widget.onChanged,
+      validator: widget.validator,
       inputFormatters: widget.keyboardType == TextInputType.phone
           ? [
               FilteringTextInputFormatter.digitsOnly,

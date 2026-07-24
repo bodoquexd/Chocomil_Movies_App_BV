@@ -1,4 +1,3 @@
-import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -8,18 +7,19 @@ import 'firebase_options.dart';
 import 'package:chocomil_movies_app_bv/theme/app_theme.dart';
 import 'package:chocomil_movies_app_bv/config/router/app_router.dart';
 import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.dart';
-import 'package:chocomil_movies_app_bv/infrastructure/datasources/movie_repository_impl.dart';
+import 'package:chocomil_movies_app_bv/infrastructure/repositories/movie_repository_impl.dart';
 import 'package:chocomil_movies_app_bv/infrastructure/datasources/tmdb_datasource.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
+import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
+import 'package:chocomil_movies_app_bv/providers/profile_provider.dart';
+import 'package:chocomil_movies_app_bv/providers/auth_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: ".env");
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }
@@ -36,9 +36,9 @@ class MyApp extends StatelessWidget {
         ),
 
         ChangeNotifierProvider<MovieProvider>(
-          create: (context) => MovieProvider(
-            movieRepository: context.read<MovieRepositories>(),
-          )..loadAllMovies(),
+          create: (context) =>
+              MovieProvider(movieRepository: context.read<MovieRepositories>())
+                ..loadAllMovies(),
         ),
 
         ChangeNotifierProvider<SearchProvider>(
@@ -46,6 +46,12 @@ class MyApp extends StatelessWidget {
             movieRepository: context.read<MovieRepositories>(),
           ),
         ),
+
+        ChangeNotifierProvider<ProfileProvider>(
+          create: (_) => ProfileProvider(),
+        ),
+
+        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
       ],
       child: MaterialApp.router(
         routerConfig: appRouter,
