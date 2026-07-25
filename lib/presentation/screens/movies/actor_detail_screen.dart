@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
-import 'package:chocomil_movies_app_bv/resources/colors/colors.dart'; 
-import 'package:chocomil_movies_app_bv/resources/styles/styles.dart'; 
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
+import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/movie_row_section_widget.dart';
 
 class ActorDetailScreen extends StatelessWidget {
   final dynamic actor;
@@ -23,14 +25,14 @@ class ActorDetailScreen extends StatelessWidget {
             style: TextosEstilos.cuerpo.copyWith(
               fontWeight: FontWeight.bold,
               fontSize: 14,
-            ), //
+            ),
           ),
           TextSpan(
             text: value,
             style: TextosEstilos.cuerpo.copyWith(
               color: AppColors.grayLight,
               fontSize: 14,
-            ), //
+            ),
           ),
         ],
       ),
@@ -50,10 +52,7 @@ class ActorDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          actor['name'] ?? 'Desconocido',
-          style: TextosEstilos.subtitulo, //
-        ),
+        title: Text('Detalles del Actor', style: TextosEstilos.subtitulo),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -75,7 +74,11 @@ class ActorDetailScreen extends StatelessWidget {
                       width: 140,
                       height: 210,
                       color: Colors.grey[800],
-                      child: const Icon(Icons.person, size: 60, color: AppColors.textPrimary),
+                      child: const Icon(
+                        Icons.person,
+                        size: 60,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
                 ),
@@ -86,13 +89,13 @@ class ActorDetailScreen extends StatelessWidget {
                     children: [
                       Text(
                         actor['name'] ?? 'Desconocido',
-                        style: TextosEstilos.titulo.copyWith(fontSize: 22), 
+                        style: TextosEstilos.titulo.copyWith(fontSize: 22),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         actor['character'] ?? '',
                         style: TextosEstilos.cuerpo.copyWith(
-                          color: AppColors.textSecondary, // Usamos textSecondary
+                          color: AppColors.textSecondary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -100,15 +103,19 @@ class ActorDetailScreen extends StatelessWidget {
                       FutureBuilder<Map<String, dynamic>>(
                         future: movieDetailProvider.getActorDetails(actorId),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const CircularProgressIndicator(color: AppColors.primaryLight); //
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator(
+                              color: AppColors.primaryLight,
+                            );
                           }
                           if (!snapshot.hasData || snapshot.data!.isEmpty) {
                             return const SizedBox();
                           }
                           final data = snapshot.data!;
                           final birthday = data['birthday'] ?? 'Desconocido';
-                          final placeOfBirth = data['place_of_birth'] ?? 'Desconocido';
+                          final placeOfBirth =
+                              data['place_of_birth'] ?? 'Desconocido';
 
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +141,11 @@ class ActorDetailScreen extends StatelessWidget {
               future: movieDetailProvider.getActorDetails(actorId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.primaryLight)); //
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryLight,
+                    ),
+                  );
                 }
                 final data = snapshot.data ?? {};
                 final bio = data['biography']?.toString().isNotEmpty == true
@@ -144,7 +155,7 @@ class ActorDetailScreen extends StatelessWidget {
                 return Text(
                   bio,
                   style: TextosEstilos.cuerpo.copyWith(
-                    color: AppColors.grayLight, 
+                    color: AppColors.grayLight,
                     fontSize: 15,
                     height: 1.4,
                   ),
@@ -152,86 +163,87 @@ class ActorDetailScreen extends StatelessWidget {
               },
             ),
             const SizedBox(height: 25),
-
-            // Películas destacadas
-            const SectionTitleWidget(title: 'Películas Destacadas'),
-            const SizedBox(height: 12),
             FutureBuilder<Map<String, dynamic>>(
               future: movieDetailProvider.getActorMovies(actorId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox(
-                    height: 150,
-                    child: Center(child: CircularProgressIndicator(color: AppColors.primaryLight)), //[cite: 4]
+                    height: 180,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryLight,
+                      ),
+                    ),
                   );
                 }
                 if (!snapshot.hasData ||
                     snapshot.data!.isEmpty ||
                     snapshot.data!['cast'] == null ||
                     (snapshot.data!['cast'] as List).isEmpty) {
-                  return Text(
-                    'Filmografía no disponible.',
-                    style: TextosEstilos.cuerpo.copyWith(
-                      color: AppColors.grayLight, 
-                      fontSize: 14,
-                    ),
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SectionTitleWidget(title: 'Películas Destacadas'),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Filmografía no disponible.',
+                        style: TextosEstilos.cuerpo.copyWith(
+                          color: AppColors.grayLight,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   );
                 }
 
-                final movies = snapshot.data!['cast'] as List<dynamic>;
-                final displayedMovies = movies.take(15).toList();
+                final rawMovies = snapshot.data!['cast'] as List<dynamic>;
+                final displayedMovies = rawMovies.take(15).toList();
+                
+                final List<Movie> moviesList = displayedMovies.map((movieData) {
+                  // Obtenemos los paths relativos que entrega la API
+                  final posterPath = movieData['poster_path'];
+                  final backdropPath = movieData['backdrop_path'];
+                  final fullPosterPath = posterPath != null && posterPath.toString().isNotEmpty
+                      ? 'https://image.tmdb.org/t/p/w500$posterPath'
+                      : '';
 
-                return SizedBox(
-                  height: 180,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: displayedMovies.length,
-                    itemBuilder: (context, index) {
-                      final movie = displayedMovies[index];
-                      final moviePosterPath = movie['poster_path'];
-                      final movieImageUrl = moviePosterPath != null
-                          ? 'https://image.tmdb.org/t/p/w185$moviePosterPath'
-                          : 'https://via.placeholder.com/150x225.png?text=No+Poster';
-                      final movieTitle = movie['title'] ?? 'Sin título';
+                  final fullBackdropPath = backdropPath != null && backdropPath.toString().isNotEmpty
+                      ? 'https://image.tmdb.org/t/p/w500$backdropPath'
+                      : '';
 
-                      return Container(
-                        width: 100,
-                        margin: const EdgeInsets.only(right: 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                movieImageUrl,
-                                height: 140,
-                                width: 100,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => Container(
-                                  height: 140,
-                                  width: 100,
-                                  color: Colors.grey[800],
-                                  child: const Icon(Icons.movie, size: 40, color: AppColors.textPrimary), //[cite: 4]
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              movieTitle,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextosEstilos.cuerpo.copyWith(
-                                color: AppColors.grayLight, 
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                  return Movie(
+                    adult: movieData['adult'] ?? false,
+                    backdropPath: fullBackdropPath,
+                    genreIds: List<String>.from(
+                      (movieData['genre_ids'] ?? []).map((e) => e.toString()),
+                    ),
+                    id: movieData['id'] ?? 0,
+                    originalLanguage: movieData['original_language'] ?? '',
+                    originalTitle:
+                        movieData['original_title'] ??
+                        movieData['title'] ??
+                        movieData['name'] ??
+                        '',
+                    overview: movieData['overview'] ?? '',
+                    popularity:
+                        (movieData['popularity'] as num?)?.toDouble() ?? 0.0,
+                    posterPath: fullPosterPath, 
+                    releaseDate:
+                        movieData['release_date'] != null &&
+                            movieData['release_date'].toString().isNotEmpty
+                        ? DateTime.parse(movieData['release_date'])
+                        : DateTime(1900),
+                    title: movieData['title'] ?? movieData['name'] ?? '',
+                    video: movieData['video'] ?? false,
+                    voteAverage:
+                        (movieData['vote_average'] as num?)?.toDouble() ?? 0.0,
+                    voteCount: movieData['vote_count'] ?? 0,
+                  );
+                }).toList();
+
+                return MovieRowSectionWidget(
+                  title: 'Películas Destacadas',
+                  movies: moviesList,
                 );
               },
             ),

@@ -24,7 +24,6 @@ class TrailerSectionWidget extends StatelessWidget {
             aspectRatio: 16 / 9,
           ),
         ),
-        const SizedBox(height: 24),
       ],
     );
   }

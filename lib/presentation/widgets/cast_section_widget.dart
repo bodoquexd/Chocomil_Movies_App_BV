@@ -19,13 +19,22 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
   void _showActorDetails(BuildContext context, dynamic actor) {
     final movieDetailProvider = context.read<MovieDetailProvider>();
 
+    // Reemplazamos MaterialPageRoute por PageRouteBuilder para evitar el flash blanco
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ActorDetailScreen(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => ActorDetailScreen(
           actor: actor,
           movieDetailProvider: movieDetailProvider,
         ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          // Usamos una transición suave de opacidad (Fade)
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 300), // Duración opcional
       ),
     );
   }
