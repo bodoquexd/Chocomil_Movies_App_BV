@@ -82,9 +82,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: AppColors.primary,
         centerTitle: true,
         elevation: 0,
+        toolbarHeight: 65,
         title: Image.asset(
           'assets/images/icon_app.png', 
-          height: 45, 
+          height: 58, 
           fit: BoxFit.contain
         ),
       ),

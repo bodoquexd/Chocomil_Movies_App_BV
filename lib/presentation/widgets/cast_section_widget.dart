@@ -19,7 +19,6 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
   void _showActorDetails(BuildContext context, dynamic actor) {
     final movieDetailProvider = context.read<MovieDetailProvider>();
 
-    // Reemplazamos MaterialPageRoute por PageRouteBuilder para evitar el flash blanco
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -28,13 +27,12 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
           movieDetailProvider: movieDetailProvider,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // Usamos una transición suave de opacidad (Fade)
           return FadeTransition(
             opacity: animation,
             child: child,
           );
         },
-        transitionDuration: const Duration(milliseconds: 300), // Duración opcional
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }
@@ -100,6 +98,7 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                 }
 
                 final actor = widget.cast[index];
+                final actorId = actor['id'];
                 final profilePath = actor['profile_path'];
                 final imageUrl = profilePath != null
                     ? 'https://image.tmdb.org/t/p/w200$profilePath'
@@ -113,18 +112,22 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                     color: Colors.transparent,
                     child: Column(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            imageUrl,
-                            height: 85,
-                            width: 85,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => Container(
+                        // Aplicamos Hero widget en la vista horizontal
+                        Hero(
+                          tag: 'actor-profile-$actorId',
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              imageUrl,
                               height: 85,
                               width: 85,
-                              color: Colors.grey,
-                              child: const Icon(Icons.person),
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => Container(
+                                height: 85,
+                                width: 85,
+                                color: Colors.grey,
+                                child: const Icon(Icons.person),
+                              ),
                             ),
                           ),
                         ),
@@ -157,6 +160,7 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                 itemCount: widget.cast.length,
                 itemBuilder: (context, index) {
                   final actor = widget.cast[index];
+                  final actorId = actor['id'];
                   final profilePath = actor['profile_path'];
                   final imageUrl = profilePath != null
                       ? 'https://image.tmdb.org/t/p/w200$profilePath'
@@ -174,20 +178,24 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                         horizontal: 12,
                         vertical: 8,
                       ),
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          imageUrl,
-                          height: 55,
-                          width: 55,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => Container(
+                      // Aplicamos Hero widget en la vista vertical
+                      leading: Hero(
+                        tag: 'actor-profile-$actorId',
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            imageUrl,
                             height: 55,
                             width: 55,
-                            color: Colors.grey,
-                            child: const Icon(
-                              Icons.person,
-                              color: Colors.white,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => Container(
+                              height: 55,
+                              width: 55,
+                              color: Colors.grey,
+                              child: const Icon(
+                                Icons.person,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),

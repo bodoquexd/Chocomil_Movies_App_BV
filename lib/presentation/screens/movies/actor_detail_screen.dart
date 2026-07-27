@@ -50,9 +50,15 @@ class ActorDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.primary,
+        centerTitle: true,
         elevation: 0,
-        title: Text('Detalles del Actor', style: TextosEstilos.subtitulo),
+        toolbarHeight: 65,
+        title: Image.asset(
+          'assets/images/icon_app.png',
+          height: 58,
+          fit: BoxFit.contain,
+        ),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -63,21 +69,25 @@ class ActorDetailScreen extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    imageUrl,
-                    width: 140,
-                    height: 210,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
+                // Aquí aplicamos el Hero widget usando el ID del actor
+                Hero(
+                  tag: 'actor-profile-$actorId',
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      imageUrl,
                       width: 140,
                       height: 210,
-                      color: Colors.grey[800],
-                      child: const Icon(
-                        Icons.person,
-                        size: 60,
-                        color: AppColors.textPrimary,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Container(
+                        width: 140,
+                        height: 210,
+                        color: Colors.grey[800],
+                        child: const Icon(
+                          Icons.person,
+                          size: 60,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                   ),
@@ -200,7 +210,6 @@ class ActorDetailScreen extends StatelessWidget {
                 final displayedMovies = rawMovies.take(15).toList();
                 
                 final List<Movie> moviesList = displayedMovies.map((movieData) {
-                  // Obtenemos los paths relativos que entrega la API
                   final posterPath = movieData['poster_path'];
                   final backdropPath = movieData['backdrop_path'];
                   final fullPosterPath = posterPath != null && posterPath.toString().isNotEmpty
