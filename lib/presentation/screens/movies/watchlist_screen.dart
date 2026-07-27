@@ -1,12 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/pdf_generator_service.dart';
 
 class WatchlistScreen extends StatelessWidget {
   const WatchlistScreen({super.key});
+
+  void _exportPdf(BuildContext context, List<Movie> movies) {
+    if (movies.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No hay películas guardadas para exportar"),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    PdfGeneratorService.generateAndShareMoviesPdf(
+      movies: movies,
+      title: 'Mis Películas Guardadas',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +48,28 @@ class WatchlistScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: SectionTitleWidget(title: 'Mis Guardados'),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SectionTitleWidget(title: 'Mis Guardados'),
+                if (watchlistMovies.isNotEmpty)
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => _exportPdf(context, watchlistMovies),
+                    icon: const Icon(Icons.picture_as_pdf, size: 18),
+                    label: const Text("Exportar PDF"),
+                  ),
+              ],
+            ),
           ),
-
           Expanded(
             child: watchlistMovies.isEmpty
                 ? const Center(
