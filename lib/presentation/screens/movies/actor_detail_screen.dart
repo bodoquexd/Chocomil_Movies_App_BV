@@ -58,12 +58,12 @@ class ActorDetailScreen extends StatelessWidget {
           icon: Container(
             padding: const EdgeInsets.all(6),
             decoration: const BoxDecoration(
-              color: Colors.black26,
+              color: AppColors.overlayLight,
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.arrow_back_ios_new,
-              color: Colors.white,
+              color: AppColors.textPrimary,
               size: 20,
             ),
           ),
@@ -84,7 +84,6 @@ class ActorDetailScreen extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Aquí aplicamos el Hero widget usando el ID del actor
                 Hero(
                   tag: 'actor-profile-$actorId',
                   child: ClipRRect(
@@ -97,7 +96,7 @@ class ActorDetailScreen extends StatelessWidget {
                       errorBuilder: (_, _, _) => Container(
                         width: 140,
                         height: 210,
-                        color: Colors.grey[800],
+                        color: AppColors.grayLight,
                         child: const Icon(
                           Icons.person,
                           size: 60,
@@ -114,7 +113,7 @@ class ActorDetailScreen extends StatelessWidget {
                     children: [
                       Text(
                         actor['name'] ?? 'Desconocido',
-                        style: TextosEstilos.titulo.copyWith(fontSize: 22),
+                        style: TextosEstilos.tituloMediano,
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -141,7 +140,6 @@ class ActorDetailScreen extends StatelessWidget {
                           final birthday = data['birthday'] ?? 'Desconocido';
                           final placeOfBirth =
                               data['place_of_birth'] ?? 'Desconocido';
-
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -158,8 +156,6 @@ class ActorDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 25),
-
-            // Biografía
             const SectionTitleWidget(title: 'Biografía'),
             const SizedBox(height: 12),
             FutureBuilder<Map<String, dynamic>>(
@@ -176,7 +172,6 @@ class ActorDetailScreen extends StatelessWidget {
                 final bio = data['biography']?.toString().isNotEmpty == true
                     ? data['biography']
                     : 'Biografía no disponible en español.';
-
                 return Text(
                   bio,
                   style: TextosEstilos.cuerpo.copyWith(

@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart'; 
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:video_player/video_player.dart';
-import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart'; 
-import 'package:chocomil_movies_app_bv/resources/colors/colors.dart'; 
-import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart'; 
-import 'package:chocomil_movies_app_bv/infrastructure/datasources/tmdb_datasource.dart'; 
-import 'package:chocomil_movies_app_bv/infrastructure/repositories/movie_repository_impl.dart'; 
+import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
+import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
+import 'package:chocomil_movies_app_bv/infrastructure/datasources/tmdb_datasource.dart';
+import 'package:chocomil_movies_app_bv/infrastructure/repositories/movie_repository_impl.dart';
 
 import 'package:chocomil_movies_app_bv/presentation/widgets/custom_refresh_indicator_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart'; 
-import 'package:chocomil_movies_app_bv/presentation/widgets/custom_error_widget.dart'; 
-import 'package:chocomil_movies_app_bv/presentation/widgets/movie_detail_app_bar_widget.dart'; 
-import 'package:chocomil_movies_app_bv/presentation/widgets/trailer_section_widget.dart'; 
-import 'package:chocomil_movies_app_bv/presentation/widgets/movie_actions_widget.dart'; 
-import 'package:chocomil_movies_app_bv/presentation/widgets/cast_section_widget.dart'; 
+import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/custom_error_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/movie_detail_app_bar_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/trailer_section_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/movie_actions_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/cast_section_widget.dart';
 
 class MovieDetailScreen extends StatelessWidget {
   final Movie movie;
@@ -26,9 +27,7 @@ class MovieDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => MovieDetailProvider(
-        movieRepository: MovieRepositoryImpl(
-          TmdbDatasource(),
-        ),
+        movieRepository: MovieRepositoryImpl(TmdbDatasource()),
       )..loadMovieDetails(movie.id),
       child: _MovieDetailContent(movie: movie),
     );
@@ -100,7 +99,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               Future.delayed(const Duration(seconds: 2), () {
                 if (mounted && _cloudVideoController != null) {
                   setState(() {
-                    _cloudVideoController!.setVolume(0.0); 
+                    _cloudVideoController!.setVolume(0.0);
                     _cloudVideoController!.play();
                   });
                 }
@@ -111,8 +110,8 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
 
   @override
   void dispose() {
-    _trailerController?.close(); 
-    _cloudVideoController?.dispose(); 
+    _trailerController?.close();
+    _cloudVideoController?.dispose();
     super.dispose();
   }
 
@@ -150,10 +149,14 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                   icon: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: const BoxDecoration(
-                      color: Colors.black26,
+                      color: AppColors.overlayLight,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new,
+                      color: AppColors.textPrimary,
+                      size: 20,
+                    ),
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
@@ -161,7 +164,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // 1. El video de fondo
                       FittedBox(
                         fit: BoxFit.cover,
                         child: SizedBox(
@@ -170,7 +172,6 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           child: VideoPlayer(_cloudVideoController!),
                         ),
                       ),
-                      // 2. Gradiente oscuro para que el texto resalte
                       DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -178,14 +179,13 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.black.withOpacity(0.3),
+                              AppColors.overlayDark,
                               AppColors.primaryDark,
                             ],
                             stops: const [0.0, 0.6, 1.0],
                           ),
                         ),
                       ),
-                      // 3. NUEVO: Logo o Título de la película
                       if (!detailProvider.isLoading) ...[
                         if (detailProvider.movieLogoPath != null)
                           Positioned(
@@ -209,13 +209,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                             right: 20,
                             child: Text(
                               widget.movie.title.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 34,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                                letterSpacing: -1.0,
-                                height: 1.1,
-                              ),
+                              style: TextosEstilos.tituloHero,
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -236,13 +230,16 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
               delegate: SliverChildListDelegate([
                 Padding(
                   // Unificamos el padding para que no se sienta apretado
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0), 
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 24.0,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (_isSpecialMovie) ...[
                         const SectionTitleWidget(title: 'Imágenes Exclusivas'),
-                        const SizedBox(height: 4), 
+                        const SizedBox(height: 4),
                         SizedBox(
                           height: 150,
                           child: ListView.builder(
@@ -255,7 +252,9 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
                                   child: Image.network(
-                                    _cloudData[widget.movie.id]!['images'][index],
+                                    _cloudData[widget
+                                        .movie
+                                        .id]!['images'][index],
                                     fit: BoxFit.cover,
                                     width: 250,
                                   ),
@@ -264,52 +263,49 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                             },
                           ),
                         ),
-                        const SizedBox(height: 5), 
+                        const SizedBox(height: 5),
                       ],
 
                       if (_trailerController != null) ...[
-                        TrailerSectionWidget(
-                          controller: _trailerController!,
-                        ),
-                        const SizedBox(height: 5), 
+                        TrailerSectionWidget(controller: _trailerController!),
+                        const SizedBox(height: 5),
                       ],
 
                       Row(
                         children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 20),
+                          const Icon(
+                            Icons.star,
+                            color: AppColors.primaryLight,
+                            size: 20,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             'Calificación: ${widget.movie.voteAverage.toStringAsFixed(1)}',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16,
+                            style: TextosEstilos.cuerpo.copyWith(
+                              color: AppColors.textMuted,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
-                      
-                      const SizedBox(height: 5), 
-                      
-                      const SectionTitleWidget(title: 'Sinopsis'), 
-                      const SizedBox(height: 4), 
-                      
+                      const SizedBox(height: 5),
+                      const SectionTitleWidget(title: 'Sinopsis'),
+                      const SizedBox(height: 4),
                       Text(
                         widget.movie.overview.isNotEmpty
                             ? widget.movie.overview
                             : 'No hay sinopsis disponible.',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Colors.white70,
+                        style: TextosEstilos.cuerpo.copyWith(
+                          color: AppColors.textMuted,
                           height: 1.4,
                         ),
                       ),
-                      
-                      const SizedBox(height: 5), 
-                      
-                      MovieActionsWidget(movie: widget.movie), 
-                      
-                      const SizedBox(height: 5), 
+
+                      const SizedBox(height: 5),
+
+                      MovieActionsWidget(movie: widget.movie),
+
+                      const SizedBox(height: 5),
 
                       if (detailProvider.isLoading)
                         const Center(
@@ -331,15 +327,15 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         )
                       else ...[
                         if (detailProvider.cast.isNotEmpty) ...[
-                            CastSectionWidget(cast: detailProvider.cast),
-                            const SizedBox(height: 5), 
+                          CastSectionWidget(cast: detailProvider.cast),
+                          const SizedBox(height: 5),
                         ],
                         // Comentarios
                         if (detailProvider.reviews.isNotEmpty) ...[
                           const SectionTitleWidget(
                             title: 'Comentarios de la Comunidad',
                           ),
-                          const SizedBox(height: 4), 
+                          const SizedBox(height: 4),
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),

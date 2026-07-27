@@ -19,8 +19,8 @@ class AnimatedBookmarkWidget extends StatelessWidget {
       isLiked: isSaved,
       animationDuration: const Duration(milliseconds: 1200),
       circleColor: const CircleColor(
-        start: AppColors.chocoAccent, 
-        end: AppColors.chocoDark
+        start: AppColors.chocoAccent,
+        end: AppColors.chocoDark,
       ),
       bubblesSize: 40,
       bubblesColor: const BubblesColor(
@@ -34,9 +34,9 @@ class AnimatedBookmarkWidget extends StatelessWidget {
           alignment: Alignment.bottomCenter,
           children: [
             const Icon(
-              Icons.bookmark_border, 
-              color: AppColors.textPrimary, 
-              size: 26
+              Icons.bookmark_border,
+              color: AppColors.textPrimary,
+              size: 26,
             ),
             AnimatedContainer(
               duration: const Duration(milliseconds: 1200),
@@ -49,11 +49,7 @@ class AnimatedBookmarkWidget extends StatelessWidget {
               ),
             ),
             if (isLiked)
-              const Icon(
-                Icons.bookmark, 
-                color: AppColors.chocoDark, 
-                size: 26
-              ),
+              const Icon(Icons.bookmark, color: AppColors.chocoDark, size: 26),
           ],
         );
       },

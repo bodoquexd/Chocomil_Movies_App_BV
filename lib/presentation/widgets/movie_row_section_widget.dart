@@ -58,9 +58,7 @@ class MovieRowSectionWidget extends StatelessWidget {
                       ),
                     );
                   },
-                  child: MovieCardWidget(
-                    movie: movie,
-                  ),
+                  child: MovieCardWidget(movie: movie),
                 );
               },
             ),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 
 void showFloatingHeart(BuildContext context) {
   final overlay = Overlay.of(context);
-  
+
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (context) => Center(
@@ -12,15 +13,15 @@ void showFloatingHeart(BuildContext context) {
         curve: Curves.easeOutBack,
         builder: (context, value, child) {
           final opacity = value < 0.75 ? 1.0 : (1.0 - value) / 0.25;
-          
+
           return Transform.scale(
             scale: value * 1.5,
             child: Opacity(
               opacity: opacity.clamp(0.0, 1.0),
               child: const Icon(
                 Icons.favorite,
-                color: Colors.red,
-                size: 120, 
+                color: AppColors.favorite,
+                size: 120,
               ),
             ),
           );

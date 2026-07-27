@@ -10,14 +10,10 @@ import 'package:chocomil_movies_app_bv/presentation/utils/animation_utils.dart';
 class MovieActionsWidget extends StatelessWidget {
   final Movie movie;
 
-  const MovieActionsWidget({
-    super.key,
-    required this.movie,
-  });
+  const MovieActionsWidget({super.key, required this.movie});
 
   @override
   Widget build(BuildContext context) {
-    // Escuchamos al provider directamente dentro de este widget
     final movieProvider = context.watch<MovieProvider>();
 
     return Row(
@@ -68,10 +64,7 @@ class MovieActionsWidget extends StatelessWidget {
             const SizedBox(height: 2),
             const Text(
               'Mi lista',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: Colors.white70, fontSize: 13),
             ),
           ],
         ),
@@ -129,10 +122,7 @@ class MovieActionsWidget extends StatelessWidget {
             const SizedBox(height: 2),
             const Text(
               'Favorito',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: Colors.white70, fontSize: 13),
             ),
           ],
         ),

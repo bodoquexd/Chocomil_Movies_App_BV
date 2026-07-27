@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -37,8 +37,8 @@ class TmdbDatasource implements MovieDatasources {
         posterPath: m['poster_path'] != null
             ? getImageUrl(m['poster_path'])
             : '',
-        releaseDate: DateTime.tryParse(m['release_date'] ?? '') ??
-            DateTime.now(),
+        releaseDate:
+            DateTime.tryParse(m['release_date'] ?? '') ?? DateTime.now(),
         title: m['title'] ?? m['name'] ?? 'Sin título',
         video: m['video'] ?? false,
         voteAverage: (m['vote_average'] ?? 0).toDouble(),
@@ -88,10 +88,7 @@ class TmdbDatasource implements MovieDatasources {
   }
 
   @override
-  Future<List<Movie>> searchMovies(
-    String query, {
-    int page = 1,
-  }) async {
+  Future<List<Movie>> searchMovies(String query, {int page = 1}) async {
     final encodedQuery = Uri.encodeComponent(query);
 
     final url = Uri.parse(
@@ -118,7 +115,7 @@ class TmdbDatasource implements MovieDatasources {
     final url = Uri.parse(
       '$_baseUrl/movie/$movieId/images'
       '?api_key=$_apiKey'
-      '&include_image_language=MX,en,null'
+      '&include_image_language=MX,en,null',
     );
 
     try {
@@ -129,18 +126,20 @@ class TmdbDatasource implements MovieDatasources {
         final List<dynamic> logos = data['logos'] ?? [];
         if (logos.isNotEmpty) {
           final String logoPath = logos.first['file_path'];
-          return getImageUrl(logoPath); 
+          return getImageUrl(logoPath);
         }
       }
       return null;
     } catch (e) {
-      return null; 
+      return null;
     }
   }
 
   @override
   Future<List<dynamic>> getMovieCast(int movieId) async {
-    final url = Uri.parse('$_baseUrl/movie/$movieId/credits?api_key=$_apiKey&language=es-MX');
+    final url = Uri.parse(
+      '$_baseUrl/movie/$movieId/credits?api_key=$_apiKey&language=es-MX',
+    );
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -172,19 +171,24 @@ class TmdbDatasource implements MovieDatasources {
   Future<String?> getMovieTrailer(int movieId) async {
     try {
       // Intento en Español
-      final urlEs = Uri.parse('$_baseUrl/movie/$movieId/videos?api_key=$_apiKey&language=es-MX');
+      final urlEs = Uri.parse(
+        '$_baseUrl/movie/$movieId/videos?api_key=$_apiKey&language=es-MX',
+      );
       final responseEs = await http.get(urlEs);
       if (responseEs.statusCode == 200) {
         final data = json.decode(responseEs.body);
         for (var v in data['results']) {
-          if (v['site'] == 'YouTube' && (v['type'] == 'Trailer' || v['type'] == 'Teaser')) {
+          if (v['site'] == 'YouTube' &&
+              (v['type'] == 'Trailer' || v['type'] == 'Teaser')) {
             return v['key'];
           }
         }
       }
 
       // Fallback en Inglés si no hay tráiler en español
-      final urlEn = Uri.parse('$_baseUrl/movie/$movieId/videos?api_key=$_apiKey');
+      final urlEn = Uri.parse(
+        '$_baseUrl/movie/$movieId/videos?api_key=$_apiKey',
+      );
       final responseEn = await http.get(urlEn);
       if (responseEn.statusCode == 200) {
         final dataEn = json.decode(responseEn.body);
@@ -195,14 +199,16 @@ class TmdbDatasource implements MovieDatasources {
         }
       }
     } catch (e) {
-       debugPrint('Error en Trailer: $e');
+      debugPrint('Error en Trailer: $e');
     }
     return null;
   }
 
   @override
   Future<Map<String, dynamic>> getActorDetails(int actorId) async {
-    final url = Uri.parse('$_baseUrl/person/$actorId?api_key=$_apiKey&language=es-MX');
+    final url = Uri.parse(
+      '$_baseUrl/person/$actorId?api_key=$_apiKey&language=es-MX',
+    );
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -216,7 +222,9 @@ class TmdbDatasource implements MovieDatasources {
 
   @override
   Future<Map<String, dynamic>> getActorMovies(int actorId) async {
-    final url = Uri.parse('$_baseUrl/person/$actorId/movie_credits?api_key=$_apiKey&language=es-MX');
+    final url = Uri.parse(
+      '$_baseUrl/person/$actorId/movie_credits?api_key=$_apiKey&language=es-MX',
+    );
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {

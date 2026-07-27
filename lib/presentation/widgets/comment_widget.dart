@@ -20,23 +20,19 @@ class CommentWidget extends StatefulWidget {
 
 class _CommentWidgetState extends State<CommentWidget> {
   bool isExpanded = false;
-  final int characterLimit = 120; 
+  final int characterLimit = 120;
 
   @override
   Widget build(BuildContext context) {
     final bool isLongComment = widget.comment.length > characterLimit;
     final String displayText = (isLongComment && !isExpanded)
-        ? '${widget.comment.substring(0, characterLimit)}...' 
+        ? '${widget.comment.substring(0, characterLimit)}...'
         : widget.comment;
 
     return Card(
-      color: AppColors.backgroundBlack, 
-      margin: const EdgeInsets.symmetric(
-        vertical: 4,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
+      color: AppColors.backgroundBlack,
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
         padding: const EdgeInsets.all(15),
         child: Column(
@@ -51,17 +47,13 @@ class _CommentWidgetState extends State<CommentWidget> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    widget.userName, 
+                    widget.userName,
                     style: TextosEstilos.subtitulo.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                const Icon(
-                  Icons.star,
-                  color: AppColors.primaryLight,
-                  size: 18,
-                ),
+                const Icon(Icons.star, color: AppColors.primaryLight, size: 18),
                 const SizedBox(width: 4),
                 Text(
                   widget.rating.toStringAsFixed(1),
@@ -72,9 +64,7 @@ class _CommentWidgetState extends State<CommentWidget> {
             const SizedBox(height: 10),
             Text(
               displayText,
-              style: TextosEstilos.cuerpo.copyWith(
-                color: AppColors.grayLight,
-              ),
+              style: TextosEstilos.cuerpo.copyWith(color: AppColors.grayLight),
             ),
 
             if (isLongComment)
@@ -89,7 +79,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                   child: Text(
                     isExpanded ? 'Ver menos' : 'Leer completo',
                     style: TextosEstilos.cuerpo.copyWith(
-                      color: AppColors.primaryLight, 
+                      color: AppColors.primaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

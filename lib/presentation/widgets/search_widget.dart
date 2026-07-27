@@ -6,7 +6,6 @@ import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/providers/search_provider.dart';
 import '../screens/movies/movie_search_delegate.dart';
 
-
 class SearchWidget extends StatefulWidget {
   const SearchWidget({super.key});
 
@@ -15,14 +14,12 @@ class SearchWidget extends StatefulWidget {
 }
 
 class _SearchWidgetState extends State<SearchWidget> {
-
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final textoGuardado = context.read<SearchProvider>().query;
-      
 
       if (textoGuardado.isNotEmpty) {
         showSearch(
@@ -44,28 +41,19 @@ class _SearchWidgetState extends State<SearchWidget> {
         showSearch(
           context: context,
           delegate: MovieSearchDelegate(),
-          query: textoGuardado, 
+          query: textoGuardado,
         );
       },
       child: AbsorbPointer(
         child: TextField(
-          style: TextosEstilos.cuerpo.copyWith(
-            color: AppColors.primaryDark,
-          ),
+          style: TextosEstilos.cuerpo.copyWith(color: AppColors.primaryDark),
           decoration: InputDecoration(
             hintText: 'Buscar película...',
-            hintStyle: TextosEstilos.cuerpo.copyWith(
-              color: AppColors.textHint,
-            ),
-            prefixIcon: const Icon(
-              Icons.search,
-              color: AppColors.textHint,
-            ),
+            hintStyle: TextosEstilos.cuerpo.copyWith(color: AppColors.textHint),
+            prefixIcon: const Icon(Icons.search, color: AppColors.textHint),
             filled: true,
             fillColor: AppColors.inputBackground,
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 15,
-            ),
+            contentPadding: const EdgeInsets.symmetric(vertical: 15),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,

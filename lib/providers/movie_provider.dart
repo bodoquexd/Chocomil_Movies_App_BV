@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http; 
-import 'package:flutter_dotenv/flutter_dotenv.dart'; 
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.dart';
@@ -19,53 +19,60 @@ class MovieProvider extends ChangeNotifier {
   List<Movie> comedyMovies = [];
   List<Movie> animationMovies = [];
   List<Movie> favoriteMovies = [];
-  List<Movie> watchlistMovies = []; 
+  List<Movie> watchlistMovies = [];
 
   String? _currentUserEmail;
   final Map<String, List<String>> _avatarCategories = {};
   Map<String, List<String>> get avatarCategories => _avatarCategories;
 
   Future<void> loadAvatars() async {
-    if (_avatarCategories.isNotEmpty) return; 
+    if (_avatarCategories.isNotEmpty) return;
 
     final apiKey = dotenv.env['THE_MOVIEDB_KEY'] ?? '';
-    
+
     if (apiKey.isEmpty) {
       debugPrint('Error: No se encontró la API Key para avatares');
       return;
     }
     final Map<String, int> sagasMovies = {
-      'Marvel (Avengers)': 24428,     
-      'Star Wars': 11,              
-      'Harry Potter': 671,            
-      'El Señor de los Anillos': 120, 
-      'Pixar (Toy Story)': 862,       
+      'Marvel (Avengers)': 24428,
+      'Star Wars': 11,
+      'Harry Potter': 671,
+      'El Señor de los Anillos': 120,
+      'Pixar (Toy Story)': 862,
     };
 
     try {
-      await Future.wait(sagasMovies.entries.map((entry) async {
-        final url = Uri.parse('https://api.themoviedb.org/3/movie/${entry.value}/credits?api_key=$apiKey&language=es-MX');
-        
-        final response = await http.get(url);
+      await Future.wait(
+        sagasMovies.entries.map((entry) async {
+          final url = Uri.parse(
+            'https://api.themoviedb.org/3/movie/${entry.value}/credits?api_key=$apiKey&language=es-MX',
+          );
 
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
-          final List<dynamic> cast = data['cast'];
+          final response = await http.get(url);
 
-          final avatarsList = cast
-              .where((actor) => actor['profile_path'] != null)
-              .map((actor) => 'https://image.tmdb.org/t/p/w200${actor['profile_path']}')
-              .take(10) // Limitamos a 10 personajes por saga
-              .cast<String>()
-              .toList();
-              
-          if (avatarsList.isNotEmpty) {
-            _avatarCategories[entry.key] = avatarsList;
+          if (response.statusCode == 200) {
+            final data = jsonDecode(response.body);
+            final List<dynamic> cast = data['cast'];
+
+            final avatarsList = cast
+                .where((actor) => actor['profile_path'] != null)
+                .map(
+                  (actor) =>
+                      'https://image.tmdb.org/t/p/w200${actor['profile_path']}',
+                )
+                .take(10) // Limitamos a 10 personajes por saga
+                .cast<String>()
+                .toList();
+
+            if (avatarsList.isNotEmpty) {
+              _avatarCategories[entry.key] = avatarsList;
+            }
           }
-        }
-      }));
-      
-      notifyListeners(); 
+        }),
+      );
+
+      notifyListeners();
     } catch (e) {
       debugPrint('Error al obtener avatares por sagas: $e');
     }
@@ -74,7 +81,7 @@ class MovieProvider extends ChangeNotifier {
   Future<void> loadFavoritesForUser(String email) async {
     _currentUserEmail = email;
     final prefs = await SharedPreferences.getInstance();
-    
+
     // 1. Cargar Favoritos
     final String? favoritesJson = prefs.getString(
       'favoritos_$_currentUserEmail',
@@ -93,7 +100,9 @@ class MovieProvider extends ChangeNotifier {
 
     if (watchlistJson != null) {
       final List<dynamic> decodedWatchlist = jsonDecode(watchlistJson);
-      watchlistMovies = decodedWatchlist.map((item) => Movie.fromJson(item)).toList();
+      watchlistMovies = decodedWatchlist
+          .map((item) => Movie.fromJson(item))
+          .toList();
     } else {
       watchlistMovies = [];
     }
@@ -161,7 +170,7 @@ class MovieProvider extends ChangeNotifier {
       isLoading = true;
       errorMessage = null;
       notifyListeners();
-      
+
       final results = await Future.wait([
         movieRepository.getTrending(),
         movieRepository.getMoviesByGenre(28),

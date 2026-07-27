@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.dart'; 
+import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.dart';
 
 class MovieDetailProvider extends ChangeNotifier {
   final MovieRepositories movieRepository;
-  
+
   MovieDetailProvider({required this.movieRepository});
 
   bool isLoading = true;
@@ -19,22 +19,21 @@ class MovieDetailProvider extends ChangeNotifier {
     cast = [];
     reviews = [];
     trailerKey = null;
-    movieLogoPath = null; 
-    notifyListeners(); 
+    movieLogoPath = null;
+    notifyListeners();
 
     try {
       final results = await Future.wait(<Future<dynamic>>[
         movieRepository.getMovieCast(movieId),
         movieRepository.getMovieReviews(movieId),
         movieRepository.getMovieTrailer(movieId),
-        movieRepository.getMovieLogo(movieId), 
+        movieRepository.getMovieLogo(movieId),
       ]);
 
       cast = results[0] as List<dynamic>;
       reviews = results[1] as List<dynamic>;
       trailerKey = results[2] as String?;
       movieLogoPath = results[3] as String?;
-
     } catch (e) {
       debugPrint('Error cargando detalles: $e');
       errorMessage = 'Error de conexión';

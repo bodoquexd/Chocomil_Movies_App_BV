@@ -5,10 +5,7 @@ import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget
 class TrailerSectionWidget extends StatelessWidget {
   final YoutubePlayerController controller;
 
-  const TrailerSectionWidget({
-    super.key,
-    required this.controller,
-  });
+  const TrailerSectionWidget({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +16,7 @@ class TrailerSectionWidget extends StatelessWidget {
         const SizedBox(height: 4),
         ClipRRect(
           borderRadius: BorderRadius.circular(15),
-          child: YoutubePlayer(
-            controller: controller,
-            aspectRatio: 16 / 9,
-          ),
+          child: YoutubePlayer(controller: controller, aspectRatio: 16 / 9),
         ),
       ],
     );

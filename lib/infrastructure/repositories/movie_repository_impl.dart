@@ -3,7 +3,6 @@ import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.dart';
 
 class MovieRepositoryImpl implements MovieRepositories {
-  
   final MovieDatasources datasource;
 
   MovieRepositoryImpl(this.datasource);
@@ -52,5 +51,4 @@ class MovieRepositoryImpl implements MovieRepositories {
   Future<Map<String, dynamic>> getActorMovies(int actorId) {
     return datasource.getActorMovies(actorId);
   }
-  
 }

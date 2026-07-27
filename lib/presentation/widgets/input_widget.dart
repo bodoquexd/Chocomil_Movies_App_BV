@@ -11,7 +11,7 @@ class InputWidget extends StatefulWidget {
   final String? errorText;
   final ValueChanged<String>? onChanged;
   final TextCapitalization textCapitalization;
-  final String? Function(String?)? validator; 
+  final String? Function(String?)? validator;
 
   const InputWidget({
     super.key,
@@ -22,7 +22,7 @@ class InputWidget extends StatefulWidget {
     this.errorText,
     this.onChanged,
     this.textCapitalization = TextCapitalization.none,
-    this.validator, 
+    this.validator,
   });
 
   @override
@@ -40,7 +40,7 @@ class _InputWidgetState extends State<InputWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField( 
+    return TextFormField(
       controller: widget.controller,
       obscureText: _isObscured,
       keyboardType: widget.keyboardType,
@@ -56,9 +56,7 @@ class _InputWidgetState extends State<InputWidget> {
           : null,
       decoration: InputDecoration(
         labelText: widget.label,
-        labelStyle: TextosEstilos.cuerpo.copyWith(
-          color: AppColors.textPrimary,
-        ),
+        labelStyle: TextosEstilos.cuerpo.copyWith(color: AppColors.textPrimary),
         errorText: widget.errorText,
         errorStyle: const TextStyle(color: Colors.red),
         suffixIcon: widget.obscureText
@@ -80,10 +78,7 @@ class _InputWidgetState extends State<InputWidget> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: AppColors.primary,
-            width: 2,
-          ),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -91,10 +86,7 @@ class _InputWidgetState extends State<InputWidget> {
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: Colors.red,
-            width: 2,
-          ),
+          borderSide: const BorderSide(color: Colors.red, width: 2),
         ),
       ),
     );

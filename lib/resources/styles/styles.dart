@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 
 class TextosEstilos {
-
   static final titulo = GoogleFonts.inter(
     fontSize: 32,
     fontWeight: FontWeight.bold,

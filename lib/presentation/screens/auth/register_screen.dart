@@ -66,8 +66,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       return;
     }
-
-    // 3. USO DEL PROVIDER
     final authProvider = context.read<AuthProvider>();
     
     final exito = await authProvider.registrarConServidor(

@@ -5,10 +5,7 @@ import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 class BottomNavWidget extends StatefulWidget {
   final int currentIndex;
 
-  const BottomNavWidget({
-    super.key,
-    required this.currentIndex,
-  });
+  const BottomNavWidget({super.key, required this.currentIndex});
 
   @override
   State<BottomNavWidget> createState() => _BottomNavWidgetState();
@@ -41,10 +38,7 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
     }
   }
 
-  Widget buildItem({
-    required IconData icon,
-    required int index,
-  }) {
+  Widget buildItem({required IconData icon, required int index}) {
     final isActive = selected == index;
 
     return Expanded(
@@ -57,9 +51,7 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
             child: Icon(
               icon,
               size: 28,
-              color: isActive
-                  ? AppColors.textPrimary
-                  : AppColors.grayLight,
+              color: isActive ? AppColors.textPrimary : AppColors.grayLight,
             ),
           ),
         ),

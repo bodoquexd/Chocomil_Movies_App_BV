@@ -40,12 +40,9 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: AnimatedOpacity(
           opacity: _logoOpacity,
-          duration: const Duration(milliseconds: 500), 
+          duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOut,
-          child: Image.asset(
-            'assets/images/splash.png',
-            width: 250,
-          ),
+          child: Image.asset('assets/images/splash.png', width: 250),
         ),
       ),
     );

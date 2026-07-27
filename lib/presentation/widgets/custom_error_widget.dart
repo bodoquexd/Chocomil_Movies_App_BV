@@ -3,7 +3,7 @@ import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
 class CustomErrorWidget extends StatelessWidget {
-  final String imagePath; 
+  final String imagePath;
   final String title;
   final String message;
   final String buttonText;
@@ -26,11 +26,7 @@ class CustomErrorWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              imagePath,
-              height: 150, 
-              fit: BoxFit.contain,
-            ),
+            Image.asset(imagePath, height: 150, fit: BoxFit.contain),
             const SizedBox(height: 24),
             Text(
               title,
@@ -40,16 +36,17 @@ class CustomErrorWidget extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               message,
-              style: TextosEstilos.cuerpo.copyWith(
-                color: AppColors.textHint,
-              ),
+              style: TextosEstilos.cuerpo.copyWith(color: AppColors.textHint),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.textPrimary,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),

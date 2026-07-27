@@ -19,13 +19,17 @@ class AuthProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   static final nameRegex = RegExp(r'^[A-ZÁÉÍÓÚÑ][A-záéíóúñÁÉÍÓÚÑ\s]+$');
-  static final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@(gmail\.com|hotmail\.com|outlook\.com|live\.com|icloud\.com|yahoo\.com)$');
+  static final emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@(gmail\.com|hotmail\.com|outlook\.com|live\.com|icloud\.com|yahoo\.com)$',
+  );
   static final passwordRegex = RegExp(r'^(?=.*[A-Z]).{8,}$');
 
   Future<void> _ensureGoogleSignInInitialized() async {
     if (!_isGoogleSignInInitialized) {
       await _googleSignIn.initialize(
-        clientId: kIsWeb ? '1077647994525-rri1suomsvfq6nehnav34lkdvqerkshi.apps.googleusercontent.com' : null,
+        clientId: kIsWeb
+            ? '1077647994525-rri1suomsvfq6nehnav34lkdvqerkshi.apps.googleusercontent.com'
+            : null,
       );
       _isGoogleSignInInitialized = true;
     }
@@ -36,10 +40,15 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _saveUserData(Map<String, dynamic> user, String token, bool hasCredentials) async {
+  Future<void> _saveUserData(
+    Map<String, dynamic> user,
+    String token,
+    bool hasCredentials,
+  ) async {
     user['has_credentials'] = hasCredentials;
-    user['full_name'] = '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}'.trim();
-    
+    user['full_name'] = '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}'
+        .trim();
+
     await _storage.write(key: 'token', value: token);
     await _storage.write(key: 'user_data', value: jsonEncode(user));
   }
@@ -55,19 +64,21 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final url = Uri.parse('${Environment.apiUrl}/auth/login');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'email': email, 'password': password}),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         await _saveUserData(data['user'], data['token'] ?? '', true);
-        
+
         await _storage.write(key: 'email', value: email);
         await _storage.write(key: 'password', value: password);
-        
+
         return true;
       } else {
         final errorData = jsonDecode(response.body);
@@ -94,17 +105,19 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final url = Uri.parse('${Environment.apiUrl}/auth/register');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': nombre,
-          'last_name': apellido,
-          'email': email,
-          'phone': telefono,
-          'password': password,
-        }),
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'name': nombre,
+              'last_name': apellido,
+              'email': email,
+              'phone': telefono,
+              'password': password,
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
@@ -133,38 +146,39 @@ class AuthProvider extends ChangeNotifier {
       );
 
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-      
+
       final AuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
       final String? firebaseIdToken = await userCredential.user?.getIdToken();
 
       final url = Uri.parse('${Environment.apiUrl}/auth/google-login');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'idToken': firebaseIdToken}),
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'idToken': firebaseIdToken}),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final user = data['user'];
-        user['email'] = user['email'] ?? googleUser.email; 
-        
+        user['email'] = user['email'] ?? googleUser.email;
+
         await _saveUserData(user, data['token'] ?? '', false);
         return {'status': 'success'};
-      } 
-      else if (response.statusCode == 404) {
+      } else if (response.statusCode == 404) {
         return {
           'status': 'needs_registration',
           'email': googleUser.email,
           'name': googleUser.displayName?.split(' ').first ?? '',
           'last_name': googleUser.displayName?.split(' ').last ?? '',
         };
-      } 
-      else {
+      } else {
         _errorMessage = 'Error en el servidor al autenticar con Google';
         return {'status': 'error'};
       }

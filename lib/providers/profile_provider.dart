@@ -21,7 +21,9 @@ class ProfileProvider extends ChangeNotifier {
     String? lastName = await _storage.read(key: 'last_name');
 
     if (firstName != null && firstName.isNotEmpty) {
-      nombre = firstName + (lastName != null && lastName.isNotEmpty ? ' $lastName' : '');
+      nombre =
+          firstName +
+          (lastName != null && lastName.isNotEmpty ? ' $lastName' : '');
     } else {
       nombre = await _storage.read(key: 'name') ?? 'Usuario';
     }
@@ -31,7 +33,10 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> actualizarPerfilAPI({String? nuevoNombre, String? nuevaUrlAvatar}) async {
+  Future<bool> actualizarPerfilAPI({
+    String? nuevoNombre,
+    String? nuevaUrlAvatar,
+  }) async {
     isLoading = true;
     notifyListeners();
 
@@ -71,7 +76,7 @@ class ProfileProvider extends ChangeNotifier {
           await _storage.write(key: 'avatar_url', value: urlAvatar);
           avatarUrl = urlAvatar;
         }
-        
+
         isLoading = false;
         notifyListeners();
         return true;
@@ -88,9 +93,11 @@ class ProfileProvider extends ChangeNotifier {
   Future<void> cerrarSesion() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
-      
+
       if (user != null) {
-        bool isGoogleUser = user.providerData.any((provider) => provider.providerId == 'google.com');
+        bool isGoogleUser = user.providerData.any(
+          (provider) => provider.providerId == 'google.com',
+        );
         if (isGoogleUser) {
           // Adaptado a v7.x: Se usa GoogleSignIn.instance y se asegura la inicialización
           final googleSignIn = GoogleSignIn.instance;

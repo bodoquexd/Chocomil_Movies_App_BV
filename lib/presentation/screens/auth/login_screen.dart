@@ -6,7 +6,7 @@ import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/input_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/button_widget.dart';
-import 'package:chocomil_movies_app_bv/providers/auth_provider.dart'; 
+import 'package:chocomil_movies_app_bv/providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String name = 'login_screen';
@@ -43,7 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
       context.go('/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authProvider.errorMessage ?? 'Error al iniciar sesión')),
+        SnackBar(
+          content: Text(authProvider.errorMessage ?? 'Error al iniciar sesión'),
+        ),
       );
     }
   }
@@ -67,7 +69,11 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } else if (resultado['status'] == 'error') {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authProvider.errorMessage ?? 'Error al iniciar sesión con Google')),
+        SnackBar(
+          content: Text(
+            authProvider.errorMessage ?? 'Error al iniciar sesión con Google',
+          ),
+        ),
       );
     }
   }
@@ -80,7 +86,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!tieneSesion) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Primero debes iniciar sesión de forma normal al menos una vez')),
+        const SnackBar(
+          content: Text(
+            'Primero debes iniciar sesión de forma normal al menos una vez',
+          ),
+        ),
       );
       return;
     }
@@ -99,7 +109,9 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       debugPrint('Error de autenticación biométrica: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al interactuar con el sensor biométrico')),
+        const SnackBar(
+          content: Text('Error al interactuar con el sensor biométrico'),
+        ),
       );
     }
   }
@@ -141,15 +153,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 SizedBox(height: screenSize.height * 0.04),
-                
+
                 InputWidget(
                   label: 'Correo Electrónico',
                   keyboardType: TextInputType.emailAddress,
                   controller: _emailController,
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 InputWidget(
                   label: 'Contraseña',
                   obscureText: true,
@@ -157,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 SizedBox(height: screenSize.height * 0.04),
-                
+
                 SizedBox(
                   width: 200,
                   child: isLoading
@@ -222,7 +234,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     IconButton(
                       // Evitamos usar biometría si ya está procesando una solicitud
-                      onPressed: isLoading ? null : () => _authenticate(context),
+                      onPressed: isLoading
+                          ? null
+                          : () => _authenticate(context),
                       icon: const Icon(
                         Icons.fingerprint,
                         size: 50,

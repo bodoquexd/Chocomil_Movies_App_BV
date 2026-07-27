@@ -3,10 +3,11 @@ import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
 class ProfileModals {
-  
   // Modal para elegir Avatar
   static Future<String?> showAvatarSelector(
-      BuildContext context, Map<String, List<String>> avatarCategories) {
+    BuildContext context,
+    Map<String, List<String>> avatarCategories,
+  ) {
     return showModalBottomSheet<String>(
       context: context,
       backgroundColor: AppColors.backgroundBlack,
@@ -21,8 +22,13 @@ class ProfileModals {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 25, bottom: 10),
-                child: Text('Elige tu Avatar',
-                    style: TextosEstilos.titulo.copyWith(color: Colors.white, fontSize: 22)),
+                child: Text(
+                  'Elige tu Avatar',
+                  style: TextosEstilos.titulo.copyWith(
+                    color: Colors.white,
+                    fontSize: 22,
+                  ),
+                ),
               ),
               Expanded(
                 child: ListView.builder(
@@ -42,14 +48,23 @@ class ProfileModals {
     );
   }
 
-  static Widget _buildSagaRow(BuildContext context, String nombreSaga, List<String> avatares) {
+  static Widget _buildSagaRow(
+    BuildContext context,
+    String nombreSaga,
+    List<String> avatares,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Text(nombreSaga,
-              style: TextosEstilos.subtitulo.copyWith(color: AppColors.primary, fontSize: 16)),
+          child: Text(
+            nombreSaga,
+            style: TextosEstilos.subtitulo.copyWith(
+              color: AppColors.primary,
+              fontSize: 16,
+            ),
+          ),
         ),
         SizedBox(
           height: 100,
@@ -75,7 +90,11 @@ class ProfileModals {
                       fit: BoxFit.cover,
                       loadingBuilder: (ctx, child, progress) => progress == null
                           ? child
-                          : const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                          : const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.primary,
+                              ),
+                            ),
                     ),
                   ),
                 ),
@@ -88,7 +107,10 @@ class ProfileModals {
   }
 
   // 2. Diálogo para editar el nombre
-  static Future<String?> showEditNameDialog(BuildContext context, String currentName) {
+  static Future<String?> showEditNameDialog(
+    BuildContext context,
+    String currentName,
+  ) {
     TextEditingController controller = TextEditingController(text: currentName);
     return showDialog<String>(
       context: context,
@@ -101,14 +123,21 @@ class ProfileModals {
           decoration: const InputDecoration(
             hintText: 'ej.',
             hintStyle: TextStyle(color: Colors.white54),
-            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
-            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary, width: 2)),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: AppColors.primary),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: AppColors.primary, width: 2),
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, null),
-            child: Text('Cancelar', style: TextosEstilos.boton.copyWith(color: AppColors.grayLight)),
+            child: Text(
+              'Cancelar',
+              style: TextosEstilos.boton.copyWith(color: AppColors.grayLight),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
@@ -127,12 +156,21 @@ class ProfileModals {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.primaryDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Text('Cerrar Sesión', style: TextosEstilos.subtitulo.copyWith(fontWeight: FontWeight.bold)),
-        content: Text('¿Estás seguro de que quieres cerrar sesión?', style: TextosEstilos.cuerpo),
+        title: Text(
+          'Cerrar Sesión',
+          style: TextosEstilos.subtitulo.copyWith(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          '¿Estás seguro de que quieres cerrar sesión?',
+          style: TextosEstilos.cuerpo,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancelar', style: TextosEstilos.boton.copyWith(color: AppColors.grayLight)),
+            child: Text(
+              'Cancelar',
+              style: TextosEstilos.boton.copyWith(color: AppColors.grayLight),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),

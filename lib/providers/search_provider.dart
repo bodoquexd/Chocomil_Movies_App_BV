@@ -47,7 +47,7 @@ class SearchProvider extends ChangeNotifier {
     _debouncer = Timer(const Duration(milliseconds: 500), () async {
       try {
         final movies = await movieRepository.searchMovies(value);
-        
+
         if (_query == value) {
           _searchResults = movies;
           _isLoading = false;
@@ -70,7 +70,7 @@ class SearchProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _debouncer?.cancel(); 
+    _debouncer?.cancel();
     super.dispose();
   }
 }

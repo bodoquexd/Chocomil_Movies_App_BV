@@ -21,10 +21,7 @@ class FeaturedMovieWidget extends StatelessWidget {
       width: 250,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.primaryLight,
-          width: 2,
-        ),
+        border: Border.all(color: AppColors.primaryLight, width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.4),
@@ -59,15 +56,13 @@ class FeaturedMovieWidget extends StatelessWidget {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextosEstilos.titulo.copyWith(
-                    fontSize: 22,
-                  ),
+                  style: TextosEstilos.titulo.copyWith(fontSize: 22),
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: onTap, 
+                    onPressed: onTap,
                     label: Text(
                       'Ver Ahora',
                       style: TextosEstilos.boton.copyWith(

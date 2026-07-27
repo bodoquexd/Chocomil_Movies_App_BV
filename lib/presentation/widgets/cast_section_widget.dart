@@ -22,15 +22,13 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => ActorDetailScreen(
-          actor: actor,
-          movieDetailProvider: movieDetailProvider,
-        ),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            ActorDetailScreen(
+              actor: actor,
+              movieDetailProvider: movieDetailProvider,
+            ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
+          return FadeTransition(opacity: animation, child: child);
         },
         transitionDuration: const Duration(milliseconds: 300),
       ),
@@ -44,7 +42,7 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
       children: [
         const SectionTitleWidget(title: 'Reparto Principal'),
         const SizedBox(height: 4),
-        
+
         // Vista contraída (Horizontal)
         if (!_isCastExpanded)
           SizedBox(
@@ -92,14 +90,14 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                     ),
                   );
                 }
-                
+
                 final actor = widget.cast[index];
                 final actorId = actor['id'];
                 final profilePath = actor['profile_path'];
                 final imageUrl = profilePath != null
                     ? 'https://image.tmdb.org/t/p/w200$profilePath'
                     : 'https://via.placeholder.com/150x150.png?text=No+Image';
-                    
+
                 return GestureDetector(
                   onTap: () => _showActorDetails(context, actor),
                   child: Container(
@@ -121,7 +119,10 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                                 height: 85,
                                 width: 85,
                                 color: AppColors.grayLight,
-                                child: const Icon(Icons.person, color: AppColors.textPrimary),
+                                child: const Icon(
+                                  Icons.person,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                             ),
                           ),
@@ -156,7 +157,7 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                   final imageUrl = profilePath != null
                       ? 'https://image.tmdb.org/t/p/w200$profilePath'
                       : 'https://via.placeholder.com/150x150.png?text=No+Image';
-                      
+
                   return Card(
                     color: AppColors.cardLight,
                     margin: const EdgeInsets.only(bottom: 10),
@@ -216,7 +217,7 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                 ),
                 label: const Text(
                   'Ver menos',
-                  style: TextStyle(color: AppColors.textMuted), 
+                  style: TextStyle(color: AppColors.textMuted),
                 ),
               ),
             ],
