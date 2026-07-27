@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
-import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
-import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
-import 'package:chocomil_movies_app_bv/infrastructure/datasources/tmdb_datasource.dart';
-import 'package:chocomil_movies_app_bv/infrastructure/repositories/movie_repository_impl.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart'; 
+import 'package:video_player/video_player.dart';
+import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart'; 
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart'; 
+import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart'; 
+import 'package:chocomil_movies_app_bv/infrastructure/datasources/tmdb_datasource.dart'; 
+import 'package:chocomil_movies_app_bv/infrastructure/repositories/movie_repository_impl.dart'; 
 
 import 'package:chocomil_movies_app_bv/presentation/widgets/custom_refresh_indicator_widget.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/custom_error_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/movie_detail_app_bar_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/trailer_section_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/movie_actions_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/cast_section_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/widgets/comment_widget.dart'; 
+import 'package:chocomil_movies_app_bv/presentation/widgets/custom_error_widget.dart'; 
+import 'package:chocomil_movies_app_bv/presentation/widgets/movie_detail_app_bar_widget.dart'; 
+import 'package:chocomil_movies_app_bv/presentation/widgets/trailer_section_widget.dart'; 
+import 'package:chocomil_movies_app_bv/presentation/widgets/movie_actions_widget.dart'; 
+import 'package:chocomil_movies_app_bv/presentation/widgets/cast_section_widget.dart'; 
 
 class MovieDetailScreen extends StatelessWidget {
   final Movie movie;
@@ -43,8 +44,35 @@ class _MovieDetailContent extends StatefulWidget {
 }
 
 class _MovieDetailContentState extends State<_MovieDetailContent> {
+  // Controladores para ambos tipos de video
   YoutubePlayerController? _trailerController;
+  VideoPlayerController? _cloudVideoController;
+  bool _isCloudVideoInitialized = false;
 
+  final List<int> _specialMovieIds = [969681, 1368337];
+
+  final Map<int, Map<String, dynamic>> _cloudData = {
+    969681: {
+      'videoUrl':
+          'https://odudxeahpastfjxjfvgm.supabase.co/storage/v1/object/public/peliculas/Spiderman.mp4',
+      'images': [
+        'https://odudxeahpastfjxjfvgm.supabase.co/storage/v1/object/public/peliculas/Spider-man-1.webp',
+        'https://odudxeahpastfjxjfvgm.supabase.co/storage/v1/object/public/peliculas/spider-man-2.webp',
+      ],
+    },
+    1368337: {
+      'videoUrl':
+          'https://odudxeahpastfjxjfvgm.supabase.co/storage/v1/object/public/peliculas/La_Odisea.mp4',
+      'images': [
+        'https://odudxeahpastfjxjfvgm.supabase.co/storage/v1/object/public/peliculas/La_Odisea_1.webp',
+        'https://odudxeahpastfjxjfvgm.supabase.co/storage/v1/object/public/peliculas/La_Odisea_2.webp',
+      ],
+    },
+  };
+
+  bool get _isSpecialMovie => _specialMovieIds.contains(widget.movie.id);
+
+  // Inicializa el reproductor de YouTube
   void _initYoutubeController(String videoId) {
     _trailerController ??= YoutubePlayerController.fromVideoId(
       videoId: videoId,
@@ -58,9 +86,24 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
     );
   }
 
+  // Inicializa el reproductor de la Nube (.mp4)
+  void _initCloudVideoController(String videoUrl) {
+    if (_cloudVideoController != null) return;
+    _cloudVideoController =
+        VideoPlayerController.networkUrl(Uri.parse(videoUrl))
+          ..initialize().then((_) {
+            if (mounted) {
+              setState(() {
+                _isCloudVideoInitialized = true;
+              });
+            }
+          });
+  }
+
   @override
   void dispose() {
-    _trailerController?.close();
+    _trailerController?.close(); 
+    _cloudVideoController?.dispose(); 
     super.dispose();
   }
 
@@ -68,6 +111,13 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
   Widget build(BuildContext context) {
     final detailProvider = context.watch<MovieDetailProvider>();
 
+    // 1. Si es película especial, cargamos su video corto de Supabase
+    if (_isSpecialMovie) {
+      final videoUrl = _cloudData[widget.movie.id]!['videoUrl'];
+      _initCloudVideoController(videoUrl);
+    }
+
+    // 2. Independientemente de si es especial o no, si TMDB nos da una llave de YouTube, inicializamos el tráiler
     if (detailProvider.trailerKey != null && _trailerController == null) {
       _initYoutubeController(detailProvider.trailerKey!);
     }
@@ -91,12 +141,91 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
             SliverList(
               delegate: SliverChildListDelegate([
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 20.0),
+                  padding: const EdgeInsets.fromLTRB(20.0, 24.0, 20.0, 20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_trailerController != null)
-                        TrailerSectionWidget(controller: _trailerController!),
+                      if (_isSpecialMovie) ...[
+                        const SectionTitleWidget(title: 'Vistazo Exclusivo'),
+                        const SizedBox(height: 12),
+                        if (_isCloudVideoInitialized)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: AspectRatio(
+                              aspectRatio:
+                                  _cloudVideoController!.value.aspectRatio,
+                              child: Stack(
+                                alignment: Alignment.bottomCenter,
+                                children: [
+                                  VideoPlayer(_cloudVideoController!),
+                                  VideoProgressIndicator(
+                                    _cloudVideoController!,
+                                    allowScrubbing: true,
+                                    colors: const VideoProgressColors(
+                                      playedColor: Colors.red,
+                                    ),
+                                  ),
+                                  Center(
+                                    child: IconButton(
+                                      icon: Icon(
+                                        _cloudVideoController!.value.isPlaying
+                                            ? Icons.pause_circle_filled
+                                            : Icons.play_circle_filled,
+                                        size: 60,
+                                        color: Colors.white.withOpacity(0.8),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _cloudVideoController!.value.isPlaying
+                                              ? _cloudVideoController!.pause()
+                                              : _cloudVideoController!.play();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          const Center(child: CircularProgressIndicator()),
+
+                        const SizedBox(height: 24),
+
+                        const SectionTitleWidget(title: 'Imágenes Exclusivas'),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 150,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount:
+                                _cloudData[widget.movie.id]!['images'].length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 12.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    _cloudData[widget
+                                        .movie
+                                        .id]!['images'][index],
+                                    fit: BoxFit.cover,
+                                    width: 250,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+
+                      if (_trailerController != null) ...[
+                        TrailerSectionWidget(
+                          controller: _trailerController!,
+                        ),
+                        const SizedBox(height: 24),
+                      ],
 
                       Row(
                         children: [
@@ -112,8 +241,8 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      const SectionTitleWidget(title: 'Sinopsis'),
+                      const SizedBox(height: 24),
+                      const SectionTitleWidget(title: 'Sinopsis'), 
                       const SizedBox(height: 12),
                       Text(
                         widget.movie.overview.isNotEmpty
@@ -125,9 +254,9 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           height: 1.4,
                         ),
                       ),
-                      const SizedBox(height: 25),
-                      MovieActionsWidget(movie: widget.movie),
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 24),
+                      MovieActionsWidget(movie: widget.movie), 
+                      const SizedBox(height: 24),
 
                       if (detailProvider.isLoading)
                         const Center(
@@ -149,14 +278,15 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                         )
                       else ...[
                         if (detailProvider.cast.isNotEmpty)
-                          CastSectionWidget(cast: detailProvider.cast),
-
+                          CastSectionWidget(
+                            cast: detailProvider.cast,
+                          ),
                         // Comentarios
                         if (detailProvider.reviews.isNotEmpty) ...[
                           const SectionTitleWidget(
                             title: 'Comentarios de la Comunidad',
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 12),
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -182,7 +312,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           ),
                         ] else ...[
                           const Text(
-                            'Aún no hay comentarios para esta película.', 
+                            'Aún no hay comentarios para esta película.',
                             style: TextStyle(color: Colors.white54),
                           ),
                         ],
