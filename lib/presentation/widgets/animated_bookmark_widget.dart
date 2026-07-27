@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:like_button/like_button.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 
 class AnimatedBookmarkWidget extends StatelessWidget {
   final bool isSaved;
@@ -17,35 +18,42 @@ class AnimatedBookmarkWidget extends StatelessWidget {
       size: 26,
       isLiked: isSaved,
       animationDuration: const Duration(milliseconds: 1200),
-      
-      circleColor: const CircleColor(start: Color(0xFF8D6E63), end: Color(0xFF4E342E)),
+      circleColor: const CircleColor(
+        start: AppColors.chocoAccent, 
+        end: AppColors.chocoDark
+      ),
       bubblesSize: 40,
       bubblesColor: const BubblesColor(
-        dotPrimaryColor: Color(0xFFA1887F),
-        dotSecondaryColor: Color(0xFF6D4C41),
-        dotThirdColor: Color(0xFF3E2723),
-        dotLastColor: Color(0xFFD7CCC8),
+        dotPrimaryColor: AppColors.chocoLight,
+        dotSecondaryColor: AppColors.chocoMedium,
+        dotThirdColor: AppColors.primaryDark,
+        dotLastColor: AppColors.chocoPale,
       ),
-
       likeBuilder: (bool isLiked) {
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            const Icon(Icons.bookmark_border, color: Colors.white, size: 26),
-            
+            const Icon(
+              Icons.bookmark_border, 
+              color: AppColors.textPrimary, 
+              size: 26
+            ),
             AnimatedContainer(
               duration: const Duration(milliseconds: 1200),
               curve: Curves.easeInOutCubic,
-              height: isLiked ? 26 : 0, 
+              height: isLiked ? 26 : 0,
               width: 26,
               child: ClipPath(
                 clipper: BookmarkClipper(),
-                child: Container(color: const Color(0xFF6D4C41)), 
+                child: Container(color: AppColors.chocoMedium),
               ),
             ),
-            
             if (isLiked)
-              const Icon(Icons.bookmark, color: Color(0xFF4E342E), size: 26),
+              const Icon(
+                Icons.bookmark, 
+                color: AppColors.chocoDark, 
+                size: 26
+              ),
           ],
         );
       },

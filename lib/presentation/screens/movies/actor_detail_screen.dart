@@ -54,6 +54,21 @@ class ActorDetailScreen extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
         toolbarHeight: 65,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: const BoxDecoration(
+              color: Colors.black26,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Image.asset(
           'assets/images/icon_app.png',
           height: 58,
@@ -208,15 +223,17 @@ class ActorDetailScreen extends StatelessWidget {
 
                 final rawMovies = snapshot.data!['cast'] as List<dynamic>;
                 final displayedMovies = rawMovies.take(15).toList();
-                
+
                 final List<Movie> moviesList = displayedMovies.map((movieData) {
                   final posterPath = movieData['poster_path'];
                   final backdropPath = movieData['backdrop_path'];
-                  final fullPosterPath = posterPath != null && posterPath.toString().isNotEmpty
+                  final fullPosterPath =
+                      posterPath != null && posterPath.toString().isNotEmpty
                       ? 'https://image.tmdb.org/t/p/w500$posterPath'
                       : '';
 
-                  final fullBackdropPath = backdropPath != null && backdropPath.toString().isNotEmpty
+                  final fullBackdropPath =
+                      backdropPath != null && backdropPath.toString().isNotEmpty
                       ? 'https://image.tmdb.org/t/p/w500$backdropPath'
                       : '';
 
@@ -236,7 +253,7 @@ class ActorDetailScreen extends StatelessWidget {
                     overview: movieData['overview'] ?? '',
                     popularity:
                         (movieData['popularity'] as num?)?.toDouble() ?? 0.0,
-                    posterPath: fullPosterPath, 
+                    posterPath: fullPosterPath,
                     releaseDate:
                         movieData['release_date'] != null &&
                             movieData['release_date'].toString().isNotEmpty

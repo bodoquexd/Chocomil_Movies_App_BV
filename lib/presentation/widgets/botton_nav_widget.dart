@@ -25,7 +25,6 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
 
   void onTap(int index) {
     setState(() => selected = index);
-
     switch (index) {
       case 0:
         context.go('/home');
@@ -59,7 +58,7 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
               icon,
               size: 28,
               color: isActive
-                  ? Colors.white
+                  ? AppColors.textPrimary
                   : AppColors.grayLight,
             ),
           ),
@@ -72,7 +71,7 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
   Widget build(BuildContext context) {
     return Container(
       height: 70,
-      color: Colors.black,
+      color: AppColors.backgroundBlack,
       child: Row(
         children: [
           buildItem(icon: Icons.home, index: 0),

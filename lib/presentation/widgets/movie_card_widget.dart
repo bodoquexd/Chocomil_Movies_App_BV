@@ -5,7 +5,8 @@ import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart'; // IMPORTANTE: Tu widget animado
+import 'package:chocomil_movies_app_bv/presentation/widgets/animated_bookmark_widget.dart';
+import 'package:chocomil_movies_app_bv/presentation/utils/animation_utils.dart';
 
 class MovieCardWidget extends StatelessWidget {
   final Movie movie;
@@ -16,9 +17,7 @@ class MovieCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final movieProvider = context.watch<MovieProvider>();
     final bool isFavorite = movieProvider.isFavorite(movie);
-    final bool isSaved = movieProvider.isInWatchlist(
-      movie,
-    );
+    final bool isSaved = movieProvider.isInWatchlist(movie);
 
     return SizedBox(
       width: 180,
@@ -58,42 +57,45 @@ class MovieCardWidget extends StatelessWidget {
                     child: _AnimatedHeartButton(
                       isFavorite: isFavorite,
                       onTap: () async {
-  final wasFavorite = isFavorite;
-
-  await movieProvider.toggleFavorite(movie);
-
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              wasFavorite
-                  ? Icons.favorite_border
-                  : Icons.favorite,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                wasFavorite
-                    ? '"${movie.title}" se ha quitado de Favoritos'
-                    : '"${movie.title}" se añadió a Favoritos',
-                style: const TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppColors.backgroundBlack,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-    );
-},
+                        final wasFavorite = isFavorite;
+                        await movieProvider.toggleFavorite(movie);
+                        if (!wasFavorite) {
+                          showFloatingHeart(context);
+                        }
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(
+                                    wasFavorite
+                                        ? Icons.favorite_border
+                                        : Icons.favorite,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      wasFavorite
+                                          ? '"${movie.title}" se ha quitado de Favoritos'
+                                          : '"${movie.title}" se añadió a Favoritos',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: AppColors.backgroundBlack,
+                              behavior: SnackBarBehavior.floating,
+                              duration: const Duration(seconds: 2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                      },
                     ),
                   ),
                 ],
@@ -111,7 +113,7 @@ class MovieCardWidget extends StatelessWidget {
                   children: [
                     Text(
                       movie.title,
-                      maxLines: 1, 
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextosEstilos.cuerpo.copyWith(
                         fontWeight: FontWeight.bold,
@@ -149,42 +151,44 @@ class MovieCardWidget extends StatelessWidget {
                           child: AnimatedBookmarkWidget(
                             isSaved: isSaved,
                             onTap: () async {
-  final wasSaved = isSaved;
+                              final wasSaved = isSaved;
 
-  await movieProvider.toggleWatchlist(movie);
+                              await movieProvider.toggleWatchlist(movie);
 
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              wasSaved
-                  ? Icons.bookmark_remove
-                  : Icons.bookmark_added,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                wasSaved
-                    ? '"${movie.title}" se ha quitado de Guardados'
-                    : '"${movie.title}" se añadió a Guardados',
-                style: const TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppColors.backgroundBlack,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-    );
-},
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(
+                                  SnackBar(
+                                    content: Row(
+                                      children: [
+                                        Icon(
+                                          wasSaved
+                                              ? Icons.bookmark_remove
+                                              : Icons.bookmark_added,
+                                          color: Colors.white,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            wasSaved
+                                                ? '"${movie.title}" se ha quitado de Guardados'
+                                                : '"${movie.title}" se añadió a Guardados',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    backgroundColor: AppColors.backgroundBlack,
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: const Duration(seconds: 2),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                );
+                            },
                           ),
                         ),
                       ],

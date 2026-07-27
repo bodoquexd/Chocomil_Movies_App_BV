@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
 class MovieDetailAppBarWidget extends StatelessWidget {
   final Movie movie;
@@ -24,12 +25,12 @@ class MovieDetailAppBarWidget extends StatelessWidget {
         icon: Container(
           padding: const EdgeInsets.all(6),
           decoration: const BoxDecoration(
-            color: Colors.black26,
+            color: AppColors.overlayLight,
             shape: BoxShape.circle,
           ),
           child: const Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: AppColors.textPrimary,
             size: 20,
           ),
         ),
@@ -49,11 +50,10 @@ class MovieDetailAppBarWidget extends StatelessWidget {
                 child: Icon(
                   Icons.broken_image,
                   size: 50,
-                  color: Colors.white54,
+                  color: AppColors.textDisabled,
                 ),
               ),
             ),
-
             // Gradiente oscuro
             DecoratedBox(
               decoration: BoxDecoration(
@@ -62,14 +62,13 @@ class MovieDetailAppBarWidget extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.3),
+                    AppColors.overlayDark,
                     AppColors.primaryDark,
                   ],
                   stops: const [0.0, 0.6, 1.0],
                 ),
               ),
             ),
-
             // Logo o Título de la película
             if (!isLoading) ...[
               if (movieLogoPath != null)
@@ -94,13 +93,7 @@ class MovieDetailAppBarWidget extends StatelessWidget {
                   right: 20,
                   child: Text(
                     movie.title.toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: -1.0,
-                      height: 1.1,
-                    ),
+                    style: TextosEstilos.tituloHero,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),

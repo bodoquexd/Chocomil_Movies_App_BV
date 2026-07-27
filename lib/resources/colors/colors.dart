@@ -35,4 +35,29 @@ class AppColors {
   static const Color background = Color(0xFFF3F3F3);
   static const Color cardBackground = primaryDark;
   static const Color backgroundBlack = Colors.black;
+
+  // Estados y Acciones
+
+  static const Color favorite = Colors.red; 
+  static const Color error = Colors.redAccent;
+  
+  // Opacidades y Superposiciones (Útiles para el Cast y AppBars)
+
+  static const Color overlayDark = Colors.black54; 
+  static const Color overlayLight = Colors.black26;
+  static const Color cardLight = Colors.white10; 
+  
+  // Textos tenues
+
+  static const Color textMuted = Colors.white70; 
+  static const Color textDisabled = Colors.white54;
+  
+  // Tonos Chocolate 
+
+  static const Color chocoLight = Color(0xFFA1887F);
+  static const Color chocoMedium = Color(0xFF6D4C41);
+  static const Color chocoDark = Color(0xFF4E342E);
+  static const Color chocoAccent = Color(0xFF8D6E63);
+  static const Color chocoPale = Color(0xFFD7CCC8);
+
 }

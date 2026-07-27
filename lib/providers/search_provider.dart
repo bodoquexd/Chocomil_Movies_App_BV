@@ -1,72 +1,76 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/domain/repositories/movie_repositories.dart';
 
 class SearchProvider extends ChangeNotifier {
-  // Necesitamos el repositorio para hacer la búsqueda real
   final MovieRepositories movieRepository;
   List<Movie> popularMovies = [];
-
- Future<void> loadPopularMovies() async {
-  try {
-    popularMovies = await movieRepository.getTrending();
-    notifyListeners();
-  } catch (e) {
-    popularMovies = [];
-  }
-}
 
   String _query = '';
   List<Movie> _searchResults = [];
   bool _isLoading = false;
+  Timer? _debouncer;
 
- SearchProvider({required this.movieRepository}) {
-  loadPopularMovies();
-}
+  SearchProvider({required this.movieRepository}) {
+    loadPopularMovies();
+  }
 
-  // Getters
+  Future<void> loadPopularMovies() async {
+    try {
+      popularMovies = await movieRepository.getTrending();
+      notifyListeners();
+    } catch (e) {
+      popularMovies = [];
+    }
+  }
+
   String get query => _query;
   List<Movie> get searchResults => _searchResults;
   bool get isLoading => _isLoading;
 
-  /// Actualiza el query y dispara la búsqueda en la API
-  void updateQuery(String value) async {
+  void updateQuery(String value) {
     _query = value;
-    
-    // Si el usuario borra todo, limpiamos los resultados inmediatamente
-   if (value.trim().isEmpty) {
-  _query = '';
-  _searchResults = [];
-  _isLoading = false;
-  notifyListeners();
-  return;
-}
+    if (value.trim().isEmpty) {
+      _debouncer?.cancel();
+      _query = '';
+      _searchResults = [];
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
 
     _isLoading = true;
     notifyListeners();
 
-    try {
-      // Llamamos al repositorio que a su vez llama al TmdbDatasource
-      final movies = await movieRepository.searchMovies(value);
-      
-      // Validamos que los resultados correspondan al último query escrito
-      // (Previene problemas si una petición lenta llega después de una rápida)
-      if (_query == value) {
-        _searchResults = movies;
+    if (_debouncer?.isActive ?? false) _debouncer!.cancel();
+    _debouncer = Timer(const Duration(milliseconds: 500), () async {
+      try {
+        final movies = await movieRepository.searchMovies(value);
+        
+        if (_query == value) {
+          _searchResults = movies;
+          _isLoading = false;
+          notifyListeners();
+        }
+      } catch (e) {
         _isLoading = false;
         notifyListeners();
       }
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  /// Método auxiliar para limpiar la búsqueda por completo
   void clearSearch() {
+    _debouncer?.cancel();
     _query = '';
     _searchResults = [];
     _isLoading = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _debouncer?.cancel(); 
+    super.dispose();
   }
 }

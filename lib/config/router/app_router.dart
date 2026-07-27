@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/screens.dart';
-import 'package:chocomil_movies_app_bv/presentation/screens/splash/splash_screen.dart';
-import 'package:chocomil_movies_app_bv/presentation/screens/movies/watchlist_screen.dart';
-import 'package:chocomil_movies_app_bv/presentation/screens/movies/profile_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/layouts/main_layout.dart';
 
 final appRouter = GoRouter(

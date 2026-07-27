@@ -87,6 +87,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
   }
 
   // Inicializa el reproductor de la Nube (.mp4)
+  // Inicializa el reproductor de la Nube (.mp4)
   void _initCloudVideoController(String videoUrl) {
     if (_cloudVideoController != null) return;
     _cloudVideoController =
@@ -95,6 +96,14 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
             if (mounted) {
               setState(() {
                 _isCloudVideoInitialized = true;
+              });
+              Future.delayed(const Duration(seconds: 2), () {
+                if (mounted && _cloudVideoController != null) {
+                  setState(() {
+                    _cloudVideoController!.setVolume(0.0); 
+                    _cloudVideoController!.play();
+                  });
+                }
               });
             }
           });
@@ -132,68 +141,108 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
         },
         child: CustomScrollView(
           slivers: [
-            MovieDetailAppBarWidget(
-              movie: widget.movie,
-              isLoading: detailProvider.isLoading,
-              movieLogoPath: detailProvider.movieLogoPath,
-            ),
-
-            SliverList(
-              delegate: SliverChildListDelegate([
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20.0, 24.0, 20.0, 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            if (_isSpecialMovie && _isCloudVideoInitialized)
+              SliverAppBar(
+                backgroundColor: AppColors.primaryDark,
+                expandedHeight: 480,
+                pinned: true,
+                leading: IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Colors.black26,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
                     children: [
-                      if (_isSpecialMovie) ...[
-                        const SectionTitleWidget(title: 'Vistazo Exclusivo'),
-                        const SizedBox(height: 12),
-                        if (_isCloudVideoInitialized)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: AspectRatio(
-                              aspectRatio:
-                                  _cloudVideoController!.value.aspectRatio,
-                              child: Stack(
-                                alignment: Alignment.bottomCenter,
-                                children: [
-                                  VideoPlayer(_cloudVideoController!),
-                                  VideoProgressIndicator(
-                                    _cloudVideoController!,
-                                    allowScrubbing: true,
-                                    colors: const VideoProgressColors(
-                                      playedColor: Colors.red,
-                                    ),
-                                  ),
-                                  Center(
-                                    child: IconButton(
-                                      icon: Icon(
-                                        _cloudVideoController!.value.isPlaying
-                                            ? Icons.pause_circle_filled
-                                            : Icons.play_circle_filled,
-                                        size: 60,
-                                        color: Colors.white.withOpacity(0.8),
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _cloudVideoController!.value.isPlaying
-                                              ? _cloudVideoController!.pause()
-                                              : _cloudVideoController!.play();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ],
+                      // 1. El video de fondo
+                      FittedBox(
+                        fit: BoxFit.cover,
+                        child: SizedBox(
+                          width: _cloudVideoController!.value.size.width,
+                          height: _cloudVideoController!.value.size.height,
+                          child: VideoPlayer(_cloudVideoController!),
+                        ),
+                      ),
+                      // 2. Gradiente oscuro para que el texto resalte
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.3),
+                              AppColors.primaryDark,
+                            ],
+                            stops: const [0.0, 0.6, 1.0],
+                          ),
+                        ),
+                      ),
+                      // 3. NUEVO: Logo o Título de la película
+                      if (!detailProvider.isLoading) ...[
+                        if (detailProvider.movieLogoPath != null)
+                          Positioned(
+                            bottom: 25,
+                            left: 20,
+                            child: SizedBox(
+                              width: 260,
+                              height: 120,
+                              child: Image.network(
+                                detailProvider.movieLogoPath!,
+                                fit: BoxFit.contain,
+                                alignment: Alignment.bottomLeft,
+                                errorBuilder: (_, _, _) => const SizedBox(),
                               ),
                             ),
                           )
                         else
-                          const Center(child: CircularProgressIndicator()),
+                          Positioned(
+                            bottom: 25,
+                            left: 20,
+                            right: 20,
+                            child: Text(
+                              widget.movie.title.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: -1.0,
+                                height: 1.1,
+                              ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
+                    ],
+                  ),
+                ),
+              )
+            else
+              MovieDetailAppBarWidget(
+                movie: widget.movie,
+                isLoading: detailProvider.isLoading,
+                movieLogoPath: detailProvider.movieLogoPath,
+              ),
 
-                        const SizedBox(height: 24),
-
+            SliverList(
+              delegate: SliverChildListDelegate([
+                Padding(
+                  // Unificamos el padding para que no se sienta apretado
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0), 
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_isSpecialMovie) ...[
                         const SectionTitleWidget(title: 'Imágenes Exclusivas'),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 4), 
                         SizedBox(
                           height: 150,
                           child: ListView.builder(
@@ -206,9 +255,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
                                   child: Image.network(
-                                    _cloudData[widget
-                                        .movie
-                                        .id]!['images'][index],
+                                    _cloudData[widget.movie.id]!['images'][index],
                                     fit: BoxFit.cover,
                                     width: 250,
                                   ),
@@ -217,14 +264,14 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                             },
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 5), 
                       ],
 
                       if (_trailerController != null) ...[
                         TrailerSectionWidget(
                           controller: _trailerController!,
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 5), 
                       ],
 
                       Row(
@@ -241,9 +288,12 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      
+                      const SizedBox(height: 5), 
+                      
                       const SectionTitleWidget(title: 'Sinopsis'), 
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 4), 
+                      
                       Text(
                         widget.movie.overview.isNotEmpty
                             ? widget.movie.overview
@@ -254,9 +304,12 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           height: 1.4,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      
+                      const SizedBox(height: 5), 
+                      
                       MovieActionsWidget(movie: widget.movie), 
-                      const SizedBox(height: 24),
+                      
+                      const SizedBox(height: 5), 
 
                       if (detailProvider.isLoading)
                         const Center(
@@ -277,16 +330,16 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                           },
                         )
                       else ...[
-                        if (detailProvider.cast.isNotEmpty)
-                          CastSectionWidget(
-                            cast: detailProvider.cast,
-                          ),
+                        if (detailProvider.cast.isNotEmpty) ...[
+                            CastSectionWidget(cast: detailProvider.cast),
+                            const SizedBox(height: 5), 
+                        ],
                         // Comentarios
                         if (detailProvider.reviews.isNotEmpty) ...[
                           const SectionTitleWidget(
                             title: 'Comentarios de la Comunidad',
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 4), 
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -298,15 +351,12 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                               final rating =
                                   review['author_details']?['rating'];
 
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12.0),
-                                child: CommentWidget(
-                                  userName: author,
-                                  rating: rating != null
-                                      ? (rating as num).toDouble()
-                                      : 0.0,
-                                  comment: content,
-                                ),
+                              return CommentWidget(
+                                userName: author,
+                                rating: rating != null
+                                    ? (rating as num).toDouble()
+                                    : 0.0,
+                                comment: content,
                               );
                             },
                           ),

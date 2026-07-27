@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 
 class AnimatedFavoriteWidget extends StatefulWidget {
   final bool isFavorite;
@@ -27,7 +28,6 @@ class _AnimatedFavoriteWidgetState extends State<AnimatedFavoriteWidget>
       vsync: this,
     );
 
-    // Definimos una animación que agranda el corazón y lo regresa a su tamaño original
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(begin: 1.0, end: 1.4).chain(CurveTween(curve: Curves.easeOut)),
@@ -47,9 +47,7 @@ class _AnimatedFavoriteWidgetState extends State<AnimatedFavoriteWidget>
   }
 
   void _handleTap() {
-    // Dispara la animación desde el inicio
     _controller.forward(from: 0.0);
-    // Ejecuta la lógica del Provider pasados unos milisegundos para que se aprecie el efecto completo
     widget.onPressed();
   }
 
@@ -58,12 +56,12 @@ class _AnimatedFavoriteWidgetState extends State<AnimatedFavoriteWidget>
     return ScaleTransition(
       scale: _scaleAnimation,
       child: IconButton(
-        padding: EdgeInsets.zero, 
-        constraints: const BoxConstraints(), 
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
         icon: Icon(
           widget.isFavorite ? Icons.favorite : Icons.favorite_border,
-          color: widget.isFavorite ? Colors.red : Colors.white70,
-          size: 26, 
+          color: widget.isFavorite ? AppColors.favorite : AppColors.textMuted,
+          size: 26,
         ),
         onPressed: _handleTap,
       ),

@@ -16,7 +16,7 @@ class TrailerSectionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SectionTitleWidget(title: 'Tráiler Oficial'),
-        const SizedBox(height: 12),
+        const SizedBox(height: 4),
         ClipRRect(
           borderRadius: BorderRadius.circular(15),
           child: YoutubePlayer(

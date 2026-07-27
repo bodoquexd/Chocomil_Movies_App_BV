@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
 class CustomErrorWidget extends StatelessWidget {
   final String imagePath; 
@@ -10,7 +11,7 @@ class CustomErrorWidget extends StatelessWidget {
 
   const CustomErrorWidget({
     super.key,
-    required this.imagePath, // <-- Actualizamos el constructor
+    required this.imagePath,
     required this.title,
     required this.message,
     required this.buttonText,
@@ -25,28 +26,22 @@ class CustomErrorWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Aquí usamos Image.asset en lugar de Icon
             Image.asset(
               imagePath,
-              height: 150, // Puedes ajustar el tamaño según tus imágenes
+              height: 150, 
               fit: BoxFit.contain,
             ),
             const SizedBox(height: 24),
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextosEstilos.tituloMediano,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             Text(
               message,
-              style: const TextStyle(
+              style: TextosEstilos.cuerpo.copyWith(
                 color: AppColors.textHint,
-                fontSize: 16,
               ),
               textAlign: TextAlign.center,
             ),
@@ -62,9 +57,8 @@ class CustomErrorWidget extends StatelessWidget {
               onPressed: onRetry,
               child: Text(
                 buttonText,
-                style: const TextStyle(
+                style: TextosEstilos.boton.copyWith(
                   color: AppColors.primaryDark,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

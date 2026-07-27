@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:chocomil_movies_app_bv/providers/movie_detail_provider.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/screens/movies/actor_detail_screen.dart'; 
+import 'package:chocomil_movies_app_bv/presentation/screens/movies/actor_detail_screen.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
+import 'package:chocomil_movies_app_bv/resources/styles/styles.dart';
 
 class CastSectionWidget extends StatefulWidget {
   final List<dynamic> cast;
-
   const CastSectionWidget({super.key, required this.cast});
 
   @override
@@ -18,7 +19,6 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
 
   void _showActorDetails(BuildContext context, dynamic actor) {
     final movieDetailProvider = context.read<MovieDetailProvider>();
-
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -43,8 +43,8 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SectionTitleWidget(title: 'Reparto Principal'),
-        const SizedBox(height: 12),
-
+        const SizedBox(height: 4),
+        
         // Vista contraída (Horizontal)
         if (!_isCastExpanded)
           SizedBox(
@@ -69,41 +69,37 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                             height: 85,
                             width: 85,
                             decoration: BoxDecoration(
-                              color: Colors.white10,
+                              color: AppColors.cardLight,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Center(
                               child: Icon(
                                 Icons.arrow_forward_ios,
-                                color: Colors.white70,
+                                color: AppColors.textMuted,
                                 size: 28,
                               ),
                             ),
                           ),
                           const SizedBox(height: 6),
-                          const Text(
+                          Text(
                             'Ver más',
                             maxLines: 2,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: TextosEstilos.etiqueta,
                           ),
                         ],
                       ),
                     ),
                   );
                 }
-
+                
                 final actor = widget.cast[index];
                 final actorId = actor['id'];
                 final profilePath = actor['profile_path'];
                 final imageUrl = profilePath != null
                     ? 'https://image.tmdb.org/t/p/w200$profilePath'
                     : 'https://via.placeholder.com/150x150.png?text=No+Image';
-
+                    
                 return GestureDetector(
                   onTap: () => _showActorDetails(context, actor),
                   child: Container(
@@ -112,7 +108,6 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                     color: Colors.transparent,
                     child: Column(
                       children: [
-                        // Aplicamos Hero widget en la vista horizontal
                         Hero(
                           tag: 'actor-profile-$actorId',
                           child: ClipRRect(
@@ -125,8 +120,8 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                               errorBuilder: (_, _, _) => Container(
                                 height: 85,
                                 width: 85,
-                                color: Colors.grey,
-                                child: const Icon(Icons.person),
+                                color: AppColors.grayLight,
+                                child: const Icon(Icons.person, color: AppColors.textPrimary),
                               ),
                             ),
                           ),
@@ -137,11 +132,7 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: TextosEstilos.etiqueta,
                         ),
                       ],
                     ),
@@ -165,9 +156,9 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                   final imageUrl = profilePath != null
                       ? 'https://image.tmdb.org/t/p/w200$profilePath'
                       : 'https://via.placeholder.com/150x150.png?text=No+Image';
-
+                      
                   return Card(
-                    color: Colors.white10,
+                    color: AppColors.cardLight,
                     margin: const EdgeInsets.only(bottom: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -178,7 +169,6 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                         horizontal: 12,
                         vertical: 8,
                       ),
-                      // Aplicamos Hero widget en la vista vertical
                       leading: Hero(
                         tag: 'actor-profile-$actorId',
                         child: ClipRRect(
@@ -191,10 +181,10 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                             errorBuilder: (_, _, _) => Container(
                               height: 55,
                               width: 55,
-                              color: Colors.grey,
+                              color: AppColors.grayLight,
                               child: const Icon(
                                 Icons.person,
-                                color: Colors.white,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ),
@@ -202,18 +192,13 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                       ),
                       title: Text(
                         actor['name'] ?? 'Desconocido',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextosEstilos.cuerpo.copyWith(
                           fontWeight: FontWeight.bold,
-                          fontSize: 15,
                         ),
                       ),
                       subtitle: Text(
                         actor['character'] ?? '',
-                        style: const TextStyle(
-                          color: Colors.white54,
-                          fontSize: 13,
-                        ),
+                        style: TextosEstilos.etiquetaSecundaria,
                       ),
                     ),
                   );
@@ -227,11 +212,11 @@ class _CastSectionWidgetState extends State<CastSectionWidget> {
                 },
                 icon: const Icon(
                   Icons.keyboard_arrow_up,
-                  color: Colors.white70,
+                  color: AppColors.textMuted,
                 ),
                 label: const Text(
                   'Ver menos',
-                  style: TextStyle(color: Colors.white70),
+                  style: TextStyle(color: AppColors.textMuted), 
                 ),
               ),
             ],
