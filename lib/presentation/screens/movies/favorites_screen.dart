@@ -7,7 +7,7 @@ import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_
 import 'package:chocomil_movies_app_bv/presentation/widgets/animated_favorite_widget.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/pdf_generator_service.dart'; // Importa el servicio PDF
+import 'package:chocomil_movies_app_bv/infrastructure/services/pdf_generator_service.dart'; 
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});

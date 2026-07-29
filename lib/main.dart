@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<MovieRepositories>(
+        Provider<MovieRepositories>( 
           create: (_) => MovieRepositoryImpl(TmdbDatasource()),
         ),
 

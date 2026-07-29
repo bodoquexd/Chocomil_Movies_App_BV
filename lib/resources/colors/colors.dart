@@ -59,4 +59,9 @@ class AppColors {
   static const Color chocoDark = Color(0xFF4E342E);
   static const Color chocoAccent = Color(0xFF8D6E63);
   static const Color chocoPale = Color(0xFFD7CCC8);
+
+  //colores PDF
+  
+  static const int chocoDarkHex = 0xFF2F2725;
+  static const int chocoAccentHex = 0xFFD9822B;
 }

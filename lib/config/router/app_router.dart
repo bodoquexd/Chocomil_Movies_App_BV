@@ -19,7 +19,7 @@ final appRouter = GoRouter(
       ),
     ),
 
-    // Login
+    //
     GoRoute(
       path: '/login',
       name: LoginScreen.name,

@@ -5,7 +5,7 @@ import 'package:chocomil_movies_app_bv/providers/movie_provider.dart';
 import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 import 'package:chocomil_movies_app_bv/presentation/screens/movies/movie_detail_screen.dart';
 import 'package:chocomil_movies_app_bv/presentation/widgets/section_title_widget.dart';
-import 'package:chocomil_movies_app_bv/presentation/widgets/pdf_generator_service.dart';
+import 'package:chocomil_movies_app_bv/infrastructure/services/pdf_generator_service.dart';
 
 class WatchlistScreen extends StatelessWidget {
   const WatchlistScreen({super.key});

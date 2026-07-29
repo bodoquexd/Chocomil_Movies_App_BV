@@ -118,6 +118,10 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
   @override
   Widget build(BuildContext context) {
     final detailProvider = context.watch<MovieDetailProvider>();
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final double dynamicHeight = screenHeight < 550
+        ? screenHeight * 0.75
+        : 480.0;
 
     // 1. Si es película especial, cargamos su video corto de Supabase
     if (_isSpecialMovie) {
@@ -143,7 +147,7 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
             if (_isSpecialMovie && _isCloudVideoInitialized)
               SliverAppBar(
                 backgroundColor: AppColors.primaryDark,
-                expandedHeight: 480,
+                expandedHeight: dynamicHeight,
                 pinned: true,
                 leading: IconButton(
                   icon: Container(
@@ -336,25 +340,22 @@ class _MovieDetailContentState extends State<_MovieDetailContent> {
                             title: 'Comentarios de la Comunidad',
                           ),
                           const SizedBox(height: 4),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: detailProvider.reviews.length,
-                            itemBuilder: (context, index) {
-                              final review = detailProvider.reviews[index];
-                              final author = review['author'] ?? 'Anónimo';
-                              final content = review['content'] ?? '';
-                              final rating =
-                                  review['author_details']?['rating'];
+                          Column(
+                            children: List.generate(
+                              detailProvider.reviews.length,
+                              (index) {
+                                final review = detailProvider.reviews[index];
 
-                              return CommentWidget(
-                                userName: author,
-                                rating: rating != null
-                                    ? (rating as num).toDouble()
-                                    : 0.0,
-                                comment: content,
-                              );
-                            },
+                                return CommentWidget(
+                                  userName: review['author'] ?? 'Anónimo',
+                                  rating:
+                                      review['author_details']?['rating']
+                                          ?.toDouble() ??
+                                      0,
+                                  comment: review['content'] ?? '',
+                                );
+                              },
+                            ),
                           ),
                         ] else ...[
                           const Text(

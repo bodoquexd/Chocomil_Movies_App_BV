@@ -17,9 +17,11 @@ class MovieDetailAppBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final double dynamicHeight = screenHeight < 550 ? screenHeight * 0.75 : 480.0;
     return SliverAppBar(
       backgroundColor: AppColors.primaryDark,
-      expandedHeight: 480,
+      expandedHeight: dynamicHeight, 
       pinned: true,
       leading: IconButton(
         icon: Container(

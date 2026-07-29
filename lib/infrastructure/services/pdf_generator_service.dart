@@ -1,14 +1,23 @@
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/material.dart'; 
 import 'package:http/http.dart' as http;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:chocomil_movies_app_bv/domain/entities/movie_entities.dart';
+import 'package:chocomil_movies_app_bv/resources/colors/colors.dart';
 
 class PdfGeneratorService {
-  /// Método principal genérico (Sirve para Favoritos, Guardados o cualquier lista)
+  static PdfColor _toPdfColor(Color color) {
+    final argb = color.toARGB32(); 
+    final r = (argb >> 16) & 0xff;
+    final g = (argb >> 8) & 0xff;
+    final b = (argb >> 0) & 0xff;
+    return PdfColor.fromInt((r << 16) | (g << 8) | b);
+  }
+
   static Future<void> generateAndShareMoviesPdf({
     required List<Movie> movies,
     String title = 'Mis Películas Guardadas',
@@ -16,11 +25,14 @@ class PdfGeneratorService {
   }) async {
     final pdf = pw.Document();
 
-    // 1. Fuentes estándar integradas
     final font = pw.Font.helvetica();
     final fontBold = pw.Font.helveticaBold();
-
-    // 2. Cargamos el logo de la App desde los Assets
+    final pdfBgColor = _toPdfColor(AppColors.primaryDark); 
+    final pdfCardColor = _toPdfColor(AppColors.backgroundBlack); 
+    final pdfAccentColor = _toPdfColor(AppColors.primaryLight); 
+    final pdfTextColor = PdfColors.white; 
+    final pdfTextMuted = PdfColors.grey400; 
+    
     Uint8List? logoBytes;
     try {
       final logoData = await rootBundle.load('assets/images/icon_app.png');
@@ -28,8 +40,6 @@ class PdfGeneratorService {
     } catch (_) {
       logoBytes = null;
     }
-
-    // 3. Descarga PARALELA de pósters
     final Map<int, Uint8List?> posters = {};
 
     final downloadFutures = movies.map((movie) async {
@@ -59,24 +69,21 @@ class PdfGeneratorService {
     });
 
     await Future.wait(downloadFutures);
-
-    // 4. Construcción del PDF
+    
     pdf.addPage(
       pw.MultiPage(
-        // NUEVO: Aplicamos un tema a la página para pintar todo el fondo oscuro
         pageTheme: pw.PageTheme(
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(24),
           buildBackground: (pw.Context context) {
             return pw.FullPage(
               ignoreMargins: true,
-              child: pw.Container(color: PdfColor.fromHex('#121212')), // Fondo oscuro de la hoja
+              child: pw.Container(color: pdfBgColor), 
             );
           },
         ),
         build: (pw.Context context) {
           return [
-            // ---------- ENCABEZADO CON LOGO DE LA APP ----------
             pw.Container(
               width: double.infinity,
               padding: const pw.EdgeInsets.symmetric(
@@ -85,7 +92,8 @@ class PdfGeneratorService {
               ),
               margin: const pw.EdgeInsets.only(bottom: 20),
               decoration: pw.BoxDecoration(
-                color: PdfColor.fromHex('#1E1E1E'),
+                // 4. PASAMOS EL COLOR DIRECTAMENTE
+                color: _toPdfColor(AppColors.primary),
                 borderRadius: pw.BorderRadius.circular(10),
               ),
               child: pw.Row(
@@ -111,7 +119,7 @@ class PdfGeneratorService {
                         style: pw.TextStyle(
                           font: fontBold,
                           fontSize: 18,
-                          color: PdfColors.white,
+                          color: pdfTextColor,
                         ),
                       ),
                       pw.SizedBox(height: 4),
@@ -120,7 +128,7 @@ class PdfGeneratorService {
                         style: pw.TextStyle(
                           font: font,
                           fontSize: 10,
-                          color: PdfColors.grey400,
+                          color: PdfColors.white,
                         ),
                       ),
                     ],
@@ -129,7 +137,6 @@ class PdfGeneratorService {
               ),
             ),
 
-            // ---------- LISTA DE PELÍCULAS ----------
             ...movies.map((movie) {
               final posterBytes = posters[movie.id];
 
@@ -137,7 +144,7 @@ class PdfGeneratorService {
                 margin: const pw.EdgeInsets.only(bottom: 12),
                 padding: const pw.EdgeInsets.all(10),
                 decoration: pw.BoxDecoration(
-                  color: PdfColor.fromHex('#262626'),
+                  color: pdfCardColor,
                   borderRadius: pw.BorderRadius.circular(8),
                 ),
                 child: pw.Row(
@@ -149,7 +156,7 @@ class PdfGeneratorService {
                       child: pw.Container(
                         width: 45,
                         height: 65,
-                        color: PdfColor.fromHex('#333333'),
+                        color: _toPdfColor(AppColors.grayLight),
                         child: posterBytes != null && posterBytes.isNotEmpty
                             ? pw.Image(
                                 pw.MemoryImage(posterBytes),
@@ -160,7 +167,7 @@ class PdfGeneratorService {
                                   '?',
                                   style: pw.TextStyle(
                                     font: fontBold,
-                                    color: PdfColors.grey500,
+                                    color: pdfTextMuted,
                                     fontSize: 18,
                                   ),
                                 ),
@@ -176,7 +183,7 @@ class PdfGeneratorService {
                             movie.title,
                             style: pw.TextStyle(
                               font: fontBold,
-                              color: PdfColors.white,
+                              color: pdfTextColor,
                               fontSize: 12,
                             ),
                           ),
@@ -184,13 +191,13 @@ class PdfGeneratorService {
                           pw.Row(
                             crossAxisAlignment: pw.CrossAxisAlignment.center,
                             children: [
-                              _buildStarSvg(size: 12),
+                              _buildStarSvg(size: 12, hexColor: '#D9822B'),
                               pw.SizedBox(width: 5),
                               pw.Text(
                                 movie.voteAverage.toStringAsFixed(1),
                                 style: pw.TextStyle(
                                   font: fontBold,
-                                  color: PdfColors.amber,
+                                  color: pdfAccentColor,
                                   fontSize: 11,
                                 ),
                               ),
@@ -208,7 +215,6 @@ class PdfGeneratorService {
       ),
     );
 
-    // 5. Salida adaptable
     if (kIsWeb) {
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdf.save(),
@@ -230,9 +236,9 @@ class PdfGeneratorService {
     );
   }
 
-  static pw.Widget _buildStarSvg({required double size}) {
-    const starSvgString = '''
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFC107">
+  static pw.Widget _buildStarSvg({required double size, required String hexColor}) {
+    final starSvgString = '''
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="$hexColor">
       <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
     </svg>
     ''';
